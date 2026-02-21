@@ -6,6 +6,7 @@ import { requireAdmin } from "@/lib/auth";
 import { eq, and, or, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { sendRestockAlert } from "@/lib/email";
+import { adjustTrustScore } from "@/lib/trust";
 
 export async function verifySighting(id: string) {
   await requireAdmin();
@@ -14,9 +15,10 @@ export async function verifySighting(id: string) {
     .set({ verified: true })
     .where(eq(restockSightings.id, id));
 
-  // Get the sighting details and notify subscribers
+  // Get the sighting details, award trust points, and notify subscribers
   const [sighting] = await db
     .select({
+      reportedBy: restockSightings.reportedBy,
       productId: restockSightings.productId,
       productName: products.name,
       storeName: stores.name,
@@ -30,6 +32,9 @@ export async function verifySighting(id: string) {
     .limit(1);
 
   if (sighting) {
+    // Award trust points to the reporter
+    await adjustTrustScore(sighting.reportedBy, 5);
+
     const matchingAlerts = await db
       .select({
         email: usersTable.email,
