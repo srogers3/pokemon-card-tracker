@@ -1,8 +1,10 @@
+export const dynamic = "force-dynamic";
+
 import { auth } from "@clerk/nextjs/server";
 import { db } from "@/db";
 import { users } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { stripe } from "@/lib/stripe";
+import { getStripe } from "@/lib/stripe";
 import { NextResponse } from "next/server";
 
 export async function POST() {
@@ -23,6 +25,8 @@ export async function POST() {
       { status: 404 }
     );
   }
+
+  const stripe = getStripe();
 
   const session = await stripe.billingPortal.sessions.create({
     customer: user.stripeCustomerId,

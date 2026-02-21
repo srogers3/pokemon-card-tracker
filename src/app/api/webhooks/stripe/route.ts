@@ -1,4 +1,6 @@
-import { stripe } from "@/lib/stripe";
+export const dynamic = "force-dynamic";
+
+import { getStripe } from "@/lib/stripe";
 import { db } from "@/db";
 import { users } from "@/db/schema";
 import { eq } from "drizzle-orm";
@@ -8,6 +10,8 @@ import Stripe from "stripe";
 export async function POST(req: Request) {
   const body = await req.text();
   const signature = req.headers.get("stripe-signature")!;
+
+  const stripe = getStripe();
 
   let event: Stripe.Event;
   try {
