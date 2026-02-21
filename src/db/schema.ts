@@ -42,6 +42,16 @@ export const subscriptionTierEnum = pgEnum("subscription_tier", [
   "premium",
 ]);
 
+export const badgeTypeEnum = pgEnum("badge_type", [
+  "first_report",
+  "verified_10",
+  "verified_50",
+  "trusted_reporter",
+  "top_reporter",
+  "streak_7",
+  "streak_30",
+]);
+
 // Tables
 export const stores = pgTable("stores", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -76,6 +86,7 @@ export const restockSightings = pgTable("restock_sightings", {
   source: sightingSourceEnum("source").notNull(),
   notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  corroboratedBy: uuid("corroborated_by"),
 });
 
 export const users = pgTable("users", {
@@ -87,6 +98,11 @@ export const users = pgTable("users", {
   stripeCustomerId: text("stripe_customer_id"),
   stripeSubscriptionId: text("stripe_subscription_id"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  trustScore: integer("trust_score").default(0).notNull(),
+  totalReports: integer("total_reports").default(0).notNull(),
+  verifiedReports: integer("verified_reports").default(0).notNull(),
+  currentStreak: integer("current_streak").default(0).notNull(),
+  lastReportDate: timestamp("last_report_date"),
 });
 
 export const restockPatterns = pgTable("restock_patterns", {
@@ -111,6 +127,15 @@ export const alertPreferences = pgTable("alert_preferences", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const reporterBadges = pgTable("reporter_badges", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id),
+  badgeType: badgeTypeEnum("badge_type").notNull(),
+  earnedAt: timestamp("earned_at").defaultNow().notNull(),
+});
+
 // Type exports
 export type Store = typeof stores.$inferSelect;
 export type NewStore = typeof stores.$inferInsert;
@@ -123,3 +148,4 @@ export type NewUser = typeof users.$inferInsert;
 export type RestockPattern = typeof restockPatterns.$inferSelect;
 export type AlertPreference = typeof alertPreferences.$inferSelect;
 export type NewAlertPreference = typeof alertPreferences.$inferInsert;
+export type ReporterBadge = typeof reporterBadges.$inferSelect;
