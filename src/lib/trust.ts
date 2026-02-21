@@ -1,0 +1,184 @@
+import { db } from "@/db";
+import { users, restockSightings, reporterBadges } from "@/db/schema";
+import { eq, and, gte, lte, ne, sql } from "drizzle-orm";
+
+const CORROBORATION_WINDOW_HOURS = 4;
+const TRUST_THRESHOLD_AUTO_VERIFY = 50;
+const POINTS_CORROBORATED = 10;
+const POINTS_ADMIN_VERIFIED = 5;
+const POINTS_FLAGGED = -15;
+const MAX_REPORTS_PER_DAY = 10;
+
+export function shouldAutoVerify(trustScore: number): boolean {
+  return trustScore >= TRUST_THRESHOLD_AUTO_VERIFY;
+}
+
+export async function canSubmitReport(userId: string): Promise<boolean> {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const [result] = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(restockSightings)
+    .where(
+      and(
+        eq(restockSightings.reportedBy, userId),
+        gte(restockSightings.createdAt, today)
+      )
+    );
+
+  return (result?.count ?? 0) < MAX_REPORTS_PER_DAY;
+}
+
+export async function checkCorroboration(
+  sightingId: string,
+  storeId: string,
+  productId: string,
+  sightedAt: Date
+): Promise<string | null> {
+  const windowStart = new Date(
+    sightedAt.getTime() - CORROBORATION_WINDOW_HOURS * 60 * 60 * 1000
+  );
+  const windowEnd = new Date(
+    sightedAt.getTime() + CORROBORATION_WINDOW_HOURS * 60 * 60 * 1000
+  );
+
+  const [match] = await db
+    .select({
+      id: restockSightings.id,
+      reportedBy: restockSightings.reportedBy,
+    })
+    .from(restockSightings)
+    .where(
+      and(
+        eq(restockSightings.storeId, storeId),
+        eq(restockSightings.productId, productId),
+        eq(restockSightings.verified, false),
+        ne(restockSightings.id, sightingId),
+        gte(restockSightings.sightedAt, windowStart),
+        lte(restockSightings.sightedAt, windowEnd)
+      )
+    )
+    .limit(1);
+
+  if (!match) return null;
+
+  // Corroboration found — verify both sightings
+  await db
+    .update(restockSightings)
+    .set({ verified: true, corroboratedBy: sightingId })
+    .where(eq(restockSightings.id, match.id));
+  await db
+    .update(restockSightings)
+    .set({ verified: true, corroboratedBy: match.id })
+    .where(eq(restockSightings.id, sightingId));
+
+  // Award points to the other reporter
+  await adjustTrustScore(match.reportedBy, POINTS_CORROBORATED);
+
+  return match.reportedBy;
+}
+
+export async function adjustTrustScore(
+  userId: string,
+  points: number
+): Promise<void> {
+  await db
+    .update(users)
+    .set({ trustScore: sql`GREATEST(0, trust_score + ${points})` })
+    .where(eq(users.id, userId));
+
+  if (points > 0) {
+    await db
+      .update(users)
+      .set({ verifiedReports: sql`verified_reports + 1` })
+      .where(eq(users.id, userId));
+  }
+
+  await checkAndAwardBadges(userId);
+}
+
+export async function updateReporterStats(userId: string): Promise<void> {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+
+  const [user] = await db
+    .select({
+      currentStreak: users.currentStreak,
+      lastReportDate: users.lastReportDate,
+    })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
+
+  if (!user) return;
+
+  let newStreak = 1;
+  if (user.lastReportDate) {
+    const lastDate = new Date(user.lastReportDate);
+    lastDate.setHours(0, 0, 0, 0);
+    if (lastDate.getTime() === yesterday.getTime()) {
+      newStreak = user.currentStreak + 1;
+    } else if (lastDate.getTime() === today.getTime()) {
+      newStreak = user.currentStreak; // Already reported today
+    }
+  }
+
+  await db
+    .update(users)
+    .set({
+      totalReports: sql`total_reports + 1`,
+      currentStreak: newStreak,
+      lastReportDate: now,
+    })
+    .where(eq(users.id, userId));
+}
+
+async function checkAndAwardBadges(userId: string): Promise<void> {
+  const [user] = await db
+    .select({
+      trustScore: users.trustScore,
+      totalReports: users.totalReports,
+      verifiedReports: users.verifiedReports,
+      currentStreak: users.currentStreak,
+    })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
+
+  if (!user) return;
+
+  const existingBadges = await db
+    .select({ badgeType: reporterBadges.badgeType })
+    .from(reporterBadges)
+    .where(eq(reporterBadges.userId, userId));
+
+  const earned = new Set(existingBadges.map((b) => b.badgeType));
+
+  const toAward: string[] = [];
+  if (user.totalReports >= 1 && !earned.has("first_report"))
+    toAward.push("first_report");
+  if (user.verifiedReports >= 10 && !earned.has("verified_10"))
+    toAward.push("verified_10");
+  if (user.verifiedReports >= 50 && !earned.has("verified_50"))
+    toAward.push("verified_50");
+  if (
+    user.trustScore >= TRUST_THRESHOLD_AUTO_VERIFY &&
+    !earned.has("trusted_reporter")
+  )
+    toAward.push("trusted_reporter");
+  if (user.currentStreak >= 7 && !earned.has("streak_7"))
+    toAward.push("streak_7");
+  if (user.currentStreak >= 30 && !earned.has("streak_30"))
+    toAward.push("streak_30");
+
+  if (toAward.length > 0) {
+    await db.insert(reporterBadges).values(
+      toAward.map((badge) => ({
+        userId,
+        badgeType: badge as any,
+      }))
+    );
+  }
+}
