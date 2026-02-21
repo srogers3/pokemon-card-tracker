@@ -38,6 +38,7 @@ yarn-error.log*
 
 # git worktrees
 .claude/worktrees/
+.worktrees/
 
 # typescript
 *.tsbuildinfo
