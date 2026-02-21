@@ -7,9 +7,10 @@ import { cn } from "@/lib/utils";
 const links = [
   { href: "/dashboard", label: "Sightings" },
   { href: "/dashboard/products", label: "Products" },
+  { href: "/dashboard/submit", label: "Submit Tip" },
+  { href: "/dashboard/leaderboard", label: "Leaderboard" },
   { href: "/dashboard/heatmap", label: "Heatmap", premium: true },
   { href: "/dashboard/alerts", label: "Alerts", premium: true },
-  { href: "/dashboard/submit", label: "Submit Tip", premium: true },
 ];
 
 export function DashboardNav({ isPremium }: { isPremium: boolean }) {

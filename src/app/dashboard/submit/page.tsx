@@ -1,10 +1,10 @@
-import { requirePremium } from "@/lib/auth";
+import { requireUser } from "@/lib/auth";
 import { db } from "@/db";
 import { stores, products } from "@/db/schema";
 import { CommunityTipForm } from "@/components/community-tip-form";
 
 export default async function SubmitTipPage() {
-  await requirePremium();
+  await requireUser();
 
   const [allStores, allProducts] = await Promise.all([
     db.select().from(stores).orderBy(stores.name),
