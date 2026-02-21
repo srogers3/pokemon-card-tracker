@@ -1,6 +1,13 @@
 import { db } from "@/db";
-import { users, restockSightings, reporterBadges } from "@/db/schema";
+import {
+  users,
+  restockSightings,
+  reporterBadges,
+  badgeTypeEnum,
+} from "@/db/schema";
 import { eq, and, gte, lte, ne, sql } from "drizzle-orm";
+
+type BadgeType = (typeof badgeTypeEnum.enumValues)[number];
 
 const CORROBORATION_WINDOW_HOURS = 4;
 const TRUST_THRESHOLD_AUTO_VERIFY = 50;
@@ -83,17 +90,13 @@ export async function adjustTrustScore(
   userId: string,
   points: number
 ): Promise<void> {
-  await db
-    .update(users)
-    .set({ trustScore: sql`GREATEST(0, trust_score + ${points})` })
-    .where(eq(users.id, userId));
-
+  const setClause: Record<string, unknown> = {
+    trustScore: sql`GREATEST(0, trust_score + ${points})`,
+  };
   if (points > 0) {
-    await db
-      .update(users)
-      .set({ verifiedReports: sql`verified_reports + 1` })
-      .where(eq(users.id, userId));
+    setClause.verifiedReports = sql`verified_reports + 1`;
   }
+  await db.update(users).set(setClause).where(eq(users.id, userId));
 
   await checkAndAwardBadges(userId);
 }
@@ -156,7 +159,7 @@ async function checkAndAwardBadges(userId: string): Promise<void> {
 
   const earned = new Set(existingBadges.map((b) => b.badgeType));
 
-  const toAward: string[] = [];
+  const toAward: BadgeType[] = [];
   if (user.totalReports >= 1 && !earned.has("first_report"))
     toAward.push("first_report");
   if (user.verifiedReports >= 10 && !earned.has("verified_10"))
@@ -177,7 +180,7 @@ async function checkAndAwardBadges(userId: string): Promise<void> {
     await db.insert(reporterBadges).values(
       toAward.map((badge) => ({
         userId,
-        badgeType: badge as any,
+        badgeType: badge,
       }))
     );
   }
