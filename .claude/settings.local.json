@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C \"C:/git/pokemon-card-tracker/.claude/worktrees/elegant-khorana\" log --oneline -5)",
+      "Bash(git -C \"C:/git/pokemon-card-tracker\" log --oneline -10 --all)",
+      "Bash(git -C \"C:/git/pokemon-card-tracker/.claude/worktrees/elegant-khorana\" log --oneline --all)"
+    ]
+  }
+}
