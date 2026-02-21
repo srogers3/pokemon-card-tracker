@@ -1,0 +1,113 @@
+import {
+  pgTable,
+  uuid,
+  text,
+  timestamp,
+  boolean,
+  integer,
+  pgEnum,
+} from "drizzle-orm/pg-core";
+
+// Enums
+export const storeTypeEnum = pgEnum("store_type", [
+  "big_box",
+  "lgs",
+  "grocery",
+  "pharmacy",
+  "other",
+]);
+
+export const productTypeEnum = pgEnum("product_type", [
+  "etb",
+  "booster_box",
+  "tin",
+  "blister",
+  "collection_box",
+  "other",
+]);
+
+export const stockStatusEnum = pgEnum("stock_status", [
+  "in_stock",
+  "limited",
+  "out_of_stock",
+]);
+
+export const sightingSourceEnum = pgEnum("sighting_source", [
+  "admin",
+  "community",
+]);
+
+export const subscriptionTierEnum = pgEnum("subscription_tier", [
+  "free",
+  "premium",
+]);
+
+// Tables
+export const stores = pgTable("stores", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: text("name").notNull(),
+  locationLabel: text("location_label").notNull(),
+  storeType: storeTypeEnum("store_type").notNull(),
+  specificLocation: text("specific_location"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const products = pgTable("products", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: text("name").notNull(),
+  setName: text("set_name").notNull(),
+  productType: productTypeEnum("product_type").notNull(),
+  imageUrl: text("image_url"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const restockSightings = pgTable("restock_sightings", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  storeId: uuid("store_id")
+    .notNull()
+    .references(() => stores.id),
+  productId: uuid("product_id")
+    .notNull()
+    .references(() => products.id),
+  reportedBy: text("reported_by").notNull(),
+  sightedAt: timestamp("sighted_at").notNull(),
+  status: stockStatusEnum("status").notNull(),
+  verified: boolean("verified").default(false).notNull(),
+  source: sightingSourceEnum("source").notNull(),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const users = pgTable("users", {
+  id: text("id").primaryKey(), // Clerk user ID
+  email: text("email").notNull(),
+  subscriptionTier: subscriptionTierEnum("subscription_tier")
+    .default("free")
+    .notNull(),
+  stripeCustomerId: text("stripe_customer_id"),
+  stripeSubscriptionId: text("stripe_subscription_id"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const restockPatterns = pgTable("restock_patterns", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  storeId: uuid("store_id")
+    .notNull()
+    .references(() => stores.id),
+  productId: uuid("product_id").references(() => products.id),
+  dayOfWeek: integer("day_of_week").notNull(), // 0-6
+  hourOfDay: integer("hour_of_day").notNull(), // 0-23
+  frequencyCount: integer("frequency_count").notNull().default(0),
+  lastUpdated: timestamp("last_updated").defaultNow().notNull(),
+});
+
+// Type exports
+export type Store = typeof stores.$inferSelect;
+export type NewStore = typeof stores.$inferInsert;
+export type Product = typeof products.$inferSelect;
+export type NewProduct = typeof products.$inferInsert;
+export type RestockSighting = typeof restockSightings.$inferSelect;
+export type NewRestockSighting = typeof restockSightings.$inferInsert;
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
+export type RestockPattern = typeof restockPatterns.$inferSelect;
