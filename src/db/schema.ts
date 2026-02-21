@@ -101,6 +101,16 @@ export const restockPatterns = pgTable("restock_patterns", {
   lastUpdated: timestamp("last_updated").defaultNow().notNull(),
 });
 
+export const alertPreferences = pgTable("alert_preferences", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id),
+  productId: uuid("product_id").references(() => products.id),
+  region: text("region"), // matches store.locationLabel
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // Type exports
 export type Store = typeof stores.$inferSelect;
 export type NewStore = typeof stores.$inferInsert;
@@ -111,3 +121,5 @@ export type NewRestockSighting = typeof restockSightings.$inferInsert;
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type RestockPattern = typeof restockPatterns.$inferSelect;
+export type AlertPreference = typeof alertPreferences.$inferSelect;
+export type NewAlertPreference = typeof alertPreferences.$inferInsert;
