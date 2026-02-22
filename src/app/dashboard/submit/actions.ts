@@ -12,6 +12,7 @@ import {
   adjustTrustScore,
   updateReporterStats,
 } from "@/lib/trust";
+import { createEgg, hatchEgg } from "@/lib/eggs";
 
 export async function submitTip(formData: FormData) {
   const user = await requireUser();
@@ -42,6 +43,10 @@ export async function submitTip(formData: FormData) {
     })
     .returning();
 
+  // Create an egg for this report
+  const status = formData.get("status") as "found" | "not_found";
+  await createEgg(userId, sighting.id, status);
+
   // Update reporter stats (totalReports, streak)
   await updateReporterStats(userId);
 
@@ -53,10 +58,12 @@ export async function submitTip(formData: FormData) {
       await adjustTrustScore(userId, 10);
     }
   } else {
-    // Auto-verified by trust score — award admin-level points
+    // Auto-verified — hatch egg immediately
+    await hatchEgg(sighting.id, false);
     await adjustTrustScore(userId, 5);
   }
 
   revalidatePath("/dashboard/submit");
   revalidatePath("/dashboard");
+  revalidatePath("/dashboard/collection");
 }
