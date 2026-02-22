@@ -62,9 +62,8 @@ export function CommunityTipForm({
             <SelectValue placeholder="Select status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="in_stock">In Stock</SelectItem>
-            <SelectItem value="limited">Limited</SelectItem>
-            <SelectItem value="out_of_stock">Out of Stock</SelectItem>
+            <SelectItem value="found">Yes — Found cards!</SelectItem>
+            <SelectItem value="not_found">No — Shelves were empty</SelectItem>
           </SelectContent>
         </Select>
       </div>

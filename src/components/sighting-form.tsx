@@ -69,9 +69,8 @@ export function SightingForm({
             <SelectValue placeholder="Select status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="in_stock">In Stock</SelectItem>
-            <SelectItem value="limited">Limited</SelectItem>
-            <SelectItem value="out_of_stock">Out of Stock</SelectItem>
+            <SelectItem value="found">Found</SelectItem>
+            <SelectItem value="not_found">Not Found</SelectItem>
           </SelectContent>
         </Select>
       </div>

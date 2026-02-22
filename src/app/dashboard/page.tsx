@@ -43,8 +43,7 @@ export default async function DashboardPage() {
     .limit(isPremium ? 200 : 50);
 
   const statusVariant = (status: string) => {
-    if (status === "in_stock") return "default" as const;
-    if (status === "limited") return "secondary" as const;
+    if (status === "found") return "default" as const;
     return "destructive" as const;
   };
 
@@ -78,7 +77,7 @@ export default async function DashboardPage() {
               <TableCell>{s.storeName}</TableCell>
               <TableCell>{s.storeLocation}</TableCell>
               <TableCell>
-                <Badge variant={statusVariant(s.status)}>{s.status}</Badge>
+                <Badge variant={statusVariant(s.status)}>{s.status === "found" ? "Found" : "Not Found"}</Badge>
               </TableCell>
               <TableCell>
                 {new Date(s.sightedAt).toLocaleString()}

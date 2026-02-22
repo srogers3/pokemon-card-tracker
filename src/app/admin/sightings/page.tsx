@@ -71,14 +71,12 @@ export default async function AdminSightingsPage() {
                 <TableCell>
                   <Badge
                     variant={
-                      sighting.status === "in_stock"
+                      sighting.status === "found"
                         ? "default"
-                        : sighting.status === "limited"
-                        ? "secondary"
                         : "destructive"
                     }
                   >
-                    {sighting.status}
+                    {sighting.status === "found" ? "Found" : "Not Found"}
                   </Badge>
                 </TableCell>
                 <TableCell>{sighting.source}</TableCell>

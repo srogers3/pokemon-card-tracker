@@ -35,7 +35,7 @@ export async function submitTip(formData: FormData) {
       productId,
       reportedBy: userId,
       sightedAt,
-      status: formData.get("status") as "in_stock" | "limited" | "out_of_stock",
+      status: formData.get("status") as "found" | "not_found",
       verified: autoVerify,
       source: "community",
       notes: (formData.get("notes") as string) || null,

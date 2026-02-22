@@ -45,14 +45,8 @@ function randomDate(daysBack: number): Date {
   return new Date(now - offset);
 }
 
-const statuses = ["in_stock", "limited", "out_of_stock"] as const;
-const statusWeights = [0.35, 0.4, 0.25]; // limited is most common
-
-function weightedStatus() {
-  const r = Math.random();
-  if (r < statusWeights[0]) return statuses[0];
-  if (r < statusWeights[0] + statusWeights[1]) return statuses[1];
-  return statuses[2];
+function randomStatus(): "found" | "not_found" {
+  return Math.random() > 0.4 ? "found" : "not_found";
 }
 
 const notes = [
@@ -95,7 +89,7 @@ async function seed() {
       productId: product.id,
       reportedBy: "seed-script",
       sightedAt: randomDate(14),
-      status: weightedStatus(),
+      status: randomStatus(),
       verified: true,
       source: Math.random() > 0.3 ? "admin" as const : "community" as const,
       notes: randomItem(notes),

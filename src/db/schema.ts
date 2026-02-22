@@ -27,9 +27,15 @@ export const productTypeEnum = pgEnum("product_type", [
 ]);
 
 export const stockStatusEnum = pgEnum("stock_status", [
-  "in_stock",
-  "limited",
-  "out_of_stock",
+  "found",
+  "not_found",
+]);
+
+export const pokemonRarityEnum = pgEnum("pokemon_rarity", [
+  "common",
+  "uncommon",
+  "rare",
+  "ultra_rare",
 ]);
 
 export const sightingSourceEnum = pgEnum("sighting_source", [
@@ -50,6 +56,8 @@ export const badgeTypeEnum = pgEnum("badge_type", [
   "top_reporter",
   "streak_7",
   "streak_30",
+  "pokedex_50",
+  "pokedex_complete",
 ]);
 
 // Tables
@@ -136,6 +144,29 @@ export const reporterBadges = pgTable("reporter_badges", {
   earnedAt: timestamp("earned_at").defaultNow().notNull(),
 });
 
+export const pokemonCatalog = pgTable("pokemon_catalog", {
+  id: integer("id").primaryKey(), // Pokedex number (1-151)
+  name: text("name").notNull(),
+  rarityTier: pokemonRarityEnum("rarity_tier").notNull(),
+  spriteUrl: text("sprite_url").notNull(),
+});
+
+export const pokemonEggs = pgTable("pokemon_eggs", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id),
+  sightingId: uuid("sighting_id")
+    .notNull()
+    .references(() => restockSightings.id, { onDelete: "cascade" }),
+  reportStatus: stockStatusEnum("report_status").notNull(),
+  hatched: boolean("hatched").default(false).notNull(),
+  pokemonId: integer("pokemon_id").references(() => pokemonCatalog.id),
+  isShiny: boolean("is_shiny").default(false).notNull(),
+  hatchedAt: timestamp("hatched_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // Type exports
 export type Store = typeof stores.$inferSelect;
 export type NewStore = typeof stores.$inferInsert;
@@ -149,3 +180,5 @@ export type RestockPattern = typeof restockPatterns.$inferSelect;
 export type AlertPreference = typeof alertPreferences.$inferSelect;
 export type NewAlertPreference = typeof alertPreferences.$inferInsert;
 export type ReporterBadge = typeof reporterBadges.$inferSelect;
+export type PokemonCatalogEntry = typeof pokemonCatalog.$inferSelect;
+export type PokemonEgg = typeof pokemonEggs.$inferSelect;
