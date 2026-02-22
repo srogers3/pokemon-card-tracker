@@ -4,9 +4,9 @@ import { Button } from "@/components/ui/button";
 
 export function SiteHeader() {
   return (
-    <header className="border-b">
+    <header className="border-b border-border/50 bg-card/80 backdrop-blur-sm">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <Link href="/" className="text-xl font-bold">
+        <Link href="/" className="text-xl font-bold text-primary">
           Pokemon Card Tracker
         </Link>
         <nav className="flex items-center gap-4">
@@ -25,7 +25,7 @@ export function SiteHeader() {
               </Button>
             </Link>
             <Link href="/sign-up">
-              <Button size="sm">Get Started</Button>
+              <Button variant="accent" size="sm">Get Started</Button>
             </Link>
           </SignedOut>
         </nav>

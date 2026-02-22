@@ -43,8 +43,8 @@ export default async function DashboardPage() {
     .limit(isPremium ? 200 : 50);
 
   const statusVariant = (status: string) => {
-    if (status === "found") return "default" as const;
-    return "destructive" as const;
+    if (status === "found") return "found" as const;
+    return "notFound" as const;
   };
 
   return (
@@ -55,7 +55,7 @@ export default async function DashboardPage() {
         </h2>
         {!isPremium && (
           <Link href="/dashboard/upgrade">
-            <Button size="sm">Upgrade for Full History</Button>
+            <Button variant="gold" size="sm">Upgrade for Full History</Button>
           </Link>
         )}
       </div>
@@ -71,8 +71,8 @@ export default async function DashboardPage() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {sightings.map((s) => (
-            <TableRow key={s.id}>
+          {sightings.map((s, i) => (
+            <TableRow key={s.id} className={i % 2 === 0 ? "" : "bg-muted/30"}>
               <TableCell className="font-medium">{s.productName}</TableCell>
               <TableCell>{s.storeName}</TableCell>
               <TableCell>{s.storeLocation}</TableCell>
@@ -96,7 +96,7 @@ export default async function DashboardPage() {
 
       {/* Premium teaser */}
       {!isPremium && (
-        <Card className="mt-8">
+        <Card className="mt-8 card-hover border-gold/30 gold-glow">
           <CardHeader>
             <CardTitle className="text-base">Unlock More Features</CardTitle>
           </CardHeader>

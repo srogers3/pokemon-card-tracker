@@ -1,6 +1,7 @@
 import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { db } from "@/db";
 import { restockSightings, stores, products } from "@/db/schema";
@@ -34,36 +35,39 @@ export default async function LandingPage() {
       <SiteHeader />
       <main>
         {/* Hero */}
-        <section className="py-20 px-4 text-center">
-          <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
-            Never Miss a Restock
-          </h1>
-          <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
-            Track Pokemon card availability at retail stores near you. Get
-            alerts when products restock and discover the best times to check.
-          </p>
-          <div className="mt-10 flex gap-4 justify-center">
-            <Link href="/sign-up">
-              <Button size="lg">Start Tracking — Free</Button>
-            </Link>
-            <Link href="/sign-in">
-              <Button variant="outline" size="lg">
-                Sign In
-              </Button>
-            </Link>
+        <section className="py-24 px-4 text-center relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
+          <div className="relative">
+            <h1 className="text-4xl font-bold tracking-tight sm:text-6xl text-foreground">
+              Never Miss a <span className="text-primary">Restock</span>
+            </h1>
+            <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
+              Track Pokemon card availability at retail stores near you. Get
+              alerts when products restock and discover the best times to check.
+            </p>
+            <div className="mt-10 flex gap-4 justify-center">
+              <Link href="/sign-up">
+                <Button variant="accent" size="lg" className="px-8">Start Tracking — Free</Button>
+              </Link>
+              <Link href="/sign-in">
+                <Button variant="outline" size="lg">
+                  Sign In
+                </Button>
+              </Link>
+            </div>
           </div>
         </section>
 
         {/* Recent Sightings */}
         {recentSightings.length > 0 && (
-          <section className="py-12 px-4 bg-muted/50">
+          <section className="py-12 px-4 bg-card/50">
             <div className="container mx-auto">
               <h2 className="text-2xl font-bold mb-6 text-center">
                 Recent Sightings
               </h2>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 max-w-4xl mx-auto">
                 {recentSightings.map((sighting, i) => (
-                  <Card key={i}>
+                  <Card key={i} className="card-hover">
                     <CardHeader className="pb-2">
                       <CardTitle className="text-sm">
                         {sighting.productName}
@@ -73,9 +77,14 @@ export default async function LandingPage() {
                       <p className="text-sm text-muted-foreground">
                         {sighting.storeName} — {sighting.storeLocation}
                       </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {new Date(sighting.sightedAt).toLocaleString()}
-                      </p>
+                      <div className="flex items-center justify-between mt-2">
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(sighting.sightedAt).toLocaleString()}
+                        </p>
+                        <Badge variant={sighting.status === "found" ? "found" : "notFound"}>
+                          {sighting.status === "found" ? "Found" : "Not Found"}
+                        </Badge>
+                      </div>
                     </CardContent>
                   </Card>
                 ))}
@@ -88,10 +97,10 @@ export default async function LandingPage() {
         <section className="py-16 px-4">
           <div className="container mx-auto max-w-4xl">
             <h2 className="text-2xl font-bold mb-8 text-center">
-              Why Go Premium?
+              Why Go <span className="text-gold">Premium</span>?
             </h2>
             <div className="grid gap-6 md:grid-cols-3">
-              <Card>
+              <Card className="card-hover border-l-4 border-l-psychic">
                 <CardHeader>
                   <CardTitle className="text-base">Restock Heatmaps</CardTitle>
                 </CardHeader>
@@ -100,7 +109,7 @@ export default async function LandingPage() {
                   historical restock patterns.
                 </CardContent>
               </Card>
-              <Card>
+              <Card className="card-hover border-l-4 border-l-water">
                 <CardHeader>
                   <CardTitle className="text-base">Email Alerts</CardTitle>
                 </CardHeader>
@@ -109,7 +118,7 @@ export default async function LandingPage() {
                   your area.
                 </CardContent>
               </Card>
-              <Card>
+              <Card className="card-hover border-l-4 border-l-grass">
                 <CardHeader>
                   <CardTitle className="text-base">Full History</CardTitle>
                 </CardHeader>

@@ -14,10 +14,10 @@ const hours = Array.from({ length: 24 }, (_, i) => i);
 function getColor(count: number, max: number) {
   if (count === 0) return "bg-muted";
   const intensity = count / max;
-  if (intensity < 0.25) return "bg-green-200 dark:bg-green-900";
-  if (intensity < 0.5) return "bg-green-400 dark:bg-green-700";
-  if (intensity < 0.75) return "bg-green-600 dark:bg-green-500";
-  return "bg-green-800 dark:bg-green-300";
+  if (intensity < 0.25) return "bg-primary/20";
+  if (intensity < 0.5) return "bg-primary/40";
+  if (intensity < 0.75) return "bg-primary/60";
+  return "bg-primary/90";
 }
 
 export function HeatmapGrid({ data }: { data: HeatmapData }) {
@@ -52,7 +52,7 @@ export function HeatmapGrid({ data }: { data: HeatmapData }) {
                 <div
                   key={hour}
                   className={cn(
-                    "w-6 h-6 rounded-sm",
+                    "w-6 h-6 rounded-md transition-colors",
                     getColor(count, max)
                   )}
                   title={`${day} ${hour}:00 — ${count} sighting${count !== 1 ? "s" : ""}`}

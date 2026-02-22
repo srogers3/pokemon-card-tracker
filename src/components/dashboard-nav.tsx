@@ -18,18 +18,19 @@ export function DashboardNav({ isPremium }: { isPremium: boolean }) {
   const pathname = usePathname();
 
   return (
-    <nav className="flex gap-4 border-b pb-4 mb-6">
+    <nav className="flex gap-1 border-b border-border/50 pb-4 mb-6">
       {links.map((link) => {
         if (link.premium && !isPremium) return null;
+        const isActive = pathname === link.href;
         return (
           <Link
             key={link.href}
             href={link.href}
             className={cn(
-              "text-sm font-medium transition-colors hover:text-primary",
-              pathname === link.href
-                ? "text-primary"
-                : "text-muted-foreground"
+              "text-sm font-medium px-3 py-1.5 rounded-full transition-all",
+              isActive
+                ? "bg-primary text-primary-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted"
             )}
           >
             {link.label}

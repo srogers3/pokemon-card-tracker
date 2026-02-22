@@ -12,6 +12,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCurrentUser } from "@/lib/auth";
+import { cn } from "@/lib/utils";
 
 const BADGE_LABELS: Record<string, string> = {
   first_report: "First Report",
@@ -84,13 +85,20 @@ export default async function LeaderboardPage() {
     return "Newcomer";
   };
 
+  const rankAccent = (rank: number) => {
+    if (rank === 1) return "border-l-4 border-l-gold";
+    if (rank === 2) return "border-l-4 border-l-[#a8a8b0]";
+    if (rank === 3) return "border-l-4 border-l-[#cd7f32]";
+    return "";
+  };
+
   return (
     <div>
       <h2 className="text-xl font-semibold mb-6">Leaderboard</h2>
 
       {/* Current user stats */}
       {currentUser && currentUser.totalReports > 0 && (
-        <Card className="mb-6">
+        <Card className="mb-6 border-primary/30">
           <CardHeader className="pb-2">
             <CardTitle className="text-base">Your Stats</CardTitle>
           </CardHeader>
@@ -140,7 +148,10 @@ export default async function LeaderboardPage() {
             const badges = badgeMap.get(reporter.id) ?? [];
             const isCurrentUser = currentUser?.id === reporter.id;
             return (
-              <TableRow key={reporter.id} className={isCurrentUser ? "bg-muted/50" : ""}>
+              <TableRow key={reporter.id} className={cn(
+                isCurrentUser ? "bg-primary/5" : i % 2 !== 0 ? "bg-muted/30" : "",
+                rankAccent(i + 1)
+              )}>
                 <TableCell className="font-medium">{i + 1}</TableCell>
                 <TableCell>
                   {reporter.email.split("@")[0]}
@@ -148,7 +159,9 @@ export default async function LeaderboardPage() {
                 </TableCell>
                 <TableCell>{reporter.trustScore}</TableCell>
                 <TableCell>
-                  <Badge variant="outline">{trustLevel(reporter.trustScore)}</Badge>
+                  <Badge variant={reporter.trustScore >= 50 ? "gold" : reporter.trustScore >= 10 ? "teal" : "outline"}>
+                    {trustLevel(reporter.trustScore)}
+                  </Badge>
                 </TableCell>
                 <TableCell>{reporter.verifiedReports}/{reporter.totalReports}</TableCell>
                 <TableCell>{reporter.accuracy}%</TableCell>
