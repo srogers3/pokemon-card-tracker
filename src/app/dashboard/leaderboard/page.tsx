@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { users, reporterBadges } from "@/db/schema";
+import { users, reporterBadges, pokemonEggs } from "@/db/schema";
 import { desc, gt, sql, eq } from "drizzle-orm";
 import {
   Table,
@@ -21,6 +21,8 @@ const BADGE_LABELS: Record<string, string> = {
   top_reporter: "Top Reporter",
   streak_7: "7-Day Streak",
   streak_30: "30-Day Streak",
+  pokedex_50: "50 Pokemon",
+  pokedex_complete: "Pokedex Complete",
 };
 
 export default async function LeaderboardPage() {
@@ -60,6 +62,21 @@ export default async function LeaderboardPage() {
     badgeMap.get(b.userId)!.push(b.badgeType);
   }
 
+  // Fetch pokedex completion for all users
+  const pokedexData = await db
+    .select({
+      userId: pokemonEggs.userId,
+      uniqueCaught: sql<number>`COUNT(DISTINCT pokemon_id)::int`,
+    })
+    .from(pokemonEggs)
+    .where(eq(pokemonEggs.hatched, true))
+    .groupBy(pokemonEggs.userId);
+
+  const pokedexMap = new Map<string, number>();
+  for (const p of pokedexData) {
+    pokedexMap.set(p.userId, p.uniqueCaught);
+  }
+
   const trustLevel = (score: number) => {
     if (score >= 100) return "Top Reporter";
     if (score >= 50) return "Trusted";
@@ -94,6 +111,12 @@ export default async function LeaderboardPage() {
               <span className="text-muted-foreground">Streak:</span>{" "}
               <span className="font-medium">{currentUser.currentStreak} days</span>
             </div>
+            <div>
+              <span className="text-muted-foreground">Pokedex:</span>{" "}
+              <span className="font-medium">
+                {pokedexMap.get(currentUser.id) ?? 0}/151
+              </span>
+            </div>
           </CardContent>
         </Card>
       )}
@@ -109,6 +132,7 @@ export default async function LeaderboardPage() {
             <TableHead>Accuracy</TableHead>
             <TableHead>Streak</TableHead>
             <TableHead>Badges</TableHead>
+            <TableHead>Pokedex</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -136,12 +160,13 @@ export default async function LeaderboardPage() {
                     </Badge>
                   ))}
                 </TableCell>
+                <TableCell>{pokedexMap.get(reporter.id) ?? 0}/151</TableCell>
               </TableRow>
             );
           })}
           {topReporters.length === 0 && (
             <TableRow>
-              <TableCell colSpan={8} className="text-center text-muted-foreground">
+              <TableCell colSpan={9} className="text-center text-muted-foreground">
                 No reporters yet. Be the first to submit a sighting!
               </TableCell>
             </TableRow>

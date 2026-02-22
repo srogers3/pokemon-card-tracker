@@ -2,7 +2,8 @@ import { config } from "dotenv";
 config({ path: ".env.local" });
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
-import { stores, products, restockSightings, reporterBadges } from "./schema";
+import { stores, products, restockSightings, reporterBadges, pokemonCatalog, pokemonEggs } from "./schema";
+import { POKEMON_DATA, getSpriteUrl } from "./pokemon-data";
 
 const sql = neon(process.env.DATABASE_URL!);
 const db = drizzle(sql);
@@ -67,9 +68,11 @@ const notes = [
 async function seed() {
   console.log("Clearing existing seed data...");
   await db.delete(reporterBadges);
+  await db.delete(pokemonEggs);
   await db.delete(restockSightings);
   await db.delete(stores);
   await db.delete(products);
+  await db.delete(pokemonCatalog);
 
   console.log("Inserting stores...");
   const insertedStores = await db.insert(stores).values(ncStores).returning();
@@ -98,6 +101,16 @@ async function seed() {
 
   const insertedSightings = await db.insert(restockSightings).values(sightings).returning();
   console.log(`  ${insertedSightings.length} sightings added`);
+
+  console.log("Inserting Pokemon catalog...");
+  const pokemonRows = POKEMON_DATA.map((p) => ({
+    id: p.id,
+    name: p.name,
+    rarityTier: p.rarityTier as "common" | "uncommon" | "rare" | "ultra_rare",
+    spriteUrl: getSpriteUrl(p.id),
+  }));
+  await db.insert(pokemonCatalog).values(pokemonRows);
+  console.log(`  ${pokemonRows.length} Pokemon added`);
 
   console.log("Done! Seed data ready.");
 }
