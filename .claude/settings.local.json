@@ -3,7 +3,24 @@
     "allow": [
       "Bash(git -C \"C:/git/pokemon-card-tracker/.claude/worktrees/elegant-khorana\" log --oneline -5)",
       "Bash(git -C \"C:/git/pokemon-card-tracker\" log --oneline -10 --all)",
-      "Bash(git -C \"C:/git/pokemon-card-tracker/.claude/worktrees/elegant-khorana\" log --oneline --all)"
+      "Bash(git -C \"C:/git/pokemon-card-tracker/.claude/worktrees/elegant-khorana\" log --oneline --all)",
+      "Bash(npm run build:*)",
+      "Bash(npm install:*)",
+      "Bash(git branch:*)",
+      "Bash(git worktree:*)",
+      "Bash(node -e:*)",
+      "Bash(ls:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(npm run lint:*)",
+      "Bash(git checkout:*)",
+      "Bash(git pull:*)",
+      "Bash(git merge:*)",
+      "Bash(cat:*)",
+      "Bash(npm test:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx next lint:*)",
+      "Bash(npx next build:*)"
     ]
   }
 }
