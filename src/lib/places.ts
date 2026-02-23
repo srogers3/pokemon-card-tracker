@@ -2,19 +2,26 @@
 
 import { auth } from "@clerk/nextjs/server";
 import { db } from "@/db";
-import { stores } from "@/db/schema";
-import { and, gte, lte } from "drizzle-orm";
+import { stores, searchCache } from "@/db/schema";
+import { and, gte, lte, eq } from "drizzle-orm";
 
 const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!;
 
 const SEARCH_QUERIES = [
+  // Generic searches
   "Pokemon cards",
   "trading card store",
   "game store",
+  // Known retailers
   "GameStop",
   "Target",
   "Walmart",
   "Barnes Noble",
+  "Dollar General",
+  "Dollar Tree",
+  "Five Below",
+  "Walgreens",
+  "CVS",
 ];
 
 // Place types that clearly cannot sell Pokemon cards
@@ -49,6 +56,13 @@ function mapStoreType(types: string[]): "big_box" | "lgs" | "grocery" | "pharmac
   return "other";
 }
 
+function toGridCell(lat: number, lng: number): { gridLat: number; gridLng: number } {
+  return {
+    gridLat: Math.round(lat / 0.05) * 0.05,
+    gridLng: Math.round(lng / 0.05) * 0.05,
+  };
+}
+
 interface PlaceResult {
   id: string;
   displayName: { text: string };
@@ -63,25 +77,34 @@ export async function searchNearbyStores(lat: number, lng: number, radius: numbe
   if (!userId) throw new Error("Unauthorized");
 
   const margin = radius / 111000;
-  const existingStores = await db
-    .select()
-    .from(stores)
-    .where(
-      and(
-        gte(stores.latitude, lat - margin),
-        lte(stores.latitude, lat + margin),
-        gte(stores.longitude, lng - margin),
-        lte(stores.longitude, lng + margin)
-      )
-    );
+  const { gridLat, gridLng } = toGridCell(lat, lng);
 
-  if (existingStores.length > 5) {
-    return existingStores;
+  // Check if this grid cell has already been searched
+  const cached = await db
+    .select()
+    .from(searchCache)
+    .where(and(eq(searchCache.gridLat, gridLat), eq(searchCache.gridLng, gridLng)))
+    .limit(1);
+
+  if (cached.length > 0) {
+    // Cache hit — return stores from DB
+    return db
+      .select()
+      .from(stores)
+      .where(
+        and(
+          gte(stores.latitude, lat - margin),
+          lte(stores.latitude, lat + margin),
+          gte(stores.longitude, lng - margin),
+          lte(stores.longitude, lng + margin)
+        )
+      );
   }
 
+  // Cache miss — query Places API for all search terms
   const newPlaces: PlaceResult[] = [];
 
-  for (const query of SEARCH_QUERIES.slice(0, 3)) {
+  for (const query of SEARCH_QUERIES) {
     try {
       const response = await fetch(
         "https://places.googleapis.com/v1/places:searchText",
@@ -119,6 +142,7 @@ export async function searchNearbyStores(lat: number, lng: number, radius: numbe
     }
   }
 
+  // Deduplicate by place ID
   const uniquePlaces = new Map<string, PlaceResult>();
   for (const place of newPlaces) {
     if (!uniquePlaces.has(place.id)) {
@@ -126,11 +150,10 @@ export async function searchNearbyStores(lat: number, lng: number, radius: numbe
     }
   }
 
+  // Upsert stores
   for (const place of uniquePlaces.values()) {
     if (!isLikelyRetailStore(place.types)) continue;
 
-    // Store just the photo resource name — construct full URL at render time
-    // to avoid persisting the API key in the database
     const photoUrl = place.photos?.[0]?.name ?? null;
 
     await db
@@ -153,6 +176,12 @@ export async function searchNearbyStores(lat: number, lng: number, radius: numbe
         },
       });
   }
+
+  // Mark this grid cell as searched
+  await db
+    .insert(searchCache)
+    .values({ gridLat, gridLng })
+    .onConflictDoNothing();
 
   return db
     .select()
