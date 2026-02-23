@@ -2,8 +2,10 @@
 
 import { useState, useCallback, useEffect, useRef } from "react";
 import { APIProvider, Map as GoogleMap, Marker, useMap, useApiIsLoaded } from "@vis.gl/react-google-maps";
+import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import { PokeballMarker } from "./pokeball-marker";
 import { StoreDetailPanel } from "./store-detail-panel";
+import { clusterRenderer } from "./cluster-renderer";
 import { searchNearbyStores } from "@/lib/places";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,6 +52,44 @@ function MapContent({
   const [locationDenied, setLocationDenied] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const lastSearchCenter = useRef<{ lat: number; lng: number } | null>(null);
+  const markersRef = useRef<Record<string, google.maps.marker.AdvancedMarkerElement>>({});
+  const clustererRef = useRef<MarkerClusterer | null>(null);
+
+  // Collect marker refs for clustering
+  const setMarkerRef = useCallback(
+    (marker: google.maps.marker.AdvancedMarkerElement | null, id: string) => {
+      if (marker) {
+        markersRef.current[id] = marker;
+      } else {
+        delete markersRef.current[id];
+      }
+    },
+    []
+  );
+
+  // Initialize and update the clusterer
+  useEffect(() => {
+    if (!map) return;
+
+    if (!clustererRef.current) {
+      clustererRef.current = new MarkerClusterer({
+        map,
+        renderer: clusterRenderer,
+      });
+    }
+
+    // Get all markers except the selected one
+    const markersToCluster = Object.entries(markersRef.current)
+      .filter(([id]) => id !== selectedStore?.store.id)
+      .map(([, marker]) => marker);
+
+    clustererRef.current.clearMarkers();
+    clustererRef.current.addMarkers(markersToCluster);
+
+    return () => {
+      // Don't destroy on every re-render — just clear markers
+    };
+  }, [map, storeData, selectedStore]);
 
   const handleSearchArea = useCallback(
     async (lat: number, lng: number) => {
@@ -163,6 +203,7 @@ function MapContent({
             key={sd.store.id}
             store={sd.store}
             isSelected={selectedStore?.store.id === sd.store.id}
+            setMarkerRef={setMarkerRef}
             onClick={() => {
               setSelectedStore(sd);
               if (map && sd.store.latitude && sd.store.longitude) {

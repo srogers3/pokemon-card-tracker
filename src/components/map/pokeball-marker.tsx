@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback } from "react";
 import { AdvancedMarker } from "@vis.gl/react-google-maps";
 import { POKEMON_DATA, getSpriteUrl } from "@/db/pokemon-data";
 import type { Store } from "@/db/schema";
@@ -53,11 +54,20 @@ export function PokeballMarker({
   store,
   onClick,
   isSelected,
+  setMarkerRef,
 }: {
   store: Store;
   onClick: () => void;
   isSelected: boolean;
+  setMarkerRef?: (marker: google.maps.marker.AdvancedMarkerElement | null, id: string) => void;
 }) {
+  const ref = useCallback(
+    (marker: google.maps.marker.AdvancedMarkerElement | null) => {
+      setMarkerRef?.(marker, store.id);
+    },
+    [setMarkerRef, store.id]
+  );
+
   if (!store.latitude || !store.longitude) return null;
 
   const wild = getWildPokemon(store.id);
@@ -71,6 +81,7 @@ export function PokeballMarker({
 
   return (
     <AdvancedMarker
+      ref={ref}
       position={{ lat: store.latitude, lng: store.longitude }}
       onClick={onClick}
       title={`${store.name} — Wild ${wild.name}!`}

@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.38.1",
+    "@googlemaps/markerclusterer": "^2.6.2",
     "@neondatabase/serverless": "^1.0.2",
     "@vis.gl/react-google-maps": "^1.7.1",
     "class-variance-authority": "^0.7.1",
