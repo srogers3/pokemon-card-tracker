@@ -5,7 +5,7 @@ import {
   badgeTypeEnum,
 } from "@/db/schema";
 import { eq, and, sql } from "drizzle-orm";
-import { POKEMON_DATA } from "@/db/pokemon-data";
+import { POKEMON_DATA, getSpriteUrl } from "@/db/pokemon-data";
 import { adjustTrustScore } from "@/lib/trust";
 
 type RarityTier = "common" | "uncommon" | "rare" | "ultra_rare";
@@ -299,4 +299,49 @@ export function getPokedexCompletion(
       .map((e) => e.pokemonId)
   );
   return uniquePokemon.size;
+}
+
+export async function getUnviewedHatches(userId: string) {
+  const eggs = await db
+    .select({
+      id: pokemonEggs.id,
+      pokemonId: pokemonEggs.pokemonId,
+      wildPokemonId: pokemonEggs.wildPokemonId,
+      isShiny: pokemonEggs.isShiny,
+      hatchedAt: pokemonEggs.hatchedAt,
+    })
+    .from(pokemonEggs)
+    .where(
+      and(
+        eq(pokemonEggs.userId, userId),
+        eq(pokemonEggs.hatched, true),
+        sql`${pokemonEggs.pokemonId} IS NOT NULL`,
+        sql`${pokemonEggs.viewedAt} IS NULL`
+      )
+    );
+
+  return eggs.map((egg) => {
+    const pokemon = POKEMON_DATA.find((p) => p.id === egg.pokemonId);
+    const wildPokemon = egg.wildPokemonId
+      ? POKEMON_DATA.find((p) => p.id === egg.wildPokemonId)
+      : null;
+
+    return {
+      id: egg.id,
+      pokemonName: pokemon?.name ?? "Unknown",
+      pokemonId: egg.pokemonId!,
+      rarityTier: pokemon?.rarityTier ?? "common",
+      spriteUrl: getSpriteUrl(egg.pokemonId!),
+      isShiny: egg.isShiny,
+      wasUpgrade: !!(egg.wildPokemonId && egg.pokemonId !== egg.wildPokemonId),
+      wildPokemonName: wildPokemon?.name ?? null,
+    };
+  });
+}
+
+export async function markEggViewed(eggId: string) {
+  await db
+    .update(pokemonEggs)
+    .set({ viewedAt: new Date() })
+    .where(eq(pokemonEggs.id, eggId));
 }
