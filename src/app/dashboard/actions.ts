@@ -6,6 +6,8 @@ import { eq, desc, gte, and, isNotNull } from "drizzle-orm";
 import { auth } from "@clerk/nextjs/server";
 import { getSubmittedStoreIdsToday } from "@/lib/trust";
 import { analyzeTrends } from "@/lib/trends";
+import { requireUser } from "@/lib/auth";
+import { markEggViewed } from "@/lib/eggs";
 
 export async function getStoresWithSightings() {
   const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000);
@@ -74,4 +76,9 @@ export async function getStoreTrends(storeId: string) {
 
   const dates = sightings.map((s) => new Date(s.sightedAt));
   return analyzeTrends(dates);
+}
+
+export async function markEggViewedAction(eggId: string) {
+  await requireUser();
+  await markEggViewed(eggId);
 }
