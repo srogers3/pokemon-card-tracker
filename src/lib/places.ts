@@ -1,5 +1,6 @@
 "use server";
 
+import { auth } from "@clerk/nextjs/server";
 import { db } from "@/db";
 import { stores } from "@/db/schema";
 import { and, gte, lte } from "drizzle-orm";
@@ -35,6 +36,9 @@ interface PlaceResult {
 }
 
 export async function searchNearbyStores(lat: number, lng: number, radius: number = 8000) {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorized");
+
   const margin = radius / 111000;
   const existingStores = await db
     .select()
@@ -97,9 +101,9 @@ export async function searchNearbyStores(lat: number, lng: number, radius: numbe
   }
 
   for (const place of uniquePlaces.values()) {
-    const photoUrl = place.photos?.[0]
-      ? `https://places.googleapis.com/v1/${place.photos[0].name}/media?maxHeightPx=200&key=${GOOGLE_MAPS_API_KEY}`
-      : null;
+    // Store just the photo resource name — construct full URL at render time
+    // to avoid persisting the API key in the database
+    const photoUrl = place.photos?.[0]?.name ?? null;
 
     await db
       .insert(stores)
@@ -131,25 +135,6 @@ export async function searchNearbyStores(lat: number, lng: number, radius: numbe
         lte(stores.latitude, lat + margin),
         gte(stores.longitude, lng - margin),
         lte(stores.longitude, lng + margin)
-      )
-    );
-}
-
-export async function getStoresInBounds(
-  south: number,
-  west: number,
-  north: number,
-  east: number
-) {
-  return db
-    .select()
-    .from(stores)
-    .where(
-      and(
-        gte(stores.latitude, south),
-        lte(stores.latitude, north),
-        gte(stores.longitude, west),
-        lte(stores.longitude, east)
       )
     );
 }

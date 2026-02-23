@@ -37,8 +37,6 @@ export function MapSightingForm({
     <form ref={formRef} action={handleSubmit} className="space-y-3">
       <h4 className="text-sm font-semibold">Report Sighting</h4>
 
-      <input type="hidden" name="storeId" value={storeId} />
-
       <div>
         <Label htmlFor="map-productId" className="text-xs">Product</Label>
         <Select name="productId" required>
