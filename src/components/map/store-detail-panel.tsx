@@ -1,12 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { X, MapPin, Clock } from "lucide-react";
 import type { Store, Product } from "@/db/schema";
 import { MapSightingForm } from "./map-sighting-form";
 import { cn } from "@/lib/utils";
+import { getStoreTrends } from "@/app/dashboard/actions";
+import type { RestockTrend } from "@/lib/trends";
+import { getBarPercent } from "@/lib/trends";
 
 interface Sighting {
   id: string;
@@ -30,6 +33,11 @@ export function StoreDetailPanel({
   onClose: () => void;
 }) {
   const [showForm, setShowForm] = useState(false);
+  const [trend, setTrend] = useState<RestockTrend | null>(null);
+
+  useEffect(() => {
+    getStoreTrends(store.id).then(setTrend);
+  }, [store.id]);
 
   return (
     <div className={cn(
@@ -67,6 +75,45 @@ export function StoreDetailPanel({
             <div className="text-muted-foreground text-xs">Last Sighting</div>
           </div>
         </div>
+
+        {/* Restock Intel */}
+        {trend && (
+          <div className="bg-muted/50 rounded-lg px-3 py-3 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-muted-foreground">Restock Intel</span>
+              {trend.confidence === "low" ? (
+                <span className="text-xs text-muted-foreground">Not enough data</span>
+              ) : (
+                <span className="text-sm font-semibold">
+                  {trend.grade === "hot" && "🔥 Hot"}
+                  {trend.grade === "warm" && "🌤️ Warm"}
+                  {trend.grade === "cool" && "🌙 Cool"}
+                  {trend.grade === "cold" && "🧊 Cold"}
+                </span>
+              )}
+            </div>
+            <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+              <div
+                className="h-2 rounded-full bg-gradient-to-r from-primary to-accent transition-all duration-500"
+                style={{ width: `${trend.confidence === "low" ? 0 : getBarPercent(trend.grade)}%` }}
+              />
+            </div>
+            {trend.confidence === "low" ? (
+              <p className="text-xs text-muted-foreground">Need 3+ verified reports to show patterns</p>
+            ) : (
+              <div className="text-xs text-muted-foreground space-y-0.5">
+                {trend.avgDaysBetween !== null && (
+                  <p>Restocks every ~{Math.round(trend.avgDaysBetween)} days</p>
+                )}
+                {(trend.bestDay || trend.bestTimeWindow) && (
+                  <p>
+                    {[trend.bestDay, trend.bestTimeWindow].filter(Boolean).join(", ")}
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Recent sightings */}
         {sightings.length > 0 && (
