@@ -157,8 +157,32 @@ export async function searchNearbyStores(lat: number, lng: number, radius: numbe
     }
   }
 
+  // Deduplicate by proximity + similar name (e.g. "Walgreens" vs "Walgreens Pharmacy")
+  const deduped = Array.from(uniquePlaces.values());
+  const removed = new Set<string>();
+  for (let i = 0; i < deduped.length; i++) {
+    if (removed.has(deduped[i].id)) continue;
+    for (let j = i + 1; j < deduped.length; j++) {
+      if (removed.has(deduped[j].id)) continue;
+      const a = deduped[i];
+      const b = deduped[j];
+      const distMeters = Math.sqrt(
+        Math.pow((a.location.latitude - b.location.latitude) * 111000, 2) +
+        Math.pow((a.location.longitude - b.location.longitude) * 111000 * Math.cos(a.location.latitude * Math.PI / 180), 2)
+      );
+      if (distMeters > 50) continue;
+      const nameA = a.displayName.text.toLowerCase();
+      const nameB = b.displayName.text.toLowerCase();
+      if (nameA.includes(nameB) || nameB.includes(nameA)) {
+        // Keep the shorter name (the parent store, not the sub-unit)
+        removed.add(nameA.length <= nameB.length ? b.id : a.id);
+      }
+    }
+  }
+
   // Upsert stores
   for (const place of uniquePlaces.values()) {
+    if (removed.has(place.id)) continue;
     if (!isLikelyRetailStore(place.types)) continue;
 
     const photoUrl = place.photos?.[0]?.name ?? null;

@@ -174,8 +174,6 @@ function MapContent({
               setSelectedStore(sd);
               if (map && sd.store.latitude && sd.store.longitude) {
                 map.panTo({ lat: sd.store.latitude, lng: sd.store.longitude });
-                // Offset upward so marker is visible above the bottom panel
-                setTimeout(() => map.panBy(0, -150), 300);
               }
             }}
           />
