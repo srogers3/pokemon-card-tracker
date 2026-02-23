@@ -33,11 +33,6 @@ const DEFAULT_CENTER = { lat: 39.8283, lng: -98.5795 };
 const DEFAULT_ZOOM = 4;
 const LOCATED_ZOOM = 13;
 
-// Hide default Google Maps POI labels so only our markers show
-const POI_OFF_STYLES: google.maps.MapTypeStyle[] = [
-  { featureType: "poi", stylers: [{ visibility: "off" }] },
-];
-
 function MapContent({
   initialStores,
   products,
@@ -55,13 +50,6 @@ function MapContent({
   const [locationDenied, setLocationDenied] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const lastSearchCenter = useRef<{ lat: number; lng: number } | null>(null);
-
-  // Apply map styles programmatically (the styles prop on GoogleMap doesn't work)
-  useEffect(() => {
-    if (map) {
-      map.setOptions({ styles: POI_OFF_STYLES });
-    }
-  }, [map]);
 
   const handleSearchArea = useCallback(
     async (lat: number, lng: number) => {

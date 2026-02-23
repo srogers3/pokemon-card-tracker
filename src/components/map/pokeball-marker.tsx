@@ -83,7 +83,7 @@ export function PokeballMarker({
           borderRadius: "50%",
           background: isRainbow
             ? "conic-gradient(from var(--rainbow-angle, 0deg), #ef4444, #f59e0b, #22c55e, #3b82f6, #a855f7, #ef4444)"
-            : "white",
+            : "transparent",
           padding: isRainbow ? 3 : 0,
           animation: `float 3s ease-in-out infinite, ${isRainbow ? "rainbow-spin 2s linear infinite" : "none"}`,
           animationDelay: `${animDelay}s`,
@@ -97,8 +97,11 @@ export function PokeballMarker({
             width: "100%",
             height: "100%",
             borderRadius: "50%",
-            backgroundColor: "white",
+            backgroundColor: "rgba(255, 255, 255, 0.6)",
+            backdropFilter: "blur(8px)",
+            WebkitBackdropFilter: "blur(8px)",
             border: isRainbow ? "none" : `3px solid ${borderColor}`,
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1), inset 0 1px 2px rgba(255, 255, 255, 0.5)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
