@@ -1,6 +1,8 @@
 import { requireUser } from "@/lib/auth";
 import { SiteHeader } from "@/components/site-header";
 import { DashboardNav } from "@/components/dashboard-nav";
+import { getUnviewedHatches } from "@/lib/eggs";
+import { EggHatchModal } from "@/components/egg-hatch-modal";
 
 export default async function DashboardLayout({
   children,
@@ -8,6 +10,7 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   const user = await requireUser();
+  const unviewedHatches = await getUnviewedHatches(user.id);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -18,6 +21,9 @@ export default async function DashboardLayout({
       <div className="flex-1">
         {children}
       </div>
+      {unviewedHatches.length > 0 && (
+        <EggHatchModal hatches={unviewedHatches} />
+      )}
     </div>
   );
 }
