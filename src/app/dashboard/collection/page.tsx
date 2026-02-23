@@ -13,6 +13,18 @@ export default async function CollectionPage() {
   const pendingEggs = allEggs.filter((e) => !e.hatched);
   const uniqueCaught = getPokedexCompletion(hatchedEggs);
 
+  // Find recent upgrades (hatched in last 24h where Pokemon differs from wild Pokemon)
+  const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  const recentUpgrades = allEggs.filter(
+    (e) =>
+      e.hatched &&
+      e.pokemonId &&
+      e.wildPokemonId &&
+      e.pokemonId !== e.wildPokemonId &&
+      e.hatchedAt &&
+      new Date(e.hatchedAt) > oneDayAgo
+  );
+
   // Build a map of caught Pokemon: pokemonId -> { count, shinyCount }
   const caughtMap = new Map<
     number,
@@ -45,6 +57,30 @@ export default async function CollectionPage() {
           style={{ width: `${(uniqueCaught / 151) * 100}%` }}
         />
       </div>
+
+      {/* Upgrade notifications */}
+      {recentUpgrades.length > 0 && (
+        <Card className="mb-6 border-amber-400/50 bg-amber-50/50 dark:bg-amber-950/20">
+          <CardContent className="pt-4">
+            <div className="flex flex-col gap-2">
+              {recentUpgrades.map((egg) => {
+                const wildPokemon = POKEMON_DATA.find((p) => p.id === egg.wildPokemonId);
+                const hatchedPokemon = POKEMON_DATA.find((p) => p.id === egg.pokemonId);
+                if (!wildPokemon || !hatchedPokemon) return null;
+                return (
+                  <div key={egg.id} className="flex items-center gap-2 text-sm">
+                    <span className="text-amber-500 font-medium">Lucky!</span>
+                    <span>
+                      You got a {hatchedPokemon.name} instead of {wildPokemon.name}!
+                    </span>
+                    {egg.isShiny && <span>✨</span>}
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Pending eggs */}
       {pendingEggs.length > 0 && (
