@@ -92,6 +92,7 @@ export async function searchNearbyStores(lat: number, lng: number, radius: numbe
             "X-Goog-Api-Key": GOOGLE_MAPS_API_KEY,
             "X-Goog-FieldMask":
               "places.id,places.displayName,places.formattedAddress,places.location,places.types,places.photos",
+            "Referer": process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000",
           },
           body: JSON.stringify({
             textQuery: query,
@@ -106,7 +107,9 @@ export async function searchNearbyStores(lat: number, lng: number, radius: numbe
         }
       );
 
-      if (!response.ok) continue;
+      if (!response.ok) {
+        continue;
+      }
       const data = await response.json();
       if (data.places) {
         newPlaces.push(...data.places);

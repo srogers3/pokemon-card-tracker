@@ -1,6 +1,6 @@
 "use client";
 
-import { Marker } from "@vis.gl/react-google-maps";
+import { Marker, useApiIsLoaded } from "@vis.gl/react-google-maps";
 import { POKEMON_DATA, getSpriteUrl } from "@/db/pokemon-data";
 import type { Store } from "@/db/schema";
 
@@ -49,18 +49,22 @@ export function PokeballMarker({
   store: Store;
   onClick: () => void;
 }) {
-  if (!store.latitude || !store.longitude) return null;
+  const apiIsLoaded = useApiIsLoaded();
+
+  if (!store.latitude || !store.longitude || !apiIsLoaded) return null;
 
   const wild = getWildPokemon(store.id);
 
-  // Avoid google.maps.Size/Point here — they crash during SSR where google is undefined.
-  // Just pass the URL; the sprite renders at its natural size (96x96).
   return (
     <Marker
       position={{ lat: store.latitude, lng: store.longitude }}
       onClick={onClick}
       title={`${store.name} — Wild ${wild.name}!`}
-      icon={wild.spriteUrl}
+      icon={{
+        url: wild.spriteUrl,
+        scaledSize: new google.maps.Size(40, 40),
+        anchor: new google.maps.Point(20, 20),
+      }}
     />
   );
 }

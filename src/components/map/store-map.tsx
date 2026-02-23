@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
-import { APIProvider, Map as GoogleMap, Marker, useMap } from "@vis.gl/react-google-maps";
+import { APIProvider, Map as GoogleMap, Marker, useMap, useApiIsLoaded } from "@vis.gl/react-google-maps";
 import { PokeballMarker } from "./pokeball-marker";
 import { StoreDetailPanel } from "./store-detail-panel";
 import { searchNearbyStores } from "@/lib/places";
@@ -45,6 +45,7 @@ function MapContent({
   products: Product[];
 }) {
   const map = useMap();
+  const apiIsLoaded = useApiIsLoaded();
   const [storeData, setStoreData] = useState<StoreWithSightings[]>(initialStores);
   const [selectedStore, setSelectedStore] = useState<StoreWithSightings | null>(null);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -150,7 +151,7 @@ function MapContent({
         zoomControl={true}
         className="w-full h-full"
       >
-        {userLocation && (
+        {userLocation && apiIsLoaded && (
           <Marker
             position={userLocation}
             icon={{
