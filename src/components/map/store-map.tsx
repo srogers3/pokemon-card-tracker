@@ -47,7 +47,20 @@ function MapContent({
 }) {
   const map = useMap();
   const apiIsLoaded = useApiIsLoaded();
-  const [storeData, setStoreData] = useState<StoreWithSightings[]>(initialStores);
+  const [storeData, setStoreData] = useState<StoreWithSightings[]>(() => {
+    console.log("[StoreMap] Initial stores loaded:", initialStores.length);
+    console.table(
+      initialStores.map((s) => ({
+        id: s.store.id,
+        name: s.store.name,
+        lat: s.store.latitude,
+        lng: s.store.longitude,
+        location: s.store.locationLabel,
+        sightings: s.sightings.length,
+      }))
+    );
+    return initialStores;
+  });
   const [selectedStore, setSelectedStore] = useState<StoreWithSightings | null>(null);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locationDenied, setLocationDenied] = useState(false);
@@ -104,10 +117,24 @@ function MapContent({
       const newStores = await searchNearbyStores(lat, lng);
       setStoreData((prev) => {
         const existing = new Map(prev.map((s) => [s.store.id, s]));
+        const added: typeof newStores = [];
         for (const store of newStores) {
           if (!existing.has(store.id)) {
             existing.set(store.id, { store, lastSightingAt: null, hasSubmittedToday: false, sightings: [] });
+            added.push(store);
           }
+        }
+        if (added.length > 0) {
+          console.log(`[StoreMap] Discovered ${added.length} new stores near (${lat.toFixed(4)}, ${lng.toFixed(4)}):`);
+          console.table(
+            added.map((s) => ({
+              id: s.id,
+              name: s.name,
+              lat: s.latitude,
+              lng: s.longitude,
+              location: s.locationLabel,
+            }))
+          );
         }
         return Array.from(existing.values());
       });
@@ -208,6 +235,7 @@ function MapContent({
             hasSubmittedToday={sd.hasSubmittedToday}
             setMarkerRef={setMarkerRef}
             onClick={() => {
+              console.log(`[StoreMap] Selected: "${sd.store.name}" id=${sd.store.id} (${sd.store.latitude}, ${sd.store.longitude})`);
               setSelectedStore(sd);
               if (map && sd.store.latitude && sd.store.longitude) {
                 map.panTo({ lat: sd.store.latitude, lng: sd.store.longitude });
