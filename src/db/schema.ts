@@ -170,6 +170,7 @@ export const pokemonEggs = pgTable("pokemon_eggs", {
   pokemonId: integer("pokemon_id").references(() => pokemonCatalog.id),
   isShiny: boolean("is_shiny").default(false).notNull(),
   hatchedAt: timestamp("hatched_at"),
+  viewedAt: timestamp("viewed_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

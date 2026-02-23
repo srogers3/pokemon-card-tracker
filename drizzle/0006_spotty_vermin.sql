@@ -1,0 +1,1 @@
+ALTER TABLE "pokemon_eggs" ADD COLUMN "viewed_at" timestamp;
