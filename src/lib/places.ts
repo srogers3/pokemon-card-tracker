@@ -17,6 +17,29 @@ const SEARCH_QUERIES = [
   "Barnes Noble",
 ];
 
+// Place types that clearly cannot sell Pokemon cards
+const EXCLUDED_PLACE_TYPES = new Set([
+  "church", "place_of_worship", "mosque", "synagogue", "hindu_temple",
+  "school", "primary_school", "secondary_school", "university",
+  "hospital", "doctor", "dentist", "veterinary_care",
+  "cemetery", "funeral_home",
+  "police", "fire_station", "local_government_office", "city_hall", "courthouse",
+  "lawyer", "accounting", "insurance_agency", "real_estate_agency",
+  "car_dealer", "car_repair", "car_wash", "car_rental",
+  "gym", "hair_care", "beauty_salon", "spa",
+  "lodging", "campground",
+  "airport", "bus_station", "subway_station", "train_station", "transit_station",
+  "bank", "atm",
+  "parking",
+  "night_club", "bar",
+  "laundry",
+  "restaurant", "cafe", "meal_delivery", "meal_takeaway",
+]);
+
+function isLikelyRetailStore(types: string[]): boolean {
+  return !types.some((t) => EXCLUDED_PLACE_TYPES.has(t));
+}
+
 function mapStoreType(types: string[]): "big_box" | "lgs" | "grocery" | "pharmacy" | "other" {
   const typeSet = new Set(types);
   if (typeSet.has("department_store") || typeSet.has("shopping_mall")) return "big_box";
@@ -101,6 +124,8 @@ export async function searchNearbyStores(lat: number, lng: number, radius: numbe
   }
 
   for (const place of uniquePlaces.values()) {
+    if (!isLikelyRetailStore(place.types)) continue;
+
     // Store just the photo resource name — construct full URL at render time
     // to avoid persisting the API key in the database
     const photoUrl = place.photos?.[0]?.name ?? null;

@@ -1,66 +1,66 @@
 "use client";
 
-import { AdvancedMarker } from "@vis.gl/react-google-maps";
+import { Marker } from "@vis.gl/react-google-maps";
+import { POKEMON_DATA, getSpriteUrl } from "@/db/pokemon-data";
 import type { Store } from "@/db/schema";
 
-type MarkerState = "active" | "inactive" | "hot";
+const RARITY_WEIGHTS = [
+  { tier: "common", weight: 0.60 },
+  { tier: "uncommon", weight: 0.25 },
+  { tier: "rare", weight: 0.12 },
+  { tier: "ultra_rare", weight: 0.03 },
+] as const;
 
-function getMarkerState(lastSightingAt: Date | null): MarkerState {
-  if (!lastSightingAt) return "inactive";
-  const hoursSince = (Date.now() - new Date(lastSightingAt).getTime()) / (1000 * 60 * 60);
-  if (hoursSince <= 4) return "hot";
-  if (hoursSince <= 48) return "active";
-  return "inactive";
+function simpleHash(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash);
 }
 
-const markerColors: Record<MarkerState, { top: string; band: string }> = {
-  active: { top: "#EF4444", band: "#1F2937" },
-  inactive: { top: "#9CA3AF", band: "#6B7280" },
-  hot: { top: "#D4A843", band: "#92710A" },
-};
+function getWildPokemon(storeId: string): { name: string; spriteUrl: string } {
+  const today = new Date().toISOString().split("T")[0];
+  const seed = storeId + today;
+  const hash = simpleHash(seed);
+  const tierRand = (hash % 1000) / 1000;
 
-function PokeballSvg({ state }: { state: MarkerState }) {
-  const colors = markerColors[state];
-  return (
-    <svg width="36" height="36" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
-      <path d="M18 2 A16 16 0 0 1 34 18 H22 A4 4 0 0 0 14 18 H2 A16 16 0 0 1 18 2Z" fill={colors.top} />
-      <path d="M2 18 H14 A4 4 0 0 0 22 18 H34 A16 16 0 0 1 2 18Z" fill="white" />
-      <rect x="2" y="16.5" width="32" height="3" rx="1.5" fill={colors.band} />
-      <circle cx="18" cy="18" r="5" fill={colors.band} />
-      <circle cx="18" cy="18" r="3" fill="white" />
-      <circle cx="18" cy="18" r="17" fill="none" stroke={colors.band} strokeWidth="1" />
-      {state === "hot" && (
-        <circle cx="18" cy="18" r="17" fill="none" stroke="#D4A843" strokeWidth="2" opacity="0.6">
-          <animate attributeName="r" values="17;20;17" dur="2s" repeatCount="indefinite" />
-          <animate attributeName="opacity" values="0.6;0;0.6" dur="2s" repeatCount="indefinite" />
-        </circle>
-      )}
-    </svg>
-  );
+  let cumulative = 0;
+  let selectedTier = "common";
+  for (const { tier, weight } of RARITY_WEIGHTS) {
+    cumulative += weight;
+    if (tierRand < cumulative) {
+      selectedTier = tier;
+      break;
+    }
+  }
+
+  const tierPokemon = POKEMON_DATA.filter((p) => p.rarityTier === selectedTier);
+  const idx = simpleHash(seed + "pick") % tierPokemon.length;
+  const pokemon = tierPokemon[idx];
+  return { name: pokemon.name, spriteUrl: getSpriteUrl(pokemon.id) };
 }
 
 export function PokeballMarker({
   store,
-  lastSightingAt,
   onClick,
 }: {
   store: Store;
-  lastSightingAt: Date | null;
   onClick: () => void;
 }) {
   if (!store.latitude || !store.longitude) return null;
 
-  const state = getMarkerState(lastSightingAt);
+  const wild = getWildPokemon(store.id);
 
+  // Avoid google.maps.Size/Point here — they crash during SSR where google is undefined.
+  // Just pass the URL; the sprite renders at its natural size (96x96).
   return (
-    <AdvancedMarker
+    <Marker
       position={{ lat: store.latitude, lng: store.longitude }}
       onClick={onClick}
-      title={store.name}
-    >
-      <div className="cursor-pointer transition-transform hover:scale-110">
-        <PokeballSvg state={state} />
-      </div>
-    </AdvancedMarker>
+      title={`${store.name} — Wild ${wild.name}!`}
+      icon={wild.spriteUrl}
+    />
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
-import { APIProvider, Map as GoogleMap, AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
+import { APIProvider, Map as GoogleMap, Marker, useMap } from "@vis.gl/react-google-maps";
 import { PokeballMarker } from "./pokeball-marker";
 import { StoreDetailPanel } from "./store-detail-panel";
 import { searchNearbyStores } from "@/lib/places";
@@ -32,6 +32,11 @@ const DEFAULT_CENTER = { lat: 39.8283, lng: -98.5795 };
 const DEFAULT_ZOOM = 4;
 const LOCATED_ZOOM = 13;
 
+// Hide default Google Maps POI labels so only our markers show
+const POI_OFF_STYLES: google.maps.MapTypeStyle[] = [
+  { featureType: "poi", stylers: [{ visibility: "off" }] },
+];
+
 function MapContent({
   initialStores,
   products,
@@ -46,6 +51,13 @@ function MapContent({
   const [locationDenied, setLocationDenied] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const lastSearchCenter = useRef<{ lat: number; lng: number } | null>(null);
+
+  // Apply map styles programmatically (the styles prop on GoogleMap doesn't work)
+  useEffect(() => {
+    if (map) {
+      map.setOptions({ styles: POI_OFF_STYLES });
+    }
+  }, [map]);
 
   const handleSearchArea = useCallback(
     async (lat: number, lng: number) => {
@@ -133,26 +145,30 @@ function MapContent({
       <GoogleMap
         defaultCenter={userLocation || DEFAULT_CENTER}
         defaultZoom={userLocation ? LOCATED_ZOOM : DEFAULT_ZOOM}
-        mapId="store-map"
         gestureHandling="greedy"
         disableDefaultUI={true}
         zoomControl={true}
         className="w-full h-full"
       >
         {userLocation && (
-          <AdvancedMarker position={userLocation}>
-            <div className="relative">
-              <div className="w-4 h-4 bg-blue-500 rounded-full border-2 border-white shadow-md" />
-              <div className="absolute inset-0 w-4 h-4 bg-blue-500 rounded-full animate-ping opacity-40" />
-            </div>
-          </AdvancedMarker>
+          <Marker
+            position={userLocation}
+            icon={{
+              path: google.maps.SymbolPath.CIRCLE,
+              scale: 8,
+              fillColor: "#3B82F6",
+              fillOpacity: 1,
+              strokeColor: "white",
+              strokeWeight: 2,
+            }}
+            zIndex={1000}
+          />
         )}
 
         {storeData.map((sd) => (
           <PokeballMarker
             key={sd.store.id}
             store={sd.store}
-            lastSightingAt={sd.lastSightingAt}
             onClick={() => setSelectedStore(sd)}
           />
         ))}
