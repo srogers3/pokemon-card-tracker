@@ -44,8 +44,8 @@ export function PokeballMarker({
 
   // Deterministic animation delay so sprites don't bob in sync
   const animDelay = (simpleHash(store.id) % 3000) / 1000;
-  const size = isSelected ? 64 : 48;
-  const spriteSize = isSelected ? 44 : 32;
+  const size = isSelected ? 128 : 48;
+  const spriteSize = isSelected ? 88 : 32;
 
   return (
     <AdvancedMarker

@@ -20,7 +20,14 @@
       "Bash(npm test:*)",
       "Bash(npx tsc:*)",
       "Bash(npx next lint:*)",
-      "Bash(npx next build:*)"
+      "Bash(npx next build:*)",
+      "WebFetch(domain:www.rorzcards.com)",
+      "Bash(npm run db:generate:*)",
+      "Bash(npm run db:migrate:*)",
+      "Bash(npx tsx:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(npm ls:*)"
     ]
   }
 }
