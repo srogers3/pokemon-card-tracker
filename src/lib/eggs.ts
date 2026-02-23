@@ -339,9 +339,9 @@ export async function getUnviewedHatches(userId: string) {
   });
 }
 
-export async function markEggViewed(eggId: string) {
+export async function markEggViewed(userId: string, eggId: string) {
   await db
     .update(pokemonEggs)
     .set({ viewedAt: new Date() })
-    .where(eq(pokemonEggs.id, eggId));
+    .where(and(eq(pokemonEggs.id, eggId), eq(pokemonEggs.userId, userId)));
 }

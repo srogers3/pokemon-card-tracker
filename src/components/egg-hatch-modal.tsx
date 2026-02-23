@@ -139,7 +139,7 @@ export function EggHatchModal({ hatches }: { hatches: HatchData[] }) {
               style={{
                 animation:
                   stage === "wobble1"
-                    ? "egg-wobble 700ms ease-in-out"
+                    ? "egg-wobble-mild 700ms ease-in-out"
                     : stage === "wobble2"
                       ? "egg-wobble 700ms ease-in-out"
                       : stage === "wobble3"

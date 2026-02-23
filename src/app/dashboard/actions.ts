@@ -79,6 +79,6 @@ export async function getStoreTrends(storeId: string) {
 }
 
 export async function markEggViewedAction(eggId: string) {
-  await requireUser();
-  await markEggViewed(eggId);
+  const user = await requireUser();
+  await markEggViewed(user.id, eggId);
 }
