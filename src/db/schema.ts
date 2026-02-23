@@ -7,6 +7,7 @@ import {
   integer,
   pgEnum,
   doublePrecision,
+  unique,
 } from "drizzle-orm/pg-core";
 
 // Enums
@@ -172,6 +173,17 @@ export const pokemonEggs = pgTable("pokemon_eggs", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const searchCache = pgTable(
+  "search_cache",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    gridLat: doublePrecision("grid_lat").notNull(),
+    gridLng: doublePrecision("grid_lng").notNull(),
+    searchedAt: timestamp("searched_at").defaultNow().notNull(),
+  },
+  (table) => [unique("search_cache_grid_unique").on(table.gridLat, table.gridLng)]
+);
+
 // Type exports
 export type Store = typeof stores.$inferSelect;
 export type NewStore = typeof stores.$inferInsert;
@@ -187,3 +199,4 @@ export type NewAlertPreference = typeof alertPreferences.$inferInsert;
 export type ReporterBadge = typeof reporterBadges.$inferSelect;
 export type PokemonCatalogEntry = typeof pokemonCatalog.$inferSelect;
 export type PokemonEgg = typeof pokemonEggs.$inferSelect;
+export type SearchCache = typeof searchCache.$inferSelect;
