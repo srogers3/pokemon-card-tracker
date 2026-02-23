@@ -6,8 +6,15 @@ import Link from "next/link";
 import { db } from "@/db";
 import { restockSightings, stores, products } from "@/db/schema";
 import { desc, eq, and, gte } from "drizzle-orm";
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 
 export default async function LandingPage() {
+  const { userId } = await auth();
+  if (userId) {
+    redirect("/dashboard");
+  }
+
   const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000);
 
   const recentSightings = await db
