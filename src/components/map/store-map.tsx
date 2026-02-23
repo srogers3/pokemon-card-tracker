@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
-import { APIProvider, Map, AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
+import { APIProvider, Map as GoogleMap, AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 import { PokeballMarker } from "./pokeball-marker";
 import { StoreDetailPanel } from "./store-detail-panel";
 import { searchNearbyStores } from "@/lib/places";
@@ -130,7 +130,7 @@ function MapContent({
 
   return (
     <>
-      <Map
+      <GoogleMap
         defaultCenter={userLocation || DEFAULT_CENTER}
         defaultZoom={userLocation ? LOCATED_ZOOM : DEFAULT_ZOOM}
         mapId="store-map"
@@ -156,7 +156,7 @@ function MapContent({
             onClick={() => setSelectedStore(sd)}
           />
         ))}
-      </Map>
+      </GoogleMap>
 
       <div className="absolute top-4 left-4 right-4 md:left-auto md:right-4 md:w-80 z-10">
         {locationDenied && !userLocation && (

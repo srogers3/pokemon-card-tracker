@@ -1,6 +1,13 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+let _resend: Resend | null = null;
+
+function getResend() {
+  if (!_resend) {
+    _resend = new Resend(process.env.RESEND_API_KEY);
+  }
+  return _resend;
+}
 
 export async function sendRestockAlert({
   to,
@@ -15,7 +22,7 @@ export async function sendRestockAlert({
   storeLocation: string;
   status: string;
 }) {
-  await resend.emails.send({
+  await getResend().emails.send({
     from: "Pokemon Card Tracker <noreply@yourdomain.com>",
     to,
     subject: `Restock Alert: ${productName} at ${storeName}`,
