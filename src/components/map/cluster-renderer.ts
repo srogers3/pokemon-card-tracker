@@ -60,6 +60,7 @@ export const clusterRenderer: Renderer = {
       justify-content: center;
       position: relative;
       cursor: pointer;
+      animation: float 3s ease-in-out infinite;
     `;
 
     // Pokeball icon
