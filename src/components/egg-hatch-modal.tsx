@@ -37,7 +37,7 @@ const RARITY_LABEL_COLOR: Record<string, string> = {
   ultra_rare: "text-purple-400",
 };
 
-export function EggHatchModal({ hatches }: { hatches: HatchData[] }) {
+export function EggHatchModal({ hatches, onComplete }: { hatches: HatchData[]; onComplete?: () => void }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [stage, setStage] = useState<AnimStage>("idle");
   const [open, setOpen] = useState(true);
@@ -76,8 +76,9 @@ export function EggHatchModal({ hatches }: { hatches: HatchData[] }) {
       setCurrentIndex((i) => i + 1);
     } else {
       setOpen(false);
+      onComplete?.();
     }
-  }, [stage, current, currentIndex, hatches.length]);
+  }, [stage, current, currentIndex, hatches.length, onComplete]);
 
   if (!open || !current) return null;
 
@@ -136,9 +137,10 @@ export function EggHatchModal({ hatches }: { hatches: HatchData[] }) {
             />
           )}
 
-          {/* Egg */}
+          {/* Egg — key forces remount so CSS animation re-triggers each stage */}
           {showEgg && (
             <div
+              key={stage}
               className="text-8xl select-none"
               style={{
                 animation:
