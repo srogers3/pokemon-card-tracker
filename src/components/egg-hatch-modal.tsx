@@ -204,15 +204,13 @@ export function EggHatchModal({ hatches, onComplete }: { hatches: HatchData[]; o
           </div>
         )}
 
-        {/* Continue prompt */}
-        {stage === "done" && (
-          <button
-            onClick={handleContinue}
-            className="mt-8 text-white/60 text-sm animate-pulse hover:text-white/90 transition-colors"
-          >
-            {currentIndex < hatches.length - 1 ? "Tap to continue" : "Tap to close"}
-          </button>
-        )}
+        {/* Continue prompt — always rendered to reserve space, visible only when done */}
+        <button
+          onClick={handleContinue}
+          className={`mt-8 text-sm transition-all ${stage === "done" ? "text-white/60 animate-pulse hover:text-white/90" : "text-transparent pointer-events-none"}`}
+        >
+          {currentIndex < hatches.length - 1 ? "Tap to continue" : "Tap to close"}
+        </button>
       </div>
     </div>
   );

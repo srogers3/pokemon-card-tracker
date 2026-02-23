@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null); if [ -z \"$REPO_ROOT\" ]; then exit 0; fi; MAIN_ROOT=$(cd \"$REPO_ROOT\" && git rev-parse --path-format=absolute --git-common-dir 2>/dev/null | sed \"s|/.git$||\" ); if [ \"$REPO_ROOT\" = \"$MAIN_ROOT\" ]; then exit 0; fi; if [ ! -f \"$REPO_ROOT/.env.local\" ] && [ -f \"$MAIN_ROOT/.env.local\" ]; then ln -s \"$MAIN_ROOT/.env.local\" \"$REPO_ROOT/.env.local\" && echo \"Symlinked .env.local from main repo into worktree\"; fi'"
+          }
+        ]
+      }
+    ]
+  }
+}
