@@ -27,10 +27,28 @@ const TRANSFER_POINTS: Record<RarityTier, number> = {
 
 const SHINY_CHANCE = 1 / 50; // 2%
 
+// Upgrade chance by report status
+const UPGRADE_CHANCE: Record<string, number> = {
+  not_found: 0.05,
+  found: 0.20,
+  found_corroborated: 0.35,
+};
+
+// When upgrade triggers, relative weight for each tier above wild Pokemon's tier
+const UPGRADE_TIER_WEIGHTS: Record<RarityTier, number> = {
+  common: 0,
+  uncommon: 60,
+  rare: 30,
+  ultra_rare: 10,
+};
+
+const TIER_ORDER: RarityTier[] = ["common", "uncommon", "rare", "ultra_rare"];
+
 export async function createEgg(
   userId: string,
   sightingId: string,
-  reportStatus: "found" | "not_found"
+  reportStatus: "found" | "not_found",
+  wildPokemonId: number
 ): Promise<string> {
   const [egg] = await db
     .insert(pokemonEggs)
@@ -38,6 +56,7 @@ export async function createEgg(
       userId,
       sightingId,
       reportStatus,
+      wildPokemonId,
     })
     .returning();
 
@@ -47,8 +66,7 @@ export async function createEgg(
 export async function hatchEgg(
   sightingId: string,
   corroborated: boolean = false
-): Promise<{ pokemonName: string; isShiny: boolean } | null> {
-  // Find the egg for this sighting
+): Promise<{ pokemonName: string; isShiny: boolean; wasUpgrade: boolean; wildPokemonName: string | null } | null> {
   const [egg] = await db
     .select()
     .from(pokemonEggs)
@@ -62,25 +80,46 @@ export async function hatchEgg(
 
   if (!egg) return null;
 
-  // Determine rarity pool
-  let poolKey = egg.reportStatus as string;
-  if (poolKey === "found" && corroborated) {
-    poolKey = "found_corroborated";
+  let pokemon: { id: number; name: string; rarityTier: RarityTier };
+  let wasUpgrade = false;
+  let wildPokemonName: string | null = null;
+
+  if (egg.wildPokemonId) {
+    // New behavior: base + upgrade
+    const wildPokemon = POKEMON_DATA.find((p) => p.id === egg.wildPokemonId);
+    if (!wildPokemon) {
+      pokemon = rollRandomPokemon(egg.reportStatus as string, corroborated);
+    } else {
+      wildPokemonName = wildPokemon.name;
+
+      let poolKey = egg.reportStatus as string;
+      if (poolKey === "found" && corroborated) {
+        poolKey = "found_corroborated";
+      }
+      const upgradeChance = UPGRADE_CHANCE[poolKey] ?? UPGRADE_CHANCE["not_found"];
+
+      if (Math.random() < upgradeChance) {
+        const wildTierIndex = TIER_ORDER.indexOf(wildPokemon.rarityTier);
+        const eligibleTiers = TIER_ORDER.slice(wildTierIndex + 1);
+        if (eligibleTiers.length > 0) {
+          const tier = rollUpgradeTier(eligibleTiers);
+          const tierPokemon = POKEMON_DATA.filter((p) => p.rarityTier === tier);
+          pokemon = tierPokemon[Math.floor(Math.random() * tierPokemon.length)];
+          wasUpgrade = true;
+        } else {
+          pokemon = wildPokemon;
+        }
+      } else {
+        pokemon = wildPokemon;
+      }
+    }
+  } else {
+    // Legacy behavior for eggs without wildPokemonId
+    pokemon = rollRandomPokemon(egg.reportStatus as string, corroborated);
   }
-  const weights = RARITY_WEIGHTS[poolKey] ?? RARITY_WEIGHTS["not_found"];
 
-  // Roll rarity tier
-  const tier = rollRarity(weights);
-
-  // Pick random Pokemon from that tier
-  const pokemonInTier = POKEMON_DATA.filter((p) => p.rarityTier === tier);
-  const pokemon =
-    pokemonInTier[Math.floor(Math.random() * pokemonInTier.length)];
-
-  // Roll shiny
   const isShiny = Math.random() < SHINY_CHANCE;
 
-  // Update the egg
   await db
     .update(pokemonEggs)
     .set({
@@ -91,10 +130,39 @@ export async function hatchEgg(
     })
     .where(eq(pokemonEggs.id, egg.id));
 
-  // Check for pokedex badges
   await checkPokedexBadges(egg.userId);
 
-  return { pokemonName: pokemon.name, isShiny };
+  return { pokemonName: pokemon.name, isShiny, wasUpgrade, wildPokemonName };
+}
+
+function rollUpgradeTier(eligibleTiers: RarityTier[]): RarityTier {
+  const weights = eligibleTiers.map((tier) => ({
+    tier,
+    weight: UPGRADE_TIER_WEIGHTS[tier],
+  }));
+  const total = weights.reduce((sum, w) => sum + w.weight, 0);
+  let roll = Math.random() * total;
+
+  for (const { tier, weight } of weights) {
+    roll -= weight;
+    if (roll <= 0) return tier;
+  }
+
+  return eligibleTiers[eligibleTiers.length - 1];
+}
+
+function rollRandomPokemon(
+  reportStatus: string,
+  corroborated: boolean
+): { id: number; name: string; rarityTier: RarityTier } {
+  let poolKey = reportStatus;
+  if (poolKey === "found" && corroborated) {
+    poolKey = "found_corroborated";
+  }
+  const weights = RARITY_WEIGHTS[poolKey] ?? RARITY_WEIGHTS["not_found"];
+  const tier = rollRarity(weights);
+  const pokemonInTier = POKEMON_DATA.filter((p) => p.rarityTier === tier);
+  return pokemonInTier[Math.floor(Math.random() * pokemonInTier.length)];
 }
 
 export async function transferPokemon(
@@ -209,6 +277,7 @@ export async function getUserCollection(userId: string) {
     .select({
       id: pokemonEggs.id,
       pokemonId: pokemonEggs.pokemonId,
+      wildPokemonId: pokemonEggs.wildPokemonId,
       isShiny: pokemonEggs.isShiny,
       hatched: pokemonEggs.hatched,
       hatchedAt: pokemonEggs.hatchedAt,

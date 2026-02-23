@@ -14,6 +14,7 @@ import {
   updateReporterStats,
 } from "@/lib/trust";
 import { createEgg, hatchEgg } from "@/lib/eggs";
+import { getWildPokemon } from "@/lib/wild-pokemon";
 
 export async function submitTip(formData: FormData) {
   const user = await requireUser();
@@ -47,9 +48,12 @@ export async function submitTip(formData: FormData) {
     })
     .returning();
 
+  // Get wild Pokemon for this store (deterministic by storeId + date)
+  const wildPokemon = getWildPokemon(storeId);
+
   // Create an egg for this report
   const status = formData.get("status") as "found" | "not_found";
-  await createEgg(userId, sighting.id, status);
+  await createEgg(userId, sighting.id, status, wildPokemon.id);
 
   // Update reporter stats (totalReports, streak)
   await updateReporterStats(userId);
