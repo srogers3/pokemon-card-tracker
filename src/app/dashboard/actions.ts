@@ -5,6 +5,7 @@ import { stores, restockSightings, products } from "@/db/schema";
 import { eq, desc, gte, and, isNotNull } from "drizzle-orm";
 import { auth } from "@clerk/nextjs/server";
 import { getSubmittedStoreIdsToday } from "@/lib/trust";
+import { analyzeTrends } from "@/lib/trends";
 
 export async function getStoresWithSightings() {
   const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000);
@@ -57,4 +58,20 @@ export async function getStoresWithSightings() {
       })),
     };
   });
+}
+
+export async function getStoreTrends(storeId: string) {
+  const sightings = await db
+    .select({ sightedAt: restockSightings.sightedAt })
+    .from(restockSightings)
+    .where(
+      and(
+        eq(restockSightings.storeId, storeId),
+        eq(restockSightings.status, "found"),
+        eq(restockSightings.verified, true)
+      )
+    );
+
+  const dates = sightings.map((s) => new Date(s.sightedAt));
+  return analyzeTrends(dates);
 }
