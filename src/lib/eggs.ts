@@ -4,7 +4,7 @@ import {
   reporterBadges,
   badgeTypeEnum,
 } from "@/db/schema";
-import { eq, and, sql } from "drizzle-orm";
+import { eq, and, sql, isNotNull, isNull } from "drizzle-orm";
 import { POKEMON_DATA, getSpriteUrl } from "@/db/pokemon-data";
 import { adjustTrustScore } from "@/lib/trust";
 
@@ -315,10 +315,11 @@ export async function getUnviewedHatches(userId: string) {
       and(
         eq(pokemonEggs.userId, userId),
         eq(pokemonEggs.hatched, true),
-        sql`${pokemonEggs.pokemonId} IS NOT NULL`,
-        sql`${pokemonEggs.viewedAt} IS NULL`
+        isNotNull(pokemonEggs.pokemonId),
+        isNull(pokemonEggs.viewedAt)
       )
-    );
+    )
+    .orderBy(pokemonEggs.hatchedAt);
 
   return eggs.map((egg) => {
     const pokemon = POKEMON_DATA.find((p) => p.id === egg.pokemonId);

@@ -64,8 +64,12 @@ export function EggHatchModal({ hatches }: { hatches: HatchData[] }) {
   const handleContinue = useCallback(async () => {
     if (stage !== "done") return;
 
-    // Mark current egg as viewed
-    await markEggViewedAction(current.id);
+    // Mark current egg as viewed — advance even on failure so modal isn't stuck
+    try {
+      await markEggViewedAction(current.id);
+    } catch {
+      // User will see the egg again next visit if this fails
+    }
 
     if (currentIndex < hatches.length - 1) {
       setStage("idle");
