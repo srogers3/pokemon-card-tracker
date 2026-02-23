@@ -48,7 +48,7 @@ export async function createEgg(
   userId: string,
   sightingId: string,
   reportStatus: "found" | "not_found",
-  wildPokemonId: number
+  wildPokemonId?: number
 ): Promise<string> {
   const [egg] = await db
     .insert(pokemonEggs)
