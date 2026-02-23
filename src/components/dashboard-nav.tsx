@@ -19,7 +19,7 @@ export function DashboardNav({ isPremium }: { isPremium: boolean }) {
   const pathname = usePathname();
 
   return (
-    <nav className="flex gap-1 border-b border-border/50 pb-4 mb-6">
+    <nav className="hidden md:flex gap-1 border-b border-border/50 pb-4 mb-6">
       {links.map((link) => {
         if (link.premium && !isPremium) return null;
         const isActive = pathname === link.href;

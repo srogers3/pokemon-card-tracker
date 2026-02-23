@@ -11,8 +11,8 @@ export default async function DashboardLayout({
 
   return (
     <div className="min-h-screen flex flex-col">
-      <SiteHeader />
-      <div className="px-4 pt-4">
+      <SiteHeader isPremium={user.subscriptionTier === "premium"} />
+      <div className="hidden md:block px-4 pt-4">
         <DashboardNav isPremium={user.subscriptionTier === "premium"} />
       </div>
       <div className="flex-1">
