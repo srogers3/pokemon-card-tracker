@@ -91,7 +91,6 @@ export const restockSightings = pgTable("restock_sightings", {
     .notNull()
     .references(() => stores.id),
   productId: uuid("product_id")
-    .notNull()
     .references(() => products.id),
   reportedBy: text("reported_by").notNull(),
   sightedAt: timestamp("sighted_at").notNull(),

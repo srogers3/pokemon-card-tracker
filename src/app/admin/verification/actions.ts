@@ -3,7 +3,7 @@
 import { db } from "@/db";
 import { alertPreferences, users as usersTable, restockSightings, stores, products } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth";
-import { eq, and, or, isNull } from "drizzle-orm";
+import { eq, and, or, isNull, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { sendRestockAlert } from "@/lib/email";
 import { adjustTrustScore } from "@/lib/trust";
@@ -29,7 +29,7 @@ export async function verifySighting(id: string) {
     })
     .from(restockSightings)
     .innerJoin(stores, eq(restockSightings.storeId, stores.id))
-    .innerJoin(products, eq(restockSightings.productId, products.id))
+    .leftJoin(products, eq(restockSightings.productId, products.id))
     .where(eq(restockSightings.id, id))
     .limit(1);
 
@@ -38,29 +38,31 @@ export async function verifySighting(id: string) {
     await adjustTrustScore(sighting.reportedBy, 5);
     await hatchEgg(id, false);
 
+    const alertConditions = [
+      or(
+        isNull(alertPreferences.productId),
+        ...(sighting.productId
+          ? [eq(alertPreferences.productId, sighting.productId)]
+          : [])
+      ),
+      or(
+        eq(alertPreferences.region, sighting.storeLocation),
+        isNull(alertPreferences.region)
+      ),
+    ];
+
     const matchingAlerts = await db
       .select({
         email: usersTable.email,
       })
       .from(alertPreferences)
       .innerJoin(usersTable, eq(alertPreferences.userId, usersTable.id))
-      .where(
-        and(
-          or(
-            eq(alertPreferences.productId, sighting.productId),
-            isNull(alertPreferences.productId)
-          ),
-          or(
-            eq(alertPreferences.region, sighting.storeLocation),
-            isNull(alertPreferences.region)
-          )
-        )
-      );
+      .where(and(...alertConditions));
 
     for (const alert of matchingAlerts) {
       await sendRestockAlert({
         to: alert.email,
-        productName: sighting.productName,
+        productName: sighting.productName ?? "General report",
         storeName: sighting.storeName,
         storeLocation: sighting.storeLocation,
         status: sighting.status,

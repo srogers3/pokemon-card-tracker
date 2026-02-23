@@ -50,15 +50,19 @@ function getWildPokemon(storeId: string): { name: string; spriteUrl: string; rar
   return { name: pokemon.name, spriteUrl: getSpriteUrl(pokemon.id), rarity: selectedTier };
 }
 
+const EGG_SPRITE_URL = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lucky-egg.png";
+
 export function PokeballMarker({
   store,
   onClick,
   isSelected,
+  hasSubmittedToday,
   setMarkerRef,
 }: {
   store: Store;
   onClick: () => void;
   isSelected: boolean;
+  hasSubmittedToday: boolean;
   setMarkerRef?: (marker: google.maps.marker.AdvancedMarkerElement | null, id: string) => void;
 }) {
   const ref = useCallback(
@@ -71,8 +75,10 @@ export function PokeballMarker({
   if (!store.latitude || !store.longitude) return null;
 
   const wild = getWildPokemon(store.id);
-  const borderColor = RARITY_BORDER_COLORS[wild.rarity] ?? "#9CA3AF";
-  const isRainbow = borderColor === "rainbow";
+  const spriteUrl = hasSubmittedToday ? EGG_SPRITE_URL : wild.spriteUrl;
+  const spriteName = hasSubmittedToday ? "Egg" : wild.name;
+  const borderColor = hasSubmittedToday ? "#9CA3AF" : (RARITY_BORDER_COLORS[wild.rarity] ?? "#9CA3AF");
+  const isRainbow = !hasSubmittedToday && borderColor === "rainbow";
 
   // Deterministic animation delay so sprites don't bob in sync
   const animDelay = (simpleHash(store.id) % 3000) / 1000;
@@ -84,7 +90,7 @@ export function PokeballMarker({
       ref={ref}
       position={{ lat: store.latitude, lng: store.longitude }}
       onClick={onClick}
-      title={`${store.name} — Wild ${wild.name}!`}
+      title={`${store.name} — ${hasSubmittedToday ? "Already scouted!" : `Wild ${spriteName}!`}`}
       zIndex={isSelected ? 999 : undefined}
     >
       <div
@@ -121,8 +127,8 @@ export function PokeballMarker({
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={wild.spriteUrl}
-            alt={wild.name}
+            src={spriteUrl}
+            alt={spriteName}
             width={spriteSize}
             height={spriteSize}
             style={{

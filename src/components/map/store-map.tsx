@@ -15,6 +15,7 @@ import type { Store, Product } from "@/db/schema";
 interface StoreWithSightings {
   store: Store;
   lastSightingAt: Date | null;
+  hasSubmittedToday: boolean;
   sightings: {
     id: string;
     productName: string;
@@ -105,7 +106,7 @@ function MapContent({
         const existing = new Map(prev.map((s) => [s.store.id, s]));
         for (const store of newStores) {
           if (!existing.has(store.id)) {
-            existing.set(store.id, { store, lastSightingAt: null, sightings: [] });
+            existing.set(store.id, { store, lastSightingAt: null, hasSubmittedToday: false, sightings: [] });
           }
         }
         return Array.from(existing.values());
@@ -204,6 +205,7 @@ function MapContent({
             key={sd.store.id}
             store={sd.store}
             isSelected={selectedStore?.store.id === sd.store.id}
+            hasSubmittedToday={sd.hasSubmittedToday}
             setMarkerRef={setMarkerRef}
             onClick={() => {
               setSelectedStore(sd);
@@ -250,6 +252,7 @@ function MapContent({
           store={selectedStore.store}
           sightings={selectedStore.sightings}
           products={products}
+          hasSubmittedToday={selectedStore.hasSubmittedToday}
           onClose={() => setSelectedStore(null)}
         />
       )}

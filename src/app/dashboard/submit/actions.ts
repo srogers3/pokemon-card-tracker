@@ -8,6 +8,7 @@ import { revalidatePath } from "next/cache";
 import {
   shouldAutoVerify,
   canSubmitReport,
+  hasSubmittedToStoreToday,
   checkCorroboration,
   adjustTrustScore,
   updateReporterStats,
@@ -24,7 +25,10 @@ export async function submitTip(formData: FormData) {
   if (!canSubmit) throw new Error("Daily report limit reached (max 10)");
 
   const storeId = formData.get("storeId") as string;
-  const productId = formData.get("productId") as string;
+  const alreadyReported = await hasSubmittedToStoreToday(userId, storeId);
+  if (alreadyReported) throw new Error("Already reported this location today");
+
+  const productId = (formData.get("productId") as string) || null;
   const sightedAt = new Date(formData.get("sightedAt") as string);
   const autoVerify = shouldAutoVerify(user.trustScore);
 
@@ -50,14 +54,13 @@ export async function submitTip(formData: FormData) {
   // Update reporter stats (totalReports, streak)
   await updateReporterStats(userId);
 
-  // Check for corroboration if not already auto-verified
-  if (!autoVerify) {
+  // Check for corroboration if not already auto-verified (only for product-specific reports)
+  if (!autoVerify && productId) {
     const corroboratedUserId = await checkCorroboration(sighting.id, storeId, productId, sightedAt);
     if (corroboratedUserId) {
-      // Award points to this reporter too
       await adjustTrustScore(userId, 10);
     }
-  } else {
+  } else if (autoVerify) {
     // Auto-verified — hatch egg immediately
     await hatchEgg(sighting.id, false);
     await adjustTrustScore(userId, 5);

@@ -3,9 +3,16 @@
 import { db } from "@/db";
 import { stores, restockSightings, products } from "@/db/schema";
 import { eq, desc, gte, and, isNotNull } from "drizzle-orm";
+import { auth } from "@clerk/nextjs/server";
+import { getSubmittedStoreIdsToday } from "@/lib/trust";
 
 export async function getStoresWithSightings() {
   const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000);
+
+  const { userId } = await auth();
+  const submittedStoreIds = userId
+    ? await getSubmittedStoreIdsToday(userId)
+    : new Set<string>();
 
   const allStores = await db
     .select()
@@ -24,7 +31,7 @@ export async function getStoresWithSightings() {
       verified: restockSightings.verified,
     })
     .from(restockSightings)
-    .innerJoin(products, eq(restockSightings.productId, products.id))
+    .leftJoin(products, eq(restockSightings.productId, products.id))
     .where(gte(restockSightings.sightedAt, fortyEightHoursAgo))
     .orderBy(desc(restockSightings.sightedAt));
 
@@ -40,9 +47,10 @@ export async function getStoresWithSightings() {
     return {
       store,
       lastSightingAt: storeSightings.length > 0 ? storeSightings[0].sightedAt : null,
+      hasSubmittedToday: submittedStoreIds.has(store.id),
       sightings: storeSightings.map((s) => ({
         id: s.id,
-        productName: s.productName,
+        productName: s.productName ?? "General report",
         status: s.status,
         sightedAt: s.sightedAt,
         verified: s.verified,

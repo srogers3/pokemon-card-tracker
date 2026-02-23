@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,6 +25,7 @@ export function MapSightingForm({
   onCancel: () => void;
 }) {
   const formRef = useRef<HTMLFormElement>(null);
+  const [status, setStatus] = useState<string>("");
 
   async function handleSubmit(formData: FormData) {
     formData.set("storeId", storeId);
@@ -38,24 +39,8 @@ export function MapSightingForm({
       <h4 className="text-sm font-semibold">Report Sighting</h4>
 
       <div>
-        <Label htmlFor="map-productId" className="text-xs">Product</Label>
-        <Select name="productId" required>
-          <SelectTrigger className="h-9">
-            <SelectValue placeholder="Select a product" />
-          </SelectTrigger>
-          <SelectContent>
-            {products.map((p) => (
-              <SelectItem key={p.id} value={p.id}>
-                {p.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div>
         <Label htmlFor="map-status" className="text-xs">Stock Status</Label>
-        <Select name="status" required>
+        <Select name="status" required value={status} onValueChange={setStatus}>
           <SelectTrigger className="h-9">
             <SelectValue placeholder="Select status" />
           </SelectTrigger>
@@ -65,6 +50,24 @@ export function MapSightingForm({
           </SelectContent>
         </Select>
       </div>
+
+      {status !== "not_found" && (
+        <div>
+          <Label htmlFor="map-productId" className="text-xs">Product</Label>
+          <Select name="productId" required={status === "found"}>
+            <SelectTrigger className="h-9">
+              <SelectValue placeholder="Select a product" />
+            </SelectTrigger>
+            <SelectContent>
+              {products.map((p) => (
+                <SelectItem key={p.id} value={p.id}>
+                  {p.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
       <div>
         <Label htmlFor="map-sightedAt" className="text-xs">When</Label>

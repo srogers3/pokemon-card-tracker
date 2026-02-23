@@ -37,6 +37,46 @@ export async function canSubmitReport(userId: string): Promise<boolean> {
   return (result?.count ?? 0) < MAX_REPORTS_PER_DAY;
 }
 
+export async function hasSubmittedToStoreToday(
+  userId: string,
+  storeId: string
+): Promise<boolean> {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const [result] = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(restockSightings)
+    .where(
+      and(
+        eq(restockSightings.reportedBy, userId),
+        eq(restockSightings.storeId, storeId),
+        gte(restockSightings.createdAt, today)
+      )
+    );
+
+  return (result?.count ?? 0) > 0;
+}
+
+export async function getSubmittedStoreIdsToday(
+  userId: string
+): Promise<Set<string>> {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const rows = await db
+    .select({ storeId: restockSightings.storeId })
+    .from(restockSightings)
+    .where(
+      and(
+        eq(restockSightings.reportedBy, userId),
+        gte(restockSightings.createdAt, today)
+      )
+    );
+
+  return new Set(rows.map((r) => r.storeId));
+}
+
 export async function checkCorroboration(
   sightingId: string,
   storeId: string,

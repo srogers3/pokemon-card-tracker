@@ -20,11 +20,13 @@ export function StoreDetailPanel({
   store,
   sightings,
   products,
+  hasSubmittedToday,
   onClose,
 }: {
   store: Store;
   sightings: Sighting[];
   products: Product[];
+  hasSubmittedToday: boolean;
   onClose: () => void;
 }) {
   const [showForm, setShowForm] = useState(false);
@@ -93,7 +95,13 @@ export function StoreDetailPanel({
         )}
 
         {/* Report Sighting button or inline form */}
-        {showForm ? (
+        {hasSubmittedToday ? (
+          <div className="bg-muted/50 rounded-lg p-4 text-center space-y-1">
+            <p className="text-2xl">🥚</p>
+            <p className="font-semibold text-sm">Your Trainer already scouted this location today!</p>
+            <p className="text-xs text-muted-foreground">Come back tomorrow — a new Pokemon might be waiting.</p>
+          </div>
+        ) : showForm ? (
           <MapSightingForm
             storeId={store.id}
             products={products}
