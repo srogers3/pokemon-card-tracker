@@ -6,6 +6,7 @@ import {
   boolean,
   integer,
   pgEnum,
+  doublePrecision,
 } from "drizzle-orm/pg-core";
 
 // Enums
@@ -67,6 +68,10 @@ export const stores = pgTable("stores", {
   locationLabel: text("location_label").notNull(),
   storeType: storeTypeEnum("store_type").notNull(),
   specificLocation: text("specific_location"),
+  latitude: doublePrecision("latitude"),
+  longitude: doublePrecision("longitude"),
+  placeId: text("place_id").unique(),
+  photoUrl: text("photo_url"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
