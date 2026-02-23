@@ -10,10 +10,12 @@ export default async function DashboardLayout({
   const user = await requireUser();
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen flex flex-col">
       <SiteHeader />
-      <div className="container mx-auto py-8 px-4">
+      <div className="px-4 pt-4">
         <DashboardNav isPremium={user.subscriptionTier === "premium"} />
+      </div>
+      <div className="flex-1">
         {children}
       </div>
     </div>
