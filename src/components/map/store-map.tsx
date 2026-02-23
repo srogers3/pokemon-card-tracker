@@ -86,9 +86,10 @@ function MapContent({
     clustererRef.current.clearMarkers();
     clustererRef.current.addMarkers(markersToCluster);
 
-    return () => {
-      // Don't destroy on every re-render — just clear markers
-    };
+    // Restore selected marker — clearMarkers sets map=null on all previously tracked markers
+    if (selectedStore?.store.id && markersRef.current[selectedStore.store.id]) {
+      markersRef.current[selectedStore.store.id].map = map;
+    }
   }, [map, storeData, selectedStore]);
 
   const handleSearchArea = useCallback(
