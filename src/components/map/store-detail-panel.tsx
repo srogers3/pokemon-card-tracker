@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { X, MapPin, Clock } from "lucide-react";
 import type { Store, Product } from "@/db/schema";
 import { MapSightingForm } from "./map-sighting-form";
+import { cn } from "@/lib/utils";
 
 interface Sighting {
   id: string;
@@ -29,7 +30,11 @@ export function StoreDetailPanel({
   const [showForm, setShowForm] = useState(false);
 
   return (
-    <div className="absolute bottom-0 left-0 right-0 z-10 max-h-[60vh] overflow-y-auto bg-card rounded-t-2xl shadow-lg border-t border-border/50 md:absolute md:right-4 md:bottom-4 md:left-auto md:w-96 md:rounded-2xl md:border md:max-h-[70vh]">
+    <div className={cn(
+      "absolute bottom-0 left-0 right-0 z-10 overflow-y-auto bg-card rounded-t-2xl shadow-lg border-t border-border/50 transition-[max-height] duration-300 ease-in-out",
+      showForm ? "max-h-[70vh]" : "max-h-[40vh]",
+      "md:absolute md:right-4 md:bottom-4 md:left-auto md:w-96 md:rounded-2xl md:border md:max-h-[70vh]"
+    )}>
       {/* Header */}
       <div className="sticky top-0 bg-card z-10 p-4 border-b border-border/50 flex items-start justify-between">
         <div>
