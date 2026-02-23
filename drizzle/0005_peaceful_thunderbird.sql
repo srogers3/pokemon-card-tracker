@@ -1,0 +1,2 @@
+ALTER TABLE "pokemon_eggs" ADD COLUMN "wild_pokemon_id" integer;--> statement-breakpoint
+ALTER TABLE "pokemon_eggs" ADD CONSTRAINT "pokemon_eggs_wild_pokemon_id_pokemon_catalog_id_fk" FOREIGN KEY ("wild_pokemon_id") REFERENCES "public"."pokemon_catalog"("id") ON DELETE no action ON UPDATE no action;

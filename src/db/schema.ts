@@ -165,6 +165,7 @@ export const pokemonEggs = pgTable("pokemon_eggs", {
     .notNull()
     .references(() => restockSightings.id, { onDelete: "cascade" }),
   reportStatus: stockStatusEnum("report_status").notNull(),
+  wildPokemonId: integer("wild_pokemon_id").references(() => pokemonCatalog.id),
   hatched: boolean("hatched").default(false).notNull(),
   pokemonId: integer("pokemon_id").references(() => pokemonCatalog.id),
   isShiny: boolean("is_shiny").default(false).notNull(),
