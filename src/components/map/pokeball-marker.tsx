@@ -2,15 +2,8 @@
 
 import { useCallback } from "react";
 import { AdvancedMarker } from "@vis.gl/react-google-maps";
-import { POKEMON_DATA, getSpriteUrl } from "@/db/pokemon-data";
 import type { Store } from "@/db/schema";
-
-const RARITY_WEIGHTS = [
-  { tier: "common", weight: 0.60 },
-  { tier: "uncommon", weight: 0.25 },
-  { tier: "rare", weight: 0.12 },
-  { tier: "ultra_rare", weight: 0.03 },
-] as const;
+import { getWildPokemon, simpleHash } from "@/lib/wild-pokemon";
 
 const RARITY_BORDER_COLORS: Record<string, string> = {
   common: "#9CA3AF",
@@ -18,37 +11,6 @@ const RARITY_BORDER_COLORS: Record<string, string> = {
   rare: "#F59E0B",
   ultra_rare: "rainbow",
 };
-
-function simpleHash(str: string): number {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = ((hash << 5) - hash) + str.charCodeAt(i);
-    hash |= 0;
-  }
-  return Math.abs(hash);
-}
-
-function getWildPokemon(storeId: string): { name: string; spriteUrl: string; rarity: string } {
-  const today = new Date().toISOString().split("T")[0];
-  const seed = storeId + today;
-  const hash = simpleHash(seed);
-  const tierRand = (hash % 1000) / 1000;
-
-  let selectedTier = "common";
-  let cumulative = 0;
-  for (const { tier, weight } of RARITY_WEIGHTS) {
-    cumulative += weight;
-    if (tierRand < cumulative) {
-      selectedTier = tier;
-      break;
-    }
-  }
-
-  const tierPokemon = POKEMON_DATA.filter((p) => p.rarityTier === selectedTier);
-  const idx = simpleHash(seed + "pick") % tierPokemon.length;
-  const pokemon = tierPokemon[idx];
-  return { name: pokemon.name, spriteUrl: getSpriteUrl(pokemon.id), rarity: selectedTier };
-}
 
 const EGG_SPRITE_URL = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lucky-egg.png";
 
