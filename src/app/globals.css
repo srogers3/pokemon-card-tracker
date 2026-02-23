@@ -133,6 +133,11 @@
   50% { transform: translateY(-4px); }
 }
 
+@keyframes rainbow-spin {
+  from { --rainbow-angle: 0deg; }
+  to { --rainbow-angle: 360deg; }
+}
+
 @keyframes glow-pulse {
   0%, 100% { box-shadow: 0 0 8px rgba(212, 168, 67, 0.3); }
   50% { box-shadow: 0 0 16px rgba(212, 168, 67, 0.5); }

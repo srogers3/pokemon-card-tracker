@@ -26,6 +26,7 @@ interface StoreMapProps {
   initialStores: StoreWithSightings[];
   products: Product[];
   apiKey: string;
+  mapId: string;
 }
 
 const DEFAULT_CENTER = { lat: 39.8283, lng: -98.5795 };
@@ -40,9 +41,11 @@ const POI_OFF_STYLES: google.maps.MapTypeStyle[] = [
 function MapContent({
   initialStores,
   products,
+  mapId,
 }: {
   initialStores: StoreWithSightings[];
   products: Product[];
+  mapId: string;
 }) {
   const map = useMap();
   const apiIsLoaded = useApiIsLoaded();
@@ -149,6 +152,7 @@ function MapContent({
         gestureHandling="greedy"
         disableDefaultUI={true}
         zoomControl={true}
+        mapId={mapId}
         className="w-full h-full"
       >
         {userLocation && apiIsLoaded && (
@@ -170,6 +174,7 @@ function MapContent({
           <PokeballMarker
             key={sd.store.id}
             store={sd.store}
+            isSelected={selectedStore?.store.id === sd.store.id}
             onClick={() => {
               setSelectedStore(sd);
               if (map && sd.store.latitude && sd.store.longitude) {
@@ -222,11 +227,11 @@ function MapContent({
   );
 }
 
-export function StoreMap({ initialStores, products, apiKey }: StoreMapProps) {
+export function StoreMap({ initialStores, products, apiKey, mapId }: StoreMapProps) {
   return (
     <APIProvider apiKey={apiKey}>
       <div className="relative w-full h-[calc(100vh-64px)]">
-        <MapContent initialStores={initialStores} products={products} />
+        <MapContent initialStores={initialStores} products={products} mapId={mapId} />
       </div>
     </APIProvider>
   );
