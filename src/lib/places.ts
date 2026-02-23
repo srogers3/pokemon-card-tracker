@@ -79,11 +79,18 @@ export async function searchNearbyStores(lat: number, lng: number, radius: numbe
   const margin = radius / 111000;
   const { gridLat, gridLng } = toGridCell(lat, lng);
 
-  // Check if this grid cell has already been searched
+  // Check if this grid cell has been searched within the last 7 days
+  const cacheExpiry = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
   const cached = await db
     .select()
     .from(searchCache)
-    .where(and(eq(searchCache.gridLat, gridLat), eq(searchCache.gridLng, gridLng)))
+    .where(
+      and(
+        eq(searchCache.gridLat, gridLat),
+        eq(searchCache.gridLng, gridLng),
+        gte(searchCache.searchedAt, cacheExpiry)
+      )
+    )
     .limit(1);
 
   if (cached.length > 0) {
@@ -177,11 +184,14 @@ export async function searchNearbyStores(lat: number, lng: number, radius: numbe
       });
   }
 
-  // Mark this grid cell as searched
+  // Mark this grid cell as searched (update timestamp if re-searching after expiry)
   await db
     .insert(searchCache)
     .values({ gridLat, gridLng })
-    .onConflictDoNothing();
+    .onConflictDoUpdate({
+      target: [searchCache.gridLat, searchCache.gridLng],
+      set: { searchedAt: new Date() },
+    });
 
   return db
     .select()
