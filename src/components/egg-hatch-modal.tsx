@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { markEggViewedAction } from "@/app/dashboard/actions";
+import { markBoxViewedAction } from "@/app/dashboard/actions";
 
 type HatchData = {
   id: string;
@@ -64,11 +64,11 @@ export function EggHatchModal({ hatches, onComplete }: { hatches: HatchData[]; o
   const handleContinue = useCallback(async () => {
     if (stage !== "done") return;
 
-    // Mark current egg as viewed — advance even on failure so modal isn't stuck
+    // Mark current box as viewed — advance even on failure so modal isn't stuck
     try {
-      await markEggViewedAction(current.id);
+      await markBoxViewedAction(current.id);
     } catch {
-      // User will see the egg again next visit if this fails
+      // User will see the box again next visit if this fails
     }
 
     if (currentIndex < hatches.length - 1) {

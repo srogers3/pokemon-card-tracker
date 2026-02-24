@@ -3,7 +3,7 @@
 import { useCallback } from "react";
 import { AdvancedMarker } from "@vis.gl/react-google-maps";
 import type { Store } from "@/db/schema";
-import { getWildPokemon, simpleHash } from "@/lib/wild-pokemon";
+import { getWildCreature, simpleHash } from "@/lib/wild-creature";
 
 const RARITY_BORDER_COLORS: Record<string, string> = {
   common: "#9CA3AF",
@@ -36,7 +36,7 @@ export function PokeballMarker({
 
   if (!store.latitude || !store.longitude) return null;
 
-  const wild = getWildPokemon(store.id);
+  const wild = getWildCreature(store.id);
   const spriteUrl = hasSubmittedToday ? EGG_SPRITE_URL : wild.spriteUrl;
   const spriteName = hasSubmittedToday ? "Egg" : wild.name;
   const borderColor = hasSubmittedToday ? "#9CA3AF" : (RARITY_BORDER_COLORS[wild.rarity] ?? "#9CA3AF");

@@ -7,8 +7,8 @@ import { eq, and, or, isNull, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { sendRestockAlert } from "@/lib/email";
 import { adjustTrustScore } from "@/lib/trust";
-import { hatchEgg } from "@/lib/eggs";
-import { pokemonEggs } from "@/db/schema";
+import { openBox } from "@/lib/boxes";
+import { creatureBoxes } from "@/db/schema";
 
 export async function verifySighting(id: string) {
   await requireAdmin();
@@ -34,9 +34,9 @@ export async function verifySighting(id: string) {
     .limit(1);
 
   if (sighting) {
-    // Award trust points to the reporter and hatch their egg
+    // Award trust points to the reporter and open their box
     await adjustTrustScore(sighting.reportedBy, 5);
-    await hatchEgg(id, false);
+    await openBox(id, false);
 
     const alertConditions = [
       or(
@@ -75,8 +75,8 @@ export async function verifySighting(id: string) {
 
 export async function rejectSighting(id: string) {
   await requireAdmin();
-  // Delete the egg first (cascade would handle this, but be explicit)
-  await db.delete(pokemonEggs).where(eq(pokemonEggs.sightingId, id));
+  // Delete the box first (cascade would handle this, but be explicit)
+  await db.delete(creatureBoxes).where(eq(creatureBoxes.sightingId, id));
   await db.delete(restockSightings).where(eq(restockSightings.id, id));
   revalidatePath("/admin/verification");
 }

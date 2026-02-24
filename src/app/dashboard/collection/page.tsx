@@ -1,6 +1,6 @@
 import { requireUser } from "@/lib/auth";
-import { getUserCollection, getPokedexCompletion } from "@/lib/eggs";
-import { POKEMON_DATA, getSpriteUrl } from "@/db/pokemon-data";
+import { getUserCollection, getCardboardexCompletion } from "@/lib/boxes";
+import { CREATURE_DATA, getSpriteUrl } from "@/db/creature-data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -11,7 +11,7 @@ export default async function CollectionPage() {
 
   const hatchedEggs = allEggs.filter((e) => e.hatched && e.pokemonId);
   const pendingEggs = allEggs.filter((e) => !e.hatched);
-  const uniqueCaught = getPokedexCompletion(hatchedEggs);
+  const uniqueCaught = getCardboardexCompletion(hatchedEggs);
 
   // Find recent upgrades (hatched in last 24h where Pokemon differs from wild Pokemon)
   const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
@@ -64,14 +64,14 @@ export default async function CollectionPage() {
           <CardContent className="pt-4">
             <div className="flex flex-col gap-2">
               {recentUpgrades.map((egg) => {
-                const wildPokemon = POKEMON_DATA.find((p) => p.id === egg.wildPokemonId);
-                const hatchedPokemon = POKEMON_DATA.find((p) => p.id === egg.pokemonId);
-                if (!wildPokemon || !hatchedPokemon) return null;
+                const wildCreature = CREATURE_DATA.find((p) => p.id === egg.wildPokemonId);
+                const hatchedCreature = CREATURE_DATA.find((p) => p.id === egg.pokemonId);
+                if (!wildCreature || !hatchedCreature) return null;
                 return (
                   <div key={egg.id} className="flex items-center gap-2 text-sm">
                     <span className="text-amber-500 font-medium">Lucky!</span>
                     <span>
-                      You got a {hatchedPokemon.name} instead of {wildPokemon.name}!
+                      You got a {hatchedCreature.name} instead of {wildCreature.name}!
                     </span>
                     {egg.isShiny && <span>✨</span>}
                   </div>
@@ -112,7 +112,7 @@ export default async function CollectionPage() {
 
       {/* Pokedex grid */}
       <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-2">
-        {POKEMON_DATA.sort((a, b) => a.id - b.id).map((pokemon) => {
+        {CREATURE_DATA.sort((a, b) => a.id - b.id).map((pokemon) => {
           const caught = caughtMap.get(pokemon.id);
           const isCaught = !!caught;
 

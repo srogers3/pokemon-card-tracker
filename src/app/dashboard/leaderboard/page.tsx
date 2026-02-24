@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { users, reporterBadges, pokemonEggs } from "@/db/schema";
+import { users, reporterBadges, creatureBoxes } from "@/db/schema";
 import { desc, gt, sql, eq } from "drizzle-orm";
 import {
   Table,
@@ -66,12 +66,12 @@ export default async function LeaderboardPage() {
   // Fetch pokedex completion for all users
   const pokedexData = await db
     .select({
-      userId: pokemonEggs.userId,
+      userId: creatureBoxes.userId,
       uniqueCaught: sql<number>`COUNT(DISTINCT pokemon_id)::int`,
     })
-    .from(pokemonEggs)
-    .where(eq(pokemonEggs.hatched, true))
-    .groupBy(pokemonEggs.userId);
+    .from(creatureBoxes)
+    .where(eq(creatureBoxes.hatched, true))
+    .groupBy(creatureBoxes.userId);
 
   const pokedexMap = new Map<string, number>();
   for (const p of pokedexData) {

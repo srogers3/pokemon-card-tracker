@@ -7,7 +7,7 @@ import { auth } from "@clerk/nextjs/server";
 import { getSubmittedStoreIdsToday } from "@/lib/trust";
 import { analyzeTrends } from "@/lib/trends";
 import { requireUser } from "@/lib/auth";
-import { markEggViewed } from "@/lib/eggs";
+import { markBoxViewed } from "@/lib/boxes";
 
 export async function getStoresWithSightings() {
   const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000);
@@ -78,7 +78,7 @@ export async function getStoreTrends(storeId: string) {
   return analyzeTrends(dates);
 }
 
-export async function markEggViewedAction(eggId: string) {
+export async function markBoxViewedAction(boxId: string) {
   const user = await requireUser();
-  await markEggViewed(user.id, eggId);
+  await markBoxViewed(user.id, boxId);
 }

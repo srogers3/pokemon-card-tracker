@@ -13,8 +13,8 @@ import {
   adjustTrustScore,
   updateReporterStats,
 } from "@/lib/trust";
-import { createEgg, hatchEgg } from "@/lib/eggs";
-import { getWildPokemon } from "@/lib/wild-pokemon";
+import { createBox, openBox } from "@/lib/boxes";
+import { getWildCreature } from "@/lib/wild-creature";
 
 export async function submitTip(formData: FormData) {
   const user = await requireUser();
@@ -48,12 +48,12 @@ export async function submitTip(formData: FormData) {
     })
     .returning();
 
-  // Get wild Pokemon for this store (deterministic by storeId + date)
-  const wildPokemon = getWildPokemon(storeId);
+  // Get wild creature for this store (deterministic by storeId + date)
+  const wildCreature = getWildCreature(storeId);
 
-  // Create an egg for this report
+  // Create a box for this report
   const status = formData.get("status") as "found" | "not_found";
-  await createEgg(userId, sighting.id, status, wildPokemon.id);
+  await createBox(userId, sighting.id, status, wildCreature.id);
 
   // Update reporter stats (totalReports, streak)
   await updateReporterStats(userId);
@@ -65,8 +65,8 @@ export async function submitTip(formData: FormData) {
       await adjustTrustScore(userId, 10);
     }
   } else if (autoVerify) {
-    // Auto-verified — hatch egg immediately
-    await hatchEgg(sighting.id, false);
+    // Auto-verified — open box immediately
+    await openBox(sighting.id, false);
     await adjustTrustScore(userId, 5);
   }
 
