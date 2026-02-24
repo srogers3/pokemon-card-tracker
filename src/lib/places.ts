@@ -9,7 +9,7 @@ const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!;
 
 const SEARCH_QUERIES = [
   // Generic searches
-  "Pokemon cards",
+  "trading cards",
   "trading card store",
   "game store",
   // Known retailers

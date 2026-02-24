@@ -29,7 +29,7 @@ export function SiteHeader({ isPremium }: { isPremium?: boolean }) {
     <header className="border-b border-border/50 bg-card/80 backdrop-blur-sm">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link href="/" className="text-xl font-bold text-primary">
-          Pokemon Card Tracker
+          Cardboard Tracker
         </Link>
         <nav className="flex items-center gap-4">
           <SignedIn>

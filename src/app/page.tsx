@@ -49,7 +49,7 @@ export default async function LandingPage() {
               Never Miss a <span className="text-primary">Restock</span>
             </h1>
             <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
-              Track Pokemon card availability at retail stores near you. Get
+              Track trading card availability at retail stores near you. Get
               alerts when products restock and discover the best times to check.
             </p>
             <div className="mt-10 flex gap-4 justify-center">

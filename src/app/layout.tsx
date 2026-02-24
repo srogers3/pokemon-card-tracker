@@ -6,8 +6,8 @@ import "./globals.css";
 const nunito = Nunito({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Pokemon Card Tracker",
-  description: "Track Pokemon card restocks at retail stores",
+  title: "Cardboard Tracker",
+  description: "Track trading card restocks at retail stores",
 };
 
 export default function RootLayout({

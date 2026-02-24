@@ -23,7 +23,7 @@ export async function sendRestockAlert({
   status: string;
 }) {
   await getResend().emails.send({
-    from: "Pokemon Card Tracker <noreply@yourdomain.com>",
+    from: "Cardboard Tracker <noreply@yourdomain.com>",
     to,
     subject: `Restock Alert: ${productName} at ${storeName}`,
     html: `
