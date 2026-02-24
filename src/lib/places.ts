@@ -24,7 +24,7 @@ const SEARCH_QUERIES = [
   "CVS",
 ];
 
-// Place types that clearly cannot sell Pokemon cards
+// Place types that clearly cannot sell trading cards
 const EXCLUDED_PLACE_TYPES = new Set([
   "church", "place_of_worship", "mosque", "synagogue", "hindu_temple",
   "school", "primary_school", "secondary_school", "university",

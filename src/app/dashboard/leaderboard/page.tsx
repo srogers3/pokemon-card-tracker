@@ -63,19 +63,19 @@ export default async function LeaderboardPage() {
     badgeMap.get(b.userId)!.push(b.badgeType);
   }
 
-  // Fetch pokedex completion for all users
-  const pokedexData = await db
+  // Fetch cardboardex completion for all users
+  const cardboardexData = await db
     .select({
       userId: creatureBoxes.userId,
-      uniqueCaught: sql<number>`COUNT(DISTINCT pokemon_id)::int`,
+      uniqueCaught: sql<number>`COUNT(DISTINCT creature_id)::int`,
     })
     .from(creatureBoxes)
-    .where(eq(creatureBoxes.hatched, true))
+    .where(eq(creatureBoxes.opened, true))
     .groupBy(creatureBoxes.userId);
 
-  const pokedexMap = new Map<string, number>();
-  for (const p of pokedexData) {
-    pokedexMap.set(p.userId, p.uniqueCaught);
+  const cardboardexMap = new Map<string, number>();
+  for (const p of cardboardexData) {
+    cardboardexMap.set(p.userId, p.uniqueCaught);
   }
 
   const trustLevel = (score: number) => {
@@ -122,7 +122,7 @@ export default async function LeaderboardPage() {
             <div>
               <span className="text-muted-foreground">Cardboardex:</span>{" "}
               <span className="font-medium">
-                {pokedexMap.get(currentUser.id) ?? 0}/151
+                {cardboardexMap.get(currentUser.id) ?? 0}/151
               </span>
             </div>
           </CardContent>
@@ -173,7 +173,7 @@ export default async function LeaderboardPage() {
                     </Badge>
                   ))}
                 </TableCell>
-                <TableCell>{pokedexMap.get(reporter.id) ?? 0}/151</TableCell>
+                <TableCell>{cardboardexMap.get(reporter.id) ?? 0}/151</TableCell>
               </TableRow>
             );
           })}

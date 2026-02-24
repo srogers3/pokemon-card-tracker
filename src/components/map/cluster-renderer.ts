@@ -1,7 +1,7 @@
 import { type Cluster, type Renderer } from "@googlemaps/markerclusterer";
 
-// Pokeball SVGs as data URIs — simple flat designs
-const POKEBALL_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+// Marker SVGs as data URIs — simple flat ball designs
+const MARKER_BALL_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
   <circle cx="50" cy="50" r="48" fill="#fff" stroke="#333" stroke-width="4"/>
   <path d="M2,50 H98" stroke="#333" stroke-width="4"/>
   <path d="M2,50 A48,48 0 0,0 98,50" fill="#ff1a1a"/>
@@ -31,7 +31,7 @@ const ULTRA_BALL_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100
 function getBallSvg(count: number): string {
   if (count >= 6) return ULTRA_BALL_SVG;
   if (count >= 3) return GREAT_BALL_SVG;
-  return POKEBALL_SVG;
+  return MARKER_BALL_SVG;
 }
 
 function svgToDataUri(svg: string): string {
@@ -63,7 +63,7 @@ export const clusterRenderer: Renderer = {
       animation: float 3s ease-in-out infinite;
     `;
 
-    // Pokeball icon
+    // Ball icon
     const icon = document.createElement("img");
     icon.src = svgToDataUri(ballSvg);
     icon.style.cssText = `

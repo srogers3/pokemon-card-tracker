@@ -9,36 +9,36 @@ export default async function CollectionPage() {
   const user = await requireUser();
   const allEggs = await getUserCollection(user.id);
 
-  const hatchedEggs = allEggs.filter((e) => e.hatched && e.pokemonId);
-  const pendingEggs = allEggs.filter((e) => !e.hatched);
-  const uniqueCaught = getCardboardexCompletion(hatchedEggs);
+  const openedBoxes = allEggs.filter((e) => e.opened && e.creatureId);
+  const pendingBoxes = allEggs.filter((e) => !e.opened);
+  const uniqueCaught = getCardboardexCompletion(openedBoxes);
 
-  // Find recent upgrades (hatched in last 24h where Pokemon differs from wild Pokemon)
+  // Find recent upgrades (opened in last 24h where creature differs from wild creature)
   const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
   const recentUpgrades = allEggs.filter(
     (e) =>
-      e.hatched &&
-      e.pokemonId &&
-      e.wildPokemonId &&
-      e.pokemonId !== e.wildPokemonId &&
-      e.hatchedAt &&
-      new Date(e.hatchedAt) > oneDayAgo
+      e.opened &&
+      e.creatureId &&
+      e.wildCreatureId &&
+      e.creatureId !== e.wildCreatureId &&
+      e.openedAt &&
+      new Date(e.openedAt) > oneDayAgo
   );
 
-  // Build a map of caught Pokemon: pokemonId -> { count, shinyCount }
+  // Build a map of caught creatures: creatureId -> { count, shinyCount }
   const caughtMap = new Map<
     number,
     { count: number; shinyCount: number }
   >();
-  for (const egg of hatchedEggs) {
-    if (!egg.pokemonId) continue;
-    const existing = caughtMap.get(egg.pokemonId) ?? {
+  for (const box of openedBoxes) {
+    if (!box.creatureId) continue;
+    const existing = caughtMap.get(box.creatureId) ?? {
       count: 0,
       shinyCount: 0,
     };
     existing.count++;
-    if (egg.isShiny) existing.shinyCount++;
-    caughtMap.set(egg.pokemonId, existing);
+    if (box.isShiny) existing.shinyCount++;
+    caughtMap.set(box.creatureId, existing);
   }
 
   return (
@@ -63,17 +63,17 @@ export default async function CollectionPage() {
         <Card className="mb-6 border-amber-400/50 bg-amber-50/50 dark:bg-amber-950/20">
           <CardContent className="pt-4">
             <div className="flex flex-col gap-2">
-              {recentUpgrades.map((egg) => {
-                const wildCreature = CREATURE_DATA.find((p) => p.id === egg.wildPokemonId);
-                const hatchedCreature = CREATURE_DATA.find((p) => p.id === egg.pokemonId);
-                if (!wildCreature || !hatchedCreature) return null;
+              {recentUpgrades.map((box) => {
+                const wildCreature = CREATURE_DATA.find((p) => p.id === box.wildCreatureId);
+                const openedCreature = CREATURE_DATA.find((p) => p.id === box.creatureId);
+                if (!wildCreature || !openedCreature) return null;
                 return (
-                  <div key={egg.id} className="flex items-center gap-2 text-sm">
+                  <div key={box.id} className="flex items-center gap-2 text-sm">
                     <span className="text-amber-500 font-medium">Lucky!</span>
                     <span>
-                      You got a {hatchedCreature.name} instead of {wildCreature.name}!
+                      You got a {openedCreature.name} instead of {wildCreature.name}!
                     </span>
-                    {egg.isShiny && <span>✨</span>}
+                    {box.isShiny && <span>✨</span>}
                   </div>
                 );
               })}
@@ -82,43 +82,43 @@ export default async function CollectionPage() {
         </Card>
       )}
 
-      {/* Pending eggs */}
-      {pendingEggs.length > 0 && (
+      {/* Pending boxes */}
+      {pendingBoxes.length > 0 && (
         <Card className="mb-6 gold-glow">
           <CardHeader className="pb-2">
             <CardTitle className="text-base">
-              Pending Eggs ({pendingEggs.length})
+              Pending Boxes ({pendingBoxes.length})
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex gap-2 flex-wrap">
-              {pendingEggs.map((egg, idx) => (
+              {pendingBoxes.map((box, idx) => (
                 <div
-                  key={egg.id}
+                  key={box.id}
                   className="w-12 h-12 bg-gold/10 rounded-lg flex items-center justify-center text-lg egg-float"
-                  title={`Egg from ${egg.reportStatus} report — waiting for verification`}
+                  title={`Box from ${box.reportStatus} report — waiting for verification`}
                   style={{ animationDelay: `${(idx * 0.3) % 2}s` }}
                 >
-                  🥚
+                  📦
                 </div>
               ))}
             </div>
             <p className="text-xs text-muted-foreground mt-2">
-              Eggs hatch when your report is verified!
+              Boxes open when your report is verified!
             </p>
           </CardContent>
         </Card>
       )}
 
-      {/* Pokedex grid */}
+      {/* Cardboardex grid */}
       <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-2">
-        {CREATURE_DATA.sort((a, b) => a.id - b.id).map((pokemon) => {
-          const caught = caughtMap.get(pokemon.id);
+        {CREATURE_DATA.sort((a, b) => a.id - b.id).map((creature) => {
+          const caught = caughtMap.get(creature.id);
           const isCaught = !!caught;
 
           return (
             <div
-              key={pokemon.id}
+              key={creature.id}
               className={cn(
                 "relative aspect-square rounded-xl border p-1 flex flex-col items-center justify-center",
                 isCaught
@@ -127,8 +127,8 @@ export default async function CollectionPage() {
               )}
               title={
                 isCaught
-                  ? `#${pokemon.id} ${pokemon.name} (${caught.count}x${caught.shinyCount > 0 ? `, ${caught.shinyCount} shiny` : ""})`
-                  : `#${pokemon.id} ???`
+                  ? `#${creature.id} ${creature.name} (${caught.count}x${caught.shinyCount > 0 ? `, ${caught.shinyCount} shiny` : ""})`
+                  : `#${creature.id} ???`
               }
             >
               {isCaught && caught.shinyCount > 0 && (
@@ -136,8 +136,8 @@ export default async function CollectionPage() {
               )}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={getSpriteUrl(pokemon.id)}
-                alt={isCaught ? pokemon.name : "???"}
+                src={getSpriteUrl(creature.id)}
+                alt={isCaught ? creature.name : "???"}
                 className={cn("w-10 h-10 relative z-10", !isCaught && "brightness-0 opacity-30")}
                 loading="lazy"
               />
@@ -150,7 +150,7 @@ export default async function CollectionPage() {
                 </span>
               )}
               <span className="text-[9px] text-muted-foreground truncate w-full text-center relative z-10">
-                {isCaught ? pokemon.name : `#${pokemon.id}`}
+                {isCaught ? creature.name : `#${creature.id}`}
               </span>
             </div>
           );
