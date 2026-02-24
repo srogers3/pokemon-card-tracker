@@ -33,11 +33,23 @@ export const stockStatusEnum = pgEnum("stock_status", [
   "not_found",
 ]);
 
-export const pokemonRarityEnum = pgEnum("pokemon_rarity", [
+export const creatureRarityEnum = pgEnum("creature_rarity", [
   "common",
   "uncommon",
   "rare",
   "ultra_rare",
+]);
+
+export const creatureTypeEnum = pgEnum("creature_type", [
+  "starter",
+  "shelf",
+  "logistics",
+  "checkout",
+  "scalper",
+  "hype",
+  "clearance",
+  "backroom",
+  "corporate",
 ]);
 
 export const sightingSourceEnum = pgEnum("sighting_source", [
@@ -58,8 +70,8 @@ export const badgeTypeEnum = pgEnum("badge_type", [
   "top_reporter",
   "streak_7",
   "streak_30",
-  "pokedex_50",
-  "pokedex_complete",
+  "cardboardex_50",
+  "cardboardex_complete",
 ]);
 
 // Tables
@@ -149,14 +161,16 @@ export const reporterBadges = pgTable("reporter_badges", {
   earnedAt: timestamp("earned_at").defaultNow().notNull(),
 });
 
-export const pokemonCatalog = pgTable("pokemon_catalog", {
-  id: integer("id").primaryKey(), // Pokedex number (1-151)
+export const creatureCatalog = pgTable("creature_catalog", {
+  id: integer("id").primaryKey(), // Creature index (1-151)
   name: text("name").notNull(),
-  rarityTier: pokemonRarityEnum("rarity_tier").notNull(),
+  type: creatureTypeEnum("type").notNull(),
+  rarityTier: creatureRarityEnum("rarity_tier").notNull(),
+  description: text("description").notNull().default(""),
   spriteUrl: text("sprite_url").notNull(),
 });
 
-export const pokemonEggs = pgTable("pokemon_eggs", {
+export const creatureBoxes = pgTable("creature_boxes", {
   id: uuid("id").defaultRandom().primaryKey(),
   userId: text("user_id")
     .notNull()
@@ -165,11 +179,11 @@ export const pokemonEggs = pgTable("pokemon_eggs", {
     .notNull()
     .references(() => restockSightings.id, { onDelete: "cascade" }),
   reportStatus: stockStatusEnum("report_status").notNull(),
-  wildPokemonId: integer("wild_pokemon_id").references(() => pokemonCatalog.id),
-  hatched: boolean("hatched").default(false).notNull(),
-  pokemonId: integer("pokemon_id").references(() => pokemonCatalog.id),
+  wildCreatureId: integer("wild_creature_id").references(() => creatureCatalog.id),
+  opened: boolean("opened").default(false).notNull(),
+  creatureId: integer("creature_id").references(() => creatureCatalog.id),
   isShiny: boolean("is_shiny").default(false).notNull(),
-  hatchedAt: timestamp("hatched_at"),
+  openedAt: timestamp("opened_at"),
   viewedAt: timestamp("viewed_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
@@ -198,6 +212,6 @@ export type RestockPattern = typeof restockPatterns.$inferSelect;
 export type AlertPreference = typeof alertPreferences.$inferSelect;
 export type NewAlertPreference = typeof alertPreferences.$inferInsert;
 export type ReporterBadge = typeof reporterBadges.$inferSelect;
-export type PokemonCatalogEntry = typeof pokemonCatalog.$inferSelect;
-export type PokemonEgg = typeof pokemonEggs.$inferSelect;
+export type CreatureCatalogEntry = typeof creatureCatalog.$inferSelect;
+export type CreatureBox = typeof creatureBoxes.$inferSelect;
 export type SearchCache = typeof searchCache.$inferSelect;
