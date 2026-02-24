@@ -2,8 +2,8 @@ import { config } from "dotenv";
 config({ path: ".env.local" });
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
-import { stores, products, restockSightings, reporterBadges, pokemonCatalog, pokemonEggs } from "./schema";
-import { POKEMON_DATA, getSpriteUrl } from "./pokemon-data";
+import { stores, products, restockSightings, reporterBadges, creatureCatalog, creatureBoxes } from "./schema";
+import { CREATURE_DATA, getSpriteUrl } from "./creature-data";
 
 const sql = neon(process.env.DATABASE_URL!);
 const db = drizzle(sql);
@@ -23,7 +23,7 @@ const ncStores = [
   { name: "Harris Teeter", locationLabel: "Chapel Hill, NC", storeType: "grocery" as const, specificLocation: "Meadowmont Village" },
 ];
 
-const pokemonProducts = [
+const cardProducts = [
   { name: "Prismatic Evolutions ETB", setName: "Prismatic Evolutions", productType: "etb" as const },
   { name: "Prismatic Evolutions Booster Bundle", setName: "Prismatic Evolutions", productType: "blister" as const },
   { name: "Surging Sparks Booster Box", setName: "Surging Sparks", productType: "booster_box" as const },
@@ -68,18 +68,18 @@ const notes = [
 async function seed() {
   console.log("Clearing existing seed data...");
   await db.delete(reporterBadges);
-  await db.delete(pokemonEggs);
+  await db.delete(creatureBoxes);
   await db.delete(restockSightings);
   await db.delete(stores);
   await db.delete(products);
-  await db.delete(pokemonCatalog);
+  await db.delete(creatureCatalog);
 
   console.log("Inserting stores...");
   const insertedStores = await db.insert(stores).values(ncStores).returning();
   console.log(`  ${insertedStores.length} stores added`);
 
   console.log("Inserting products...");
-  const insertedProducts = await db.insert(products).values(pokemonProducts).returning();
+  const insertedProducts = await db.insert(products).values(cardProducts).returning();
   console.log(`  ${insertedProducts.length} products added`);
 
   console.log("Generating sightings...");
@@ -102,15 +102,17 @@ async function seed() {
   const insertedSightings = await db.insert(restockSightings).values(sightings).returning();
   console.log(`  ${insertedSightings.length} sightings added`);
 
-  console.log("Inserting Pokemon catalog...");
-  const pokemonRows = POKEMON_DATA.map((p) => ({
-    id: p.id,
-    name: p.name,
-    rarityTier: p.rarityTier as "common" | "uncommon" | "rare" | "ultra_rare",
-    spriteUrl: getSpriteUrl(p.id),
+  console.log("Inserting creature catalog...");
+  const creatureRows = CREATURE_DATA.map((c) => ({
+    id: c.id,
+    name: c.name,
+    type: c.type,
+    rarityTier: c.rarityTier,
+    description: c.description,
+    spriteUrl: getSpriteUrl(c.id),
   }));
-  await db.insert(pokemonCatalog).values(pokemonRows);
-  console.log(`  ${pokemonRows.length} Pokemon added`);
+  await db.insert(creatureCatalog).values(creatureRows);
+  console.log(`  ${creatureRows.length} creatures added`);
 
   console.log("Done! Seed data ready.");
 }
