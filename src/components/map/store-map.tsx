@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { APIProvider, Map as GoogleMap, Marker, useMap, useApiIsLoaded } from "@vis.gl/react-google-maps";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
-import { PokeballMarker } from "./pokeball-marker";
+import { ClusterMarker } from "./cluster-marker";
 import { StoreDetailPanel } from "./store-detail-panel";
 import { clusterRenderer } from "./cluster-renderer";
 import { searchNearbyStores } from "@/lib/places";
@@ -228,7 +228,7 @@ function MapContent({
         )}
 
         {storeData.map((sd) => (
-          <PokeballMarker
+          <ClusterMarker
             key={sd.store.id}
             store={sd.store}
             isSelected={selectedStore?.store.id === sd.store.id}

@@ -1,63 +1,63 @@
 "use client";
 
 import { useState } from "react";
-import { EggHatchModal } from "@/components/egg-hatch-modal";
+import { UnboxRevealModal } from "@/components/unbox-reveal-modal";
 
-const MOCK_HATCHES = [
+const MOCK_OPENINGS = [
   {
     id: "test-common",
-    pokemonName: "Pidgey",
-    pokemonId: 16,
+    creatureName: "Pidgey",
+    creatureId: 16,
     rarityTier: "common" as const,
     spriteUrl: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/16.png",
     isShiny: false,
     wasUpgrade: false,
-    wildPokemonName: null,
+    wildCreatureName: null,
   },
   {
     id: "test-uncommon-upgrade",
-    pokemonName: "Pikachu",
-    pokemonId: 25,
+    creatureName: "Pikachu",
+    creatureId: 25,
     rarityTier: "uncommon" as const,
     spriteUrl: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png",
     isShiny: false,
     wasUpgrade: true,
-    wildPokemonName: "Rattata",
+    wildCreatureName: "Rattata",
   },
   {
     id: "test-rare-shiny",
-    pokemonName: "Charizard",
-    pokemonId: 6,
+    creatureName: "Charizard",
+    creatureId: 6,
     rarityTier: "rare" as const,
     spriteUrl: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/6.png",
     isShiny: true,
     wasUpgrade: false,
-    wildPokemonName: null,
+    wildCreatureName: null,
   },
   {
     id: "test-ultra-rare",
-    pokemonName: "Mewtwo",
-    pokemonId: 150,
+    creatureName: "Mewtwo",
+    creatureId: 150,
     rarityTier: "ultra_rare" as const,
     spriteUrl: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/150.png",
     isShiny: false,
     wasUpgrade: true,
-    wildPokemonName: "Dragonite",
+    wildCreatureName: "Dragonite",
   },
 ];
 
 export default function TestHatchPage() {
   const [showModal, setShowModal] = useState(false);
-  const [selected, setSelected] = useState(MOCK_HATCHES);
+  const [selected, setSelected] = useState(MOCK_OPENINGS);
 
   return (
     <div className="min-h-screen bg-gray-950 text-white p-8">
-      <h1 className="text-2xl font-bold mb-6">Egg Hatch Animation Tester</h1>
+      <h1 className="text-2xl font-bold mb-6">Unbox Animation Tester</h1>
 
       <div className="space-y-4 mb-8">
-        <p className="text-gray-400 text-sm">Pick which eggs to test, then click Play.</p>
+        <p className="text-gray-400 text-sm">Pick which boxes to test, then click Play.</p>
 
-        {MOCK_HATCHES.map((h) => (
+        {MOCK_OPENINGS.map((h) => (
           <label key={h.id} className="flex items-center gap-3 cursor-pointer">
             <input
               type="checkbox"
@@ -72,9 +72,9 @@ export default function TestHatchPage() {
               className="w-4 h-4"
             />
             <span>
-              {h.pokemonName} ({h.rarityTier})
+              {h.creatureName} ({h.rarityTier})
               {h.isShiny && " ✨ Shiny"}
-              {h.wasUpgrade && ` 🍀 Lucky (from ${h.wildPokemonName})`}
+              {h.wasUpgrade && ` 🍀 Lucky (from ${h.wildCreatureName})`}
             </span>
           </label>
         ))}
@@ -84,13 +84,13 @@ export default function TestHatchPage() {
         onClick={() => setShowModal(true)}
         className="bg-purple-600 hover:bg-purple-500 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
       >
-        Play Hatch Animation ({selected.length} eggs)
+        Play Unbox Animation ({selected.length} boxes)
       </button>
 
       {showModal && selected.length > 0 && (
-        <EggHatchModal
+        <UnboxRevealModal
           key={Date.now()}
-          hatches={selected}
+          openings={selected}
           onComplete={() => setShowModal(false)}
         />
       )}
