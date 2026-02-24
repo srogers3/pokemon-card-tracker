@@ -187,12 +187,6 @@
   100% { transform: scale(3); opacity: 0; }
 }
 
-@keyframes pokemon-reveal {
-  0% { transform: scale(0.3); opacity: 0; }
-  60% { transform: scale(1.1); opacity: 1; }
-  100% { transform: scale(1); opacity: 1; }
-}
-
 @keyframes creature-reveal {
   0% { transform: scale(0.3); opacity: 0; }
   60% { transform: scale(1.1); opacity: 1; }
@@ -247,17 +241,14 @@
     animation: float 3s ease-in-out infinite;
   }
 
-  .pokemon-uncaught,
   .creature-uncaught {
     filter: grayscale(1) opacity(0.4);
   }
 
-  .pokemon-caught,
   .creature-caught {
     transition: all 0.2s ease;
   }
 
-  .pokemon-caught:hover,
   .creature-caught:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(124, 92, 191, 0.2);
