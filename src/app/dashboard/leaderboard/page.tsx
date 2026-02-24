@@ -22,8 +22,8 @@ const BADGE_LABELS: Record<string, string> = {
   top_reporter: "Top Reporter",
   streak_7: "7-Day Streak",
   streak_30: "30-Day Streak",
-  pokedex_50: "50 Pokemon",
-  pokedex_complete: "Pokedex Complete",
+  cardboardex_50: "50 Creatures",
+  cardboardex_complete: "Cardboardex Complete",
 };
 
 export default async function LeaderboardPage() {
@@ -120,7 +120,7 @@ export default async function LeaderboardPage() {
               <span className="font-medium">{currentUser.currentStreak} days</span>
             </div>
             <div>
-              <span className="text-muted-foreground">Pokedex:</span>{" "}
+              <span className="text-muted-foreground">Cardboardex:</span>{" "}
               <span className="font-medium">
                 {pokedexMap.get(currentUser.id) ?? 0}/151
               </span>
@@ -140,7 +140,7 @@ export default async function LeaderboardPage() {
             <TableHead>Accuracy</TableHead>
             <TableHead>Streak</TableHead>
             <TableHead>Badges</TableHead>
-            <TableHead>Pokedex</TableHead>
+            <TableHead>Cardboardex</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

@@ -44,9 +44,9 @@ export default async function CollectionPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold">Pokemon Collection</h2>
+        <h2 className="text-xl font-semibold">Cardboardex</h2>
         <Badge variant="outline" className="text-sm">
-          {uniqueCaught}/151 caught
+          {uniqueCaught}/151 discovered
         </Badge>
       </div>
 
@@ -122,8 +122,8 @@ export default async function CollectionPage() {
               className={cn(
                 "relative aspect-square rounded-xl border p-1 flex flex-col items-center justify-center",
                 isCaught
-                  ? "bg-card border-primary/20 pokemon-caught shadow-sm"
-                  : "bg-muted/30 border-dashed border-border pokemon-uncaught"
+                  ? "bg-card border-primary/20 creature-caught shadow-sm"
+                  : "bg-muted/30 border-dashed border-border creature-uncaught"
               )}
               title={
                 isCaught

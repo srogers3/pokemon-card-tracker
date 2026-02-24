@@ -144,9 +144,9 @@ export function StoreDetailPanel({
         {/* Report Sighting button or inline form */}
         {hasSubmittedToday ? (
           <div className="bg-muted/50 rounded-lg p-4 text-center space-y-1">
-            <p className="text-2xl">🥚</p>
-            <p className="font-semibold text-sm">Your Trainer already scouted this location today!</p>
-            <p className="text-xs text-muted-foreground">Come back tomorrow — a new Pokemon might be waiting.</p>
+            <p className="text-2xl">📦</p>
+            <p className="font-semibold text-sm">You already scouted this location today!</p>
+            <p className="text-xs text-muted-foreground">Come back tomorrow — a new creature might be lurking.</p>
           </div>
         ) : showForm ? (
           <MapSightingForm
