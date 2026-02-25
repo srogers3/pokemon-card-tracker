@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { X, MapPin, Clock } from "lucide-react";
 import type { Store, Product } from "@/db/schema";
 import { MapSightingForm } from "./map-sighting-form";
-import { cn } from "@/lib/utils";
+import { cn, getDistanceMeters, MAX_TIP_DISTANCE_M } from "@/lib/utils";
 import { getStoreTrends } from "@/app/dashboard/actions";
 import type { RestockTrend } from "@/lib/trends";
 import { getBarPercent } from "@/lib/trends";
@@ -24,16 +24,22 @@ export function StoreDetailPanel({
   sightings,
   products,
   hasSubmittedToday,
+  userLocation,
   onClose,
 }: {
   store: Store;
   sightings: Sighting[];
   products: Product[];
   hasSubmittedToday: boolean;
+  userLocation: { lat: number; lng: number } | null;
   onClose: () => void;
 }) {
   const [showForm, setShowForm] = useState(false);
   const [trend, setTrend] = useState<RestockTrend | null>(null);
+
+  const isTooFar = !userLocation || !store.latitude || !store.longitude
+    ? true
+    : getDistanceMeters(userLocation.lat, userLocation.lng, store.latitude, store.longitude) > MAX_TIP_DISTANCE_M;
 
   useEffect(() => {
     getStoreTrends(store.id).then(setTrend);
@@ -148,10 +154,18 @@ export function StoreDetailPanel({
             <p className="font-semibold text-sm">You already scouted this location today!</p>
             <p className="text-xs text-muted-foreground">Come back tomorrow — a new creature might be lurking.</p>
           </div>
+        ) : isTooFar ? (
+          <div className="bg-muted/50 rounded-lg p-4 text-center space-y-1">
+            <p className="text-2xl">📍</p>
+            <p className="font-semibold text-sm">You&apos;re too far from this store</p>
+            <p className="text-xs text-muted-foreground">Get within 0.5 miles to submit a report.</p>
+          </div>
         ) : showForm ? (
           <MapSightingForm
             storeId={store.id}
             products={products}
+            userLatitude={userLocation?.lat ?? null}
+            userLongitude={userLocation?.lng ?? null}
             onCancel={() => setShowForm(false)}
           />
         ) : (

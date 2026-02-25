@@ -308,6 +308,7 @@ function MapContent({
           sightings={selectedStore.sightings}
           products={products}
           hasSubmittedToday={selectedStore.hasSubmittedToday}
+          userLocation={userLocation}
           onClose={() => setSelectedStore(null)}
         />
       )}
