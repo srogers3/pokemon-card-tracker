@@ -27,7 +27,8 @@
       "Bash(npx tsx:*)",
       "WebFetch(domain:github.com)",
       "WebFetch(domain:raw.githubusercontent.com)",
-      "Bash(npm ls:*)"
+      "Bash(npm ls:*)",
+      "Bash(npm run dev:*)"
     ]
   }
 }

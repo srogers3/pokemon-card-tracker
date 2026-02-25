@@ -49,16 +49,16 @@ function MapContent({
   const apiIsLoaded = useApiIsLoaded();
   const [storeData, setStoreData] = useState<StoreWithSightings[]>(() => {
     console.log("[StoreMap] Initial stores loaded:", initialStores.length);
-    console.table(
-      initialStores.map((s) => ({
-        id: s.store.id,
-        name: s.store.name,
-        lat: s.store.latitude,
-        lng: s.store.longitude,
-        location: s.store.locationLabel,
-        sightings: s.sightings.length,
-      }))
-    );
+    // console.table(
+    //   initialStores.map((s) => ({
+    //     id: s.store.id,
+    //     name: s.store.name,
+    //     lat: s.store.latitude,
+    //     lng: s.store.longitude,
+    //     location: s.store.locationLabel,
+    //     sightings: s.sightings.length,
+    //   }))
+    // );
     return initialStores;
   });
   const [selectedStore, setSelectedStore] = useState<StoreWithSightings | null>(null);
