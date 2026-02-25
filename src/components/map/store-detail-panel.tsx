@@ -26,6 +26,7 @@ export function StoreDetailPanel({
   hasSubmittedToday,
   userLocation,
   onClose,
+  onSightingSubmitted,
 }: {
   store: Store;
   sightings: Sighting[];
@@ -33,6 +34,7 @@ export function StoreDetailPanel({
   hasSubmittedToday: boolean;
   userLocation: { lat: number; lng: number } | null;
   onClose: () => void;
+  onSightingSubmitted: () => void;
 }) {
   const [showForm, setShowForm] = useState(false);
   const [trend, setTrend] = useState<RestockTrend | null>(null);
@@ -174,6 +176,7 @@ export function StoreDetailPanel({
             userLatitude={userLocation?.lat ?? null}
             userLongitude={userLocation?.lng ?? null}
             onCancel={() => setShowForm(false)}
+            onSubmitSuccess={onSightingSubmitted}
           />
         ) : (
           <Button
