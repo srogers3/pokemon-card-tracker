@@ -104,7 +104,9 @@ export async function openBox(
         if (eligibleTiers.length > 0) {
           const tier = rollUpgradeTier(eligibleTiers);
           const tierCreatures = CREATURE_DATA.filter((p) => p.rarityTier === tier);
-          creature = tierCreatures[Math.floor(Math.random() * tierCreatures.length)];
+          // Fall back to wild creature if tier has no creatures (limited creature set)
+          const pool = tierCreatures.length > 0 ? tierCreatures : null;
+          creature = pool ? pool[Math.floor(Math.random() * pool.length)] : wildCreature;
           wasUpgrade = true;
         } else {
           creature = wildCreature;
@@ -162,7 +164,9 @@ function rollRandomCreature(
   const weights = RARITY_WEIGHTS[poolKey] ?? RARITY_WEIGHTS["not_found"];
   const tier = rollRarity(weights);
   const creaturesInTier = CREATURE_DATA.filter((p) => p.rarityTier === tier);
-  return creaturesInTier[Math.floor(Math.random() * creaturesInTier.length)];
+  // Fall back to all creatures if tier has none (limited creature set)
+  const pool = creaturesInTier.length > 0 ? creaturesInTier : CREATURE_DATA;
+  return pool[Math.floor(Math.random() * pool.length)];
 }
 
 export async function transferCreature(

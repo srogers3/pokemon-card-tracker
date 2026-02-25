@@ -33,7 +33,9 @@ export function getWildCreature(storeId: string): { id: number; name: string; sp
   }
 
   const tierCreatures = CREATURE_DATA.filter((c) => c.rarityTier === selectedTier);
-  const idx = simpleHash(seed + "pick") % tierCreatures.length;
-  const creature = tierCreatures[idx];
+  // Fall back to all creatures if selected tier has none (e.g. limited creature set)
+  const pool = tierCreatures.length > 0 ? tierCreatures : CREATURE_DATA;
+  const idx = simpleHash(seed + "pick") % pool.length;
+  const creature = pool[idx];
   return { id: creature.id, name: creature.name, spriteUrl: getSpriteUrl(creature.id), rarity: selectedTier };
 }
