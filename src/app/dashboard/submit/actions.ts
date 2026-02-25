@@ -31,8 +31,8 @@ export async function submitTip(formData: FormData) {
   const alreadyReported = await hasSubmittedToStoreToday(userId, storeId);
   if (alreadyReported) throw new Error("Already reported this location today");
 
-  // Proximity check (skip if BYPASS_PROXIMITY_CHECK is set)
-  if (!process.env.BYPASS_PROXIMITY_CHECK) {
+  // Proximity check (skip if BYPASS_PROXIMITY_CHECK is explicitly "true")
+  if (process.env.BYPASS_PROXIMITY_CHECK !== "true") {
     const userLat = parseFloat(formData.get("userLatitude") as string);
     const userLng = parseFloat(formData.get("userLongitude") as string);
     if (isNaN(userLat) || isNaN(userLng)) {
