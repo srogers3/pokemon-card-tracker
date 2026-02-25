@@ -60,7 +60,7 @@ export const clusterRenderer: Renderer = {
       justify-content: center;
       position: relative;
       cursor: pointer;
-      animation: float 3s ease-in-out infinite;
+      animation: marker-fade-in 0.4s ease-out both, float 3s ease-in-out infinite;
     `;
 
     // Ball icon
