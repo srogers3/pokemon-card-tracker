@@ -37,9 +37,10 @@ export function StoreDetailPanel({
   const [showForm, setShowForm] = useState(false);
   const [trend, setTrend] = useState<RestockTrend | null>(null);
 
-  const isTooFar = !userLocation || !store.latitude || !store.longitude
-    ? true
-    : getDistanceMeters(userLocation.lat, userLocation.lng, store.latitude, store.longitude) > MAX_TIP_DISTANCE_M;
+  const locationUnknown = !userLocation;
+  const isTooFar = !locationUnknown && store.latitude != null && store.longitude != null
+    ? getDistanceMeters(userLocation.lat, userLocation.lng, store.latitude, store.longitude) > MAX_TIP_DISTANCE_M
+    : false;
 
   useEffect(() => {
     getStoreTrends(store.id).then(setTrend);
@@ -153,6 +154,12 @@ export function StoreDetailPanel({
             <p className="text-2xl">📦</p>
             <p className="font-semibold text-sm">You already scouted this location today!</p>
             <p className="text-xs text-muted-foreground">Come back tomorrow — a new creature might be lurking.</p>
+          </div>
+        ) : locationUnknown ? (
+          <div className="bg-muted/50 rounded-lg p-4 text-center space-y-1">
+            <p className="text-2xl">📍</p>
+            <p className="font-semibold text-sm">Location required</p>
+            <p className="text-xs text-muted-foreground">Enable location services to submit a report.</p>
           </div>
         ) : isTooFar ? (
           <div className="bg-muted/50 rounded-lg p-4 text-center space-y-1">
