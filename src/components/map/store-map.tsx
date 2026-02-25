@@ -81,7 +81,10 @@ function MapContent({
     []
   );
 
-  // Initialize and update the clusterer
+  // Track which marker IDs are currently in the clusterer
+  const clusteredIdsRef = useRef<Set<string>>(new Set());
+
+  // Initialize and update the clusterer (diff-based to avoid flickering)
   useEffect(() => {
     if (!map) return;
 
@@ -92,17 +95,41 @@ function MapContent({
       });
     }
 
-    // Get all markers except the selected one
-    const markersToCluster = Object.entries(markersRef.current)
-      .filter(([id]) => id !== selectedStore?.store.id)
-      .map(([, marker]) => marker);
+    const selectedId = selectedStore?.store.id;
 
-    clustererRef.current.clearMarkers();
-    clustererRef.current.addMarkers(markersToCluster);
+    // Build the desired set of marker IDs (everything except selected)
+    const desiredIds = new Set<string>();
+    for (const id of Object.keys(markersRef.current)) {
+      if (id !== selectedId) desiredIds.add(id);
+    }
 
-    // Restore selected marker — clearMarkers sets map=null on all previously tracked markers
-    if (selectedStore?.store.id && markersRef.current[selectedStore.store.id]) {
-      markersRef.current[selectedStore.store.id].map = map;
+    // Remove markers that should no longer be clustered
+    const toRemove: google.maps.marker.AdvancedMarkerElement[] = [];
+    for (const id of clusteredIdsRef.current) {
+      if (!desiredIds.has(id) && markersRef.current[id]) {
+        toRemove.push(markersRef.current[id]);
+        clusteredIdsRef.current.delete(id);
+      }
+    }
+    if (toRemove.length > 0) {
+      clustererRef.current.removeMarkers(toRemove);
+    }
+
+    // Add markers that are new to the cluster
+    const toAdd: google.maps.marker.AdvancedMarkerElement[] = [];
+    for (const id of desiredIds) {
+      if (!clusteredIdsRef.current.has(id) && markersRef.current[id]) {
+        toAdd.push(markersRef.current[id]);
+        clusteredIdsRef.current.add(id);
+      }
+    }
+    if (toAdd.length > 0) {
+      clustererRef.current.addMarkers(toAdd);
+    }
+
+    // Ensure selected marker is visible on the map (not hidden by clusterer)
+    if (selectedId && markersRef.current[selectedId]) {
+      markersRef.current[selectedId].map = map;
     }
   }, [map, storeData, selectedStore]);
 

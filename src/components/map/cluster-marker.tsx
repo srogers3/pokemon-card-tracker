@@ -56,6 +56,7 @@ export function ClusterMarker({
       onClick={onClick}
       title={`${store.name} — ${hasSubmittedToday ? "Already scouted!" : `${spriteName} lurks here!`}`}
       zIndex={isSelected ? 999 : undefined}
+      collisionBehavior="REQUIRED_AND_HIDES_OPTIONAL"
     >
       <div
         style={{
