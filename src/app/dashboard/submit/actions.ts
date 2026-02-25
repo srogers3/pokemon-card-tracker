@@ -45,7 +45,7 @@ export async function submitTip(formData: FormData) {
       .where(eq(stores.id, storeId))
       .limit(1);
 
-    if (!store?.latitude || !store?.longitude) {
+    if (store?.latitude == null || store?.longitude == null) {
       throw new Error("Store location not available");
     }
 
