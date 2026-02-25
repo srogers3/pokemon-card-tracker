@@ -219,7 +219,7 @@ async function generateSprite(
     quality: "standard",
   });
 
-  const b64 = response.data[0]?.b64_json;
+  const b64 = response.data?.[0]?.b64_json;
   if (!b64) throw new Error(`No image data for ${creature.name}`);
 
   return Buffer.from(b64, "base64");

@@ -67,8 +67,8 @@ export function ClusterMarker({
             ? "conic-gradient(from var(--rainbow-angle, 0deg), #ef4444, #f59e0b, #22c55e, #3b82f6, #a855f7, #ef4444)"
             : "transparent",
           padding: isRainbow ? 3 : 0,
-          animation: `float 3s ease-in-out infinite, ${isRainbow ? "rainbow-spin 2s linear infinite" : "none"}`,
-          animationDelay: `${animDelay}s`,
+          animation: `marker-fade-in 0.4s ease-out both, float 3s ease-in-out infinite${isRainbow ? ", rainbow-spin 2s linear infinite" : ""}`,
+          animationDelay: `0s, ${animDelay}s${isRainbow ? ", 0s" : ""}`,
           transition: "width 200ms ease, height 200ms ease",
           cursor: "pointer",
           filter: isSelected ? "drop-shadow(0 0 8px rgba(0,0,0,0.3))" : "none",
