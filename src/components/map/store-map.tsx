@@ -61,12 +61,17 @@ function MapContent({
     // );
     return initialStores;
   });
+  const storeDataRef = useRef(storeData);
+  storeDataRef.current = storeData;
   const [selectedStore, setSelectedStore] = useState<StoreWithSightings | null>(null);
+  const selectedStoreRef = useRef(selectedStore);
+  selectedStoreRef.current = selectedStore;
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [gpsLocation, setGpsLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locationDenied, setLocationDenied] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const lastSearchCenter = useRef<{ lat: number; lng: number } | null>(null);
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const markersRef = useRef<Record<string, google.maps.marker.AdvancedMarkerElement>>({});
   const clustererRef = useRef<MarkerClusterer | null>(null);
 
@@ -80,6 +85,19 @@ function MapContent({
       }
     },
     []
+  );
+
+  // Stable callback for selecting a store — uses refs so it never changes identity
+  const handleSelectStore = useCallback(
+    (storeId: string) => {
+      const sd = storeDataRef.current.find((s) => s.store.id === storeId);
+      if (!sd) return;
+      setSelectedStore(sd);
+      if (map && sd.store.latitude && sd.store.longitude) {
+        map.panTo({ lat: sd.store.latitude, lng: sd.store.longitude });
+      }
+    },
+    [map]
   );
 
   // Track which marker IDs are currently in the clusterer
@@ -199,12 +217,32 @@ function MapContent({
   useEffect(() => {
     if (!map) return;
     const listener = map.addListener("idle", () => {
-      const center = map.getCenter();
-      if (center) {
-        handleSearchArea(center.lat(), center.lng());
+      // Deselect pin if it left the viewport.
+      // Return early so the search doesn't pile a second re-render
+      // on top of the deselect in the same tick.
+      const sel = selectedStoreRef.current;
+      if (sel) {
+        const bounds = map.getBounds();
+        const { latitude, longitude } = sel.store;
+        if (bounds && latitude && longitude && !bounds.contains({ lat: latitude, lng: longitude })) {
+          setSelectedStore(null);
+          return;
+        }
       }
+
+      // Debounce the search so rapid panning doesn't spam the server
+      if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+      searchTimerRef.current = setTimeout(() => {
+        const center = map.getCenter();
+        if (center) {
+          handleSearchArea(center.lat(), center.lng());
+        }
+      }, 500);
     });
-    return () => listener.remove();
+    return () => {
+      listener.remove();
+      if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+    };
   }, [map, handleSearchArea]);
 
   const handleRecenter = () => {
@@ -241,6 +279,7 @@ function MapContent({
         zoomControl={true}
         mapId={mapId}
         className="w-full h-full"
+        onClick={() => setSelectedStore(null)}
       >
         {userLocation && apiIsLoaded && (
           <Marker
@@ -264,13 +303,7 @@ function MapContent({
             isSelected={selectedStore?.store.id === sd.store.id}
             hasSubmittedToday={sd.hasSubmittedToday}
             setMarkerRef={setMarkerRef}
-            onClick={() => {
-              console.log(`[StoreMap] Selected: "${sd.store.name}" id=${sd.store.id} (${sd.store.latitude}, ${sd.store.longitude})`);
-              setSelectedStore(sd);
-              if (map && sd.store.latitude && sd.store.longitude) {
-                map.panTo({ lat: sd.store.latitude, lng: sd.store.longitude });
-              }
-            }}
+            onClick={handleSelectStore}
           />
         ))}
       </GoogleMap>
