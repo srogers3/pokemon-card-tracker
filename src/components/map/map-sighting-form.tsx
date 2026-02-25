@@ -21,12 +21,14 @@ export function MapSightingForm({
   userLatitude,
   userLongitude,
   onCancel,
+  onSubmitSuccess,
 }: {
   storeId: string;
   products: Product[];
   userLatitude: number | null;
   userLongitude: number | null;
   onCancel: () => void;
+  onSubmitSuccess: () => void;
 }) {
   const formRef = useRef<HTMLFormElement>(null);
   const [status, setStatus] = useState<string>("");
@@ -38,6 +40,7 @@ export function MapSightingForm({
       formData.set("userLongitude", userLongitude.toString());
     }
     await submitTip(formData);
+    onSubmitSuccess();
     formRef.current?.reset();
     onCancel();
   }
