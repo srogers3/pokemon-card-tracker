@@ -18,10 +18,14 @@ import type { Product } from "@/db/schema";
 export function MapSightingForm({
   storeId,
   products,
+  userLatitude,
+  userLongitude,
   onCancel,
 }: {
   storeId: string;
   products: Product[];
+  userLatitude: number | null;
+  userLongitude: number | null;
   onCancel: () => void;
 }) {
   const formRef = useRef<HTMLFormElement>(null);
@@ -29,6 +33,10 @@ export function MapSightingForm({
 
   async function handleSubmit(formData: FormData) {
     formData.set("storeId", storeId);
+    if (userLatitude !== null && userLongitude !== null) {
+      formData.set("userLatitude", userLatitude.toString());
+      formData.set("userLongitude", userLongitude.toString());
+    }
     await submitTip(formData);
     formRef.current?.reset();
     onCancel();
