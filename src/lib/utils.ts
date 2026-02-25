@@ -25,3 +25,20 @@ export function getDistanceMeters(
 
 /** Maximum distance (meters) a user can be from a store to submit a tip. */
 export const MAX_TIP_DISTANCE_M = 800;
+
+/** Format a date as relative time ("2h ago", "Yesterday", "3 days ago"). */
+export function timeAgo(date: Date): string {
+  const now = Date.now();
+  const diffMs = now - date.getTime();
+  const diffSec = Math.floor(diffMs / 1000);
+  const diffMin = Math.floor(diffSec / 60);
+  const diffHr = Math.floor(diffMin / 60);
+  const diffDay = Math.floor(diffHr / 24);
+
+  if (diffSec < 60) return "Just now";
+  if (diffMin < 60) return `${diffMin}m ago`;
+  if (diffHr < 24) return `${diffHr}h ago`;
+  if (diffDay === 1) return "Yesterday";
+  if (diffDay < 7) return `${diffDay}d ago`;
+  return date.toLocaleDateString();
+}
