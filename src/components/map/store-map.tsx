@@ -63,6 +63,7 @@ function MapContent({
   });
   const [selectedStore, setSelectedStore] = useState<StoreWithSightings | null>(null);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [gpsLocation, setGpsLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locationDenied, setLocationDenied] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const lastSearchCenter = useRef<{ lat: number; lng: number } | null>(null);
@@ -174,6 +175,7 @@ function MapContent({
     if (cached) {
       const parsed = JSON.parse(cached);
       setUserLocation(parsed);
+      setGpsLocation(parsed);
       map?.panTo(parsed);
       map?.setZoom(LOCATED_ZOOM);
     }
@@ -182,6 +184,7 @@ function MapContent({
       (pos) => {
         const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         setUserLocation(loc);
+        setGpsLocation(loc);
         localStorage.setItem("userLocation", JSON.stringify(loc));
         map?.panTo(loc);
         map?.setZoom(LOCATED_ZOOM);
@@ -308,7 +311,7 @@ function MapContent({
           sightings={selectedStore.sightings}
           products={products}
           hasSubmittedToday={selectedStore.hasSubmittedToday}
-          userLocation={userLocation}
+          userLocation={gpsLocation}
           onClose={() => setSelectedStore(null)}
         />
       )}
