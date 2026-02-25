@@ -66,6 +66,7 @@ function MapContent({
   const [selectedStore, setSelectedStore] = useState<StoreWithSightings | null>(null);
   const selectedStoreRef = useRef(selectedStore);
   selectedStoreRef.current = selectedStore;
+  const [recentlySubmittedId, setRecentlySubmittedId] = useState<string | null>(null);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [gpsLocation, setGpsLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locationDenied, setLocationDenied] = useState(false);
@@ -99,6 +100,18 @@ function MapContent({
     },
     [map]
   );
+
+  const handleSightingSubmitted = useCallback((storeId: string) => {
+    setStoreData((prev) =>
+      prev.map((sd) =>
+        sd.store.id === storeId ? { ...sd, hasSubmittedToday: true } : sd
+      )
+    );
+    setSelectedStore((prev) =>
+      prev && prev.store.id === storeId ? { ...prev, hasSubmittedToday: true } : prev
+    );
+    setRecentlySubmittedId(storeId);
+  }, []);
 
   // Track which marker IDs are currently in the clusterer
   const clusteredIdsRef = useRef<Set<string>>(new Set());
@@ -302,6 +315,7 @@ function MapContent({
             store={sd.store}
             isSelected={selectedStore?.store.id === sd.store.id}
             hasSubmittedToday={sd.hasSubmittedToday}
+            justSubmitted={recentlySubmittedId === sd.store.id}
             setMarkerRef={setMarkerRef}
             onClick={handleSelectStore}
           />
@@ -346,6 +360,7 @@ function MapContent({
           hasSubmittedToday={selectedStore.hasSubmittedToday}
           userLocation={gpsLocation}
           onClose={() => setSelectedStore(null)}
+          onSightingSubmitted={() => handleSightingSubmitted(selectedStore.store.id)}
         />
       )}
     </>
