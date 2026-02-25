@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useCallback } from "react";
+import { memo, useCallback, useState, useEffect } from "react";
 import { AdvancedMarker } from "@vis.gl/react-google-maps";
 import type { Store } from "@/db/schema";
 import { getWildCreature, simpleHash } from "@/lib/wild-creature";
@@ -21,12 +21,14 @@ export const ClusterMarker = memo(function ClusterMarker({
   onClick,
   isSelected,
   hasSubmittedToday,
+  justSubmitted,
   setMarkerRef,
 }: {
   store: Store;
   onClick: (storeId: string) => void;
   isSelected: boolean;
   hasSubmittedToday: boolean;
+  justSubmitted?: boolean;
   setMarkerRef?: (marker: google.maps.marker.AdvancedMarkerElement | null, id: string) => void;
 }) {
   const ref = useCallback(
@@ -38,13 +40,27 @@ export const ClusterMarker = memo(function ClusterMarker({
 
   const handleClick = useCallback(() => onClick(store.id), [onClick, store.id]);
 
+  const [animPhase, setAnimPhase] = useState<"idle" | "shrink" | "grow">("idle");
+
+  useEffect(() => {
+    if (!justSubmitted) return;
+    const shrinkTimer = setTimeout(() => setAnimPhase("shrink"), 0);
+    const growTimer = setTimeout(() => setAnimPhase("grow"), 300);
+    const doneTimer = setTimeout(() => setAnimPhase("idle"), 600);
+    return () => {
+      clearTimeout(shrinkTimer);
+      clearTimeout(growTimer);
+      clearTimeout(doneTimer);
+    };
+  }, [justSubmitted]);
+
   if (!store.latitude || !store.longitude) return null;
 
   const wild = getWildCreature(store.id);
   const spriteUrl = hasSubmittedToday ? BOX_EMOJI_URL : wild.spriteUrl;
   const spriteName = hasSubmittedToday ? "Box" : wild.name;
-  const borderColor = hasSubmittedToday ? "#9CA3AF" : (RARITY_BORDER_COLORS[wild.rarity] ?? "#9CA3AF");
-  const isRainbow = !hasSubmittedToday && borderColor === "rainbow";
+  const borderColor = RARITY_BORDER_COLORS[wild.rarity] ?? "#9CA3AF";
+  const isRainbow = borderColor === "rainbow";
 
   // Deterministic animation delay so sprites don't bob in sync
   const animDelay = (simpleHash(store.id) % 3000) / 1000;
@@ -110,6 +126,10 @@ export const ClusterMarker = memo(function ClusterMarker({
               height={32}
               style={{
                 imageRendering: "pixelated",
+                transition: animPhase !== "idle"
+                  ? "transform 300ms ease-in-out"
+                  : undefined,
+                transform: animPhase === "shrink" ? "scale(0)" : animPhase === "grow" ? "scale(1)" : undefined,
               }}
             />
           </div>
