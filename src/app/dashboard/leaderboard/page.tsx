@@ -12,6 +12,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCurrentUser } from "@/lib/auth";
+import { TOTAL_CREATURES } from "@/db/creature-data";
 import { cn } from "@/lib/utils";
 
 const BADGE_LABELS: Record<string, string> = {
@@ -25,6 +26,8 @@ const BADGE_LABELS: Record<string, string> = {
   cardboardex_50: "50 Creatures",
   cardboardex_complete: "Cardboardex Complete",
 };
+
+export const dynamic = "force-dynamic";
 
 export default async function LeaderboardPage() {
   const currentUser = await getCurrentUser();
@@ -122,7 +125,7 @@ export default async function LeaderboardPage() {
             <div>
               <span className="text-muted-foreground">Cardboardex:</span>{" "}
               <span className="font-medium">
-                {cardboardexMap.get(currentUser.id) ?? 0}/151
+                {cardboardexMap.get(currentUser.id) ?? 0}/{TOTAL_CREATURES}
               </span>
             </div>
           </CardContent>
@@ -173,7 +176,7 @@ export default async function LeaderboardPage() {
                     </Badge>
                   ))}
                 </TableCell>
-                <TableCell>{cardboardexMap.get(reporter.id) ?? 0}/151</TableCell>
+                <TableCell>{cardboardexMap.get(reporter.id) ?? 0}/{TOTAL_CREATURES}</TableCell>
               </TableRow>
             );
           })}

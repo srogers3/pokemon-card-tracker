@@ -1,6 +1,6 @@
 import { requireUser } from "@/lib/auth";
 import { getUserCollection, getCardboardexCompletion } from "@/lib/boxes";
-import { CREATURE_DATA, getSpriteUrl } from "@/db/creature-data";
+import { CREATURE_DATA, TOTAL_CREATURES, getSpriteUrl } from "@/db/creature-data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -46,7 +46,7 @@ export default async function CollectionPage() {
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-semibold">Cardboardex</h2>
         <Badge variant="outline" className="text-sm">
-          {uniqueCaught}/151 discovered
+          {uniqueCaught}/{TOTAL_CREATURES} discovered
         </Badge>
       </div>
 
@@ -54,7 +54,7 @@ export default async function CollectionPage() {
       <div className="w-full bg-muted rounded-full h-3 mb-6 overflow-hidden">
         <div
           className="bg-gradient-to-r from-primary to-accent rounded-full h-3 transition-all"
-          style={{ width: `${(uniqueCaught / 151) * 100}%` }}
+          style={{ width: `${(uniqueCaught / TOTAL_CREATURES) * 100}%` }}
         />
       </div>
 

@@ -5,7 +5,7 @@ import {
   badgeTypeEnum,
 } from "@/db/schema";
 import { eq, and, sql, isNotNull, isNull } from "drizzle-orm";
-import { CREATURE_DATA, getSpriteUrl } from "@/db/creature-data";
+import { CREATURE_DATA, TOTAL_CREATURES, getSpriteUrl } from "@/db/creature-data";
 import { adjustTrustScore } from "@/lib/trust";
 
 type RarityTier = "common" | "uncommon" | "rare" | "ultra_rare";
@@ -258,7 +258,7 @@ async function checkCardboardexBadges(userId: string): Promise<void> {
   if (uniqueCaught >= 50 && !earned.has("cardboardex_50")) {
     toAward.push("cardboardex_50");
   }
-  if (uniqueCaught >= 151 && !earned.has("cardboardex_complete")) {
+  if (uniqueCaught >= TOTAL_CREATURES && !earned.has("cardboardex_complete")) {
     toAward.push("cardboardex_complete");
   }
 

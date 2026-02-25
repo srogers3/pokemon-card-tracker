@@ -41,7 +41,6 @@ export const creatureRarityEnum = pgEnum("creature_rarity", [
 ]);
 
 export const creatureTypeEnum = pgEnum("creature_type", [
-  "starter",
   "shelf",
   "logistics",
   "checkout",
@@ -162,7 +161,7 @@ export const reporterBadges = pgTable("reporter_badges", {
 });
 
 export const creatureCatalog = pgTable("creature_catalog", {
-  id: integer("id").primaryKey(), // Creature index (1-151)
+  id: integer("id").primaryKey(), // Creature index (dynamic, see CREATURE_DATA)
   name: text("name").notNull(),
   type: creatureTypeEnum("type").notNull(),
   rarityTier: creatureRarityEnum("rarity_tier").notNull(),

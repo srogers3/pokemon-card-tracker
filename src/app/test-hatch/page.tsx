@@ -4,12 +4,12 @@ import { useState } from "react";
 import { UnboxRevealModal } from "@/components/unbox-reveal-modal";
 
 const MOCK_OPENINGS = [
-  { id: "1", creatureName: "Blisterfang", creatureId: 10, rarityTier: "common" as const, spriteUrl: "/sprites/10.svg", isShiny: false, wasUpgrade: false, wildCreatureName: null },
-  { id: "2", creatureName: "FOMOgre", creatureId: 97, rarityTier: "uncommon" as const, spriteUrl: "/sprites/97.svg", isShiny: false, wasUpgrade: false, wildCreatureName: null },
-  { id: "3", creatureName: "Forklord", creatureId: 142, rarityTier: "ultra_rare" as const, spriteUrl: "/sprites/142.svg", isShiny: true, wasUpgrade: false, wildCreatureName: null },
-  { id: "4", creatureName: "Logistigon", creatureId: 151, rarityTier: "ultra_rare" as const, spriteUrl: "/sprites/151.svg", isShiny: false, wasUpgrade: true, wildCreatureName: "Stocklit" },
-  { id: "5", creatureName: "Cartivore", creatureId: 15, rarityTier: "common" as const, spriteUrl: "/sprites/15.svg", isShiny: false, wasUpgrade: false, wildCreatureName: null },
-  { id: "6", creatureName: "Dropocalypse", creatureId: 106, rarityTier: "ultra_rare" as const, spriteUrl: "/sprites/106.svg", isShiny: true, wasUpgrade: true, wildCreatureName: "Scalpizard" },
+  { id: "1", creatureName: "Blisterfang", creatureId: 10, rarityTier: "common" as const, spriteUrl: "/sprites/10.png", isShiny: false, wasUpgrade: false, wildCreatureName: null },
+  { id: "2", creatureName: "Cashrath", creatureId: 6, rarityTier: "uncommon" as const, spriteUrl: "/sprites/6.png", isShiny: false, wasUpgrade: false, wildCreatureName: null },
+  { id: "3", creatureName: "Baydrake", creatureId: 8, rarityTier: "uncommon" as const, spriteUrl: "/sprites/8.png", isShiny: true, wasUpgrade: false, wildCreatureName: null },
+  { id: "4", creatureName: "Stocklit", creatureId: 1, rarityTier: "uncommon" as const, spriteUrl: "/sprites/1.png", isShiny: false, wasUpgrade: true, wildCreatureName: "Facelisk" },
+  { id: "5", creatureName: "Scannit", creatureId: 4, rarityTier: "uncommon" as const, spriteUrl: "/sprites/4.png", isShiny: false, wasUpgrade: false, wildCreatureName: null },
+  { id: "6", creatureName: "Planogor", creatureId: 3, rarityTier: "uncommon" as const, spriteUrl: "/sprites/3.png", isShiny: true, wasUpgrade: true, wildCreatureName: "Docklet" },
 ];
 
 export default function TestHatchPage() {
