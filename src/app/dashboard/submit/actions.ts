@@ -1,7 +1,9 @@
 "use server";
 
 import { db } from "@/db";
-import { restockSightings } from "@/db/schema";
+import { restockSightings, stores } from "@/db/schema";
+import { eq } from "drizzle-orm";
+import { getDistanceMeters, MAX_TIP_DISTANCE_M } from "@/lib/utils";
 import { requireUser } from "@/lib/auth";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
@@ -28,6 +30,30 @@ export async function submitTip(formData: FormData) {
   const storeId = formData.get("storeId") as string;
   const alreadyReported = await hasSubmittedToStoreToday(userId, storeId);
   if (alreadyReported) throw new Error("Already reported this location today");
+
+  // Proximity check (skip if BYPASS_PROXIMITY_CHECK is set)
+  if (!process.env.BYPASS_PROXIMITY_CHECK) {
+    const userLat = parseFloat(formData.get("userLatitude") as string);
+    const userLng = parseFloat(formData.get("userLongitude") as string);
+    if (isNaN(userLat) || isNaN(userLng)) {
+      throw new Error("Location is required to submit a report");
+    }
+
+    const [store] = await db
+      .select({ latitude: stores.latitude, longitude: stores.longitude })
+      .from(stores)
+      .where(eq(stores.id, storeId))
+      .limit(1);
+
+    if (!store?.latitude || !store?.longitude) {
+      throw new Error("Store location not available");
+    }
+
+    const distance = getDistanceMeters(userLat, userLng, store.latitude, store.longitude);
+    if (distance > MAX_TIP_DISTANCE_M) {
+      throw new Error("You must be near this store to submit a report");
+    }
+  }
 
   const productId = (formData.get("productId") as string) || null;
   const sightedAt = new Date(formData.get("sightedAt") as string);
@@ -70,7 +96,6 @@ export async function submitTip(formData: FormData) {
     await adjustTrustScore(userId, 5);
   }
 
-  revalidatePath("/dashboard/submit");
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/collection");
 }
