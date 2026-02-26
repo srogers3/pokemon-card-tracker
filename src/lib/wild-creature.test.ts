@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { simpleHash, getWildCreature } from "./wild-creature";
+import { CREATURE_DATA, MAX_SPRITE_ID } from "@/db/creature-data";
 
 describe("simpleHash", () => {
   it("returns a non-negative number", () => {
@@ -68,5 +69,26 @@ describe("getWildCreature", () => {
     vi.setSystemTime(new Date("2026-01-15"));
     const creature = getWildCreature("store-123");
     expect(["common", "uncommon", "rare", "ultra_rare"]).toContain(creature.rarity);
+  });
+
+  it("only returns creatures with id <= MAX_SPRITE_ID", () => {
+    vi.useFakeTimers();
+    // Test across many store IDs to cover different hash outcomes
+    for (let i = 0; i < 100; i++) {
+      vi.setSystemTime(new Date("2026-01-15"));
+      const creature = getWildCreature(`store-${i}`);
+      expect(creature.id).toBeLessThanOrEqual(MAX_SPRITE_ID);
+    }
+  });
+
+  it("rarity matches creature intrinsic rarityTier", () => {
+    vi.useFakeTimers();
+    for (let i = 0; i < 100; i++) {
+      vi.setSystemTime(new Date("2026-01-15"));
+      const creature = getWildCreature(`store-${i}`);
+      const catalogEntry = CREATURE_DATA.find((c) => c.id === creature.id);
+      expect(catalogEntry).toBeDefined();
+      expect(creature.rarity).toBe(catalogEntry!.rarityTier);
+    }
   });
 });

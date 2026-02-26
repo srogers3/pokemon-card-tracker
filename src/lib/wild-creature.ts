@@ -1,4 +1,4 @@
-import { CREATURE_DATA, getSpriteUrl } from "@/db/creature-data";
+import { CREATURE_DATA, MAX_SPRITE_ID, getSpriteUrl } from "@/db/creature-data";
 
 const RARITY_WEIGHTS = [
   { tier: "common", weight: 0.60 },
@@ -32,10 +32,31 @@ export function getWildCreature(storeId: string): { id: number; name: string; sp
     }
   }
 
-  const tierCreatures = CREATURE_DATA.filter((c) => c.rarityTier === selectedTier);
-  // Fall back to all creatures if selected tier has none (e.g. limited creature set)
-  const pool = tierCreatures.length > 0 ? tierCreatures : CREATURE_DATA;
+  // Only pick from creatures with finished sprites
+  const spriteReady = CREATURE_DATA.filter((c) => c.id <= MAX_SPRITE_ID);
+  let pool = spriteReady.filter((c) => c.rarityTier === selectedTier);
+
+  // If no sprite-ready creatures in this tier, fall back to nearest available tier
+  if (pool.length === 0) {
+    const tierOrder = ["common", "uncommon", "rare", "ultra_rare"];
+    const selectedIdx = tierOrder.indexOf(selectedTier);
+    // Try adjacent tiers, closest first
+    for (let offset = 1; offset < tierOrder.length; offset++) {
+      for (const dir of [-1, 1]) {
+        const tryIdx = selectedIdx + offset * dir;
+        if (tryIdx >= 0 && tryIdx < tierOrder.length) {
+          pool = spriteReady.filter((c) => c.rarityTier === tierOrder[tryIdx]);
+          if (pool.length > 0) break;
+        }
+      }
+      if (pool.length > 0) break;
+    }
+    // Final fallback: all sprite-ready creatures
+    if (pool.length === 0) pool = spriteReady;
+  }
+
   const idx = simpleHash(seed + "pick") % pool.length;
   const creature = pool[idx];
-  return { id: creature.id, name: creature.name, spriteUrl: getSpriteUrl(creature.id), rarity: selectedTier };
+  // Return the creature's intrinsic rarity, not the rolled tier
+  return { id: creature.id, name: creature.name, spriteUrl: getSpriteUrl(creature.id), rarity: creature.rarityTier };
 }
