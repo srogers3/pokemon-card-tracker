@@ -10,7 +10,8 @@ import { Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const dashboardLinks = [
-  { href: "/dashboard", label: "Map" },
+  { href: "/dashboard", label: "Home" },
+  { href: "/dashboard/map", label: "Map" },
   { href: "/dashboard/sightings", label: "Sightings" },
   { href: "/dashboard/collection", label: "Collection" },
   { href: "/dashboard/leaderboard", label: "Leaderboard" },
