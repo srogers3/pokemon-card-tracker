@@ -134,7 +134,7 @@ export function StoreDetailPanel({
               />
             </div>
             {trend.confidence === "low" ? (
-              <p className="text-xs text-muted-foreground">Need 3+ verified reports to show patterns</p>
+              <p className="text-xs text-muted-foreground">Need 3+ verified sightings to show patterns</p>
             ) : trend.avgDaysBetween === null ? (
               <p className="text-xs text-muted-foreground">Need sightings on different days to detect patterns</p>
             ) : (
