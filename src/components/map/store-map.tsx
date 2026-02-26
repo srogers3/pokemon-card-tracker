@@ -355,6 +355,7 @@ function MapContent({
           const caught = caughtMap.get(wild.id);
           return (
             <CreatureLabel
+              key={selectedStore.store.id}
               position={{ lat: selectedStore.store.latitude, lng: selectedStore.store.longitude }}
               creatureName={wild.name}
               isCaught={!!caught}

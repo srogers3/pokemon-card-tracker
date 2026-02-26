@@ -54,16 +54,14 @@ export function CreatureLabel({
         {/* Speech bubble */}
         <div
           style={{
-            backgroundColor: "rgba(255, 255, 255, 0.85)",
             backdropFilter: "blur(8px)",
             WebkitBackdropFilter: "blur(8px)",
             borderRadius: 8,
             padding: "4px 10px",
-            border: isRainbow ? "none" : `2px solid ${borderColor}`,
+            border: isRainbow ? "2px solid transparent" : `2px solid ${borderColor}`,
             background: isRainbow
-              ? "linear-gradient(white, white) padding-box, conic-gradient(from 0deg, #ef4444, #f59e0b, #22c55e, #3b82f6, #a855f7, #ef4444) border-box"
-              : undefined,
-            borderColor: isRainbow ? "transparent" : undefined,
+              ? "linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)) padding-box, conic-gradient(from 0deg, #ef4444, #f59e0b, #22c55e, #3b82f6, #a855f7, #ef4444) border-box"
+              : "rgba(255, 255, 255, 0.85)",
             boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
             whiteSpace: "nowrap",
             display: "flex",

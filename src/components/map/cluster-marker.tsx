@@ -146,10 +146,10 @@ export const ClusterMarker = memo(function ClusterMarker({
             <div
               style={{
                 position: "absolute",
-                top: isSelected ? -4 : -2,
-                right: isSelected ? -4 : -2,
-                width: isSelected ? 20 : 10,
-                height: isSelected ? 20 : 10,
+                top: -2,
+                right: -2,
+                width: 12,
+                height: 12,
                 borderRadius: "50%",
                 backgroundColor: STAR_COLORS[starTier],
                 border: "2px solid white",
@@ -157,12 +157,13 @@ export const ClusterMarker = memo(function ClusterMarker({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: isSelected ? 12 : 0,
-                transition: "all 200ms ease",
+                fontSize: 7,
+                lineHeight: 1,
+                color: "white",
                 zIndex: 10,
               }}
             >
-              {isSelected && "★"}
+              ★
             </div>
           )}
         </div>
