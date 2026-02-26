@@ -1,11 +1,14 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { APIProvider, Map as GoogleMap, Marker, useMap, useApiIsLoaded } from "@vis.gl/react-google-maps";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import { ClusterMarker } from "./cluster-marker";
 import { StoreDetailPanel } from "./store-detail-panel";
 import { clusterRenderer } from "./cluster-renderer";
+import { CreatureLabel } from "./creature-label";
+import { getWildCreature, getStarTier } from "@/lib/wild-creature";
+import { CREATURE_DATA } from "@/db/creature-data";
 import { searchNearbyStores } from "@/lib/places";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,6 +33,12 @@ interface StoreMapProps {
   products: Product[];
   apiKey: string;
   mapId: string;
+  userBoxes: {
+    creatureId: number | null;
+    wildCreatureId: number | null;
+    isShiny: boolean;
+    opened: boolean;
+  }[];
 }
 
 const DEFAULT_CENTER = { lat: 39.8283, lng: -98.5795 };
@@ -40,10 +49,12 @@ function MapContent({
   initialStores,
   products,
   mapId,
+  userBoxes,
 }: {
   initialStores: StoreWithSightings[];
   products: Product[];
   mapId: string;
+  userBoxes: StoreMapProps["userBoxes"];
 }) {
   const map = useMap();
   const apiIsLoaded = useApiIsLoaded();
@@ -75,6 +86,23 @@ function MapContent({
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const markersRef = useRef<Record<string, google.maps.marker.AdvancedMarkerElement>>({});
   const clustererRef = useRef<MarkerClusterer | null>(null);
+
+  const caughtMap = useMemo(() => {
+    const map = new Map<number, { count: number; shinyCount: number }>();
+    for (const box of userBoxes.filter(b => b.opened && b.creatureId)) {
+      const existing = map.get(box.creatureId!) ?? { count: 0, shinyCount: 0 };
+      existing.count++;
+      if (box.isShiny) existing.shinyCount++;
+      map.set(box.creatureId!, existing);
+    }
+    return map;
+  }, [userBoxes]);
+
+  const pendingWildIds = useMemo(() => {
+    return new Set(
+      userBoxes.filter(b => !b.opened && b.wildCreatureId).map(b => b.wildCreatureId!)
+    );
+  }, [userBoxes]);
 
   // Collect marker refs for clustering
   const setMarkerRef = useCallback(
@@ -318,8 +346,24 @@ function MapContent({
             justSubmitted={recentlySubmittedId === sd.store.id}
             setMarkerRef={setMarkerRef}
             onClick={handleSelectStore}
+            starTier={getStarTier(sd.store.id)}
           />
         ))}
+
+        {selectedStore && selectedStore.store.latitude && selectedStore.store.longitude && (() => {
+          const wild = getWildCreature(selectedStore.store.id);
+          const caught = caughtMap.get(wild.id);
+          return (
+            <CreatureLabel
+              position={{ lat: selectedStore.store.latitude, lng: selectedStore.store.longitude }}
+              creatureName={wild.name}
+              isCaught={!!caught}
+              rarity={wild.rarity}
+              starTier={getStarTier(selectedStore.store.id)}
+              visible={true}
+            />
+          );
+        })()}
       </GoogleMap>
 
       <div className="absolute top-4 left-4 right-4 md:left-auto md:right-4 md:w-80 z-10">
@@ -352,26 +396,37 @@ function MapContent({
         </Button>
       )}
 
-      {selectedStore && (
-        <StoreDetailPanel
-          store={selectedStore.store}
-          sightings={selectedStore.sightings}
-          products={products}
-          hasSubmittedToday={selectedStore.hasSubmittedToday}
-          userLocation={gpsLocation}
-          onClose={() => setSelectedStore(null)}
-          onSightingSubmitted={() => handleSightingSubmitted(selectedStore.store.id)}
-        />
-      )}
+      {selectedStore && (() => {
+        const wild = getWildCreature(selectedStore.store.id);
+        const creatureEntry = CREATURE_DATA.find(c => c.id === wild.id)!;
+        const caught = caughtMap.get(wild.id);
+        return (
+          <StoreDetailPanel
+            store={selectedStore.store}
+            sightings={selectedStore.sightings}
+            products={products}
+            hasSubmittedToday={selectedStore.hasSubmittedToday}
+            userLocation={gpsLocation}
+            onClose={() => setSelectedStore(null)}
+            onSightingSubmitted={() => handleSightingSubmitted(selectedStore.store.id)}
+            wildCreature={creatureEntry}
+            starTier={getStarTier(selectedStore.store.id)}
+            isCreatureCaught={!!caught}
+            creatureCatchCount={caught?.count ?? 0}
+            creatureShinyCount={caught?.shinyCount ?? 0}
+            hasPendingBox={pendingWildIds.has(wild.id)}
+          />
+        );
+      })()}
     </>
   );
 }
 
-export function StoreMap({ initialStores, products, apiKey, mapId }: StoreMapProps) {
+export function StoreMap({ initialStores, products, apiKey, mapId, userBoxes }: StoreMapProps) {
   return (
     <APIProvider apiKey={apiKey}>
       <div className="relative w-full h-[calc(100vh-64px)]">
-        <MapContent initialStores={initialStores} products={products} mapId={mapId} />
+        <MapContent initialStores={initialStores} products={products} mapId={mapId} userBoxes={userBoxes} />
       </div>
     </APIProvider>
   );
