@@ -295,9 +295,10 @@ function MapContent({
   }, [map, handleSearchArea]);
 
   const handleRecenter = () => {
-    if (userLocation && map) {
-      map.panTo(userLocation);
+    if (gpsLocation && map) {
+      map.panTo(gpsLocation);
       map.setZoom(LOCATED_ZOOM);
+      setSearchQuery("");
     }
   };
 
@@ -310,7 +311,6 @@ function MapContent({
       if (status === "OK" && results?.[0]) {
         const loc = results[0].geometry.location;
         const center = { lat: loc.lat(), lng: loc.lng() };
-        setUserLocation(center);
         map.panTo(center);
         map.setZoom(LOCATED_ZOOM);
         handleSearchArea(center.lat, center.lng);
@@ -325,7 +325,7 @@ function MapContent({
         defaultZoom={userLocation ? LOCATED_ZOOM : DEFAULT_ZOOM}
         gestureHandling="greedy"
         disableDefaultUI={true}
-        zoomControl={true}
+        zoomControl={false}
         mapId={mapId}
         className="w-full h-full"
         onClick={() => setSelectedStore(null)}
@@ -394,12 +394,12 @@ function MapContent({
         </form>
       </div>
 
-      {userLocation && (
+      {gpsLocation && (
         <Button
           onClick={handleRecenter}
           variant="outline"
           size="sm"
-          className="absolute bottom-24 right-4 z-10 bg-card/90 backdrop-blur-sm shadow-md"
+          className="absolute bottom-4 right-4 z-10 bg-card/90 backdrop-blur-sm shadow-md"
         >
           <LocateFixed className="w-4 h-4" />
         </Button>
