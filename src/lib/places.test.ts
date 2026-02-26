@@ -1,15 +1,5 @@
-import { describe, it, expect, vi } from "vitest";
-
-vi.mock("@clerk/nextjs/server", () => ({
-  auth: vi.fn(),
-}));
-vi.mock("@/db", () => ({ db: {} }));
-vi.mock("@/db/schema", () => ({
-  stores: {},
-  searchCache: {},
-}));
-
-import { isLikelyRetailStore, mapStoreType, toGridCell } from "./places";
+import { describe, it, expect } from "vitest";
+import { isLikelyRetailStore, mapStoreType, toGridCell } from "./places-utils";
 
 describe("isLikelyRetailStore", () => {
   it("returns true for retail types", () => {
