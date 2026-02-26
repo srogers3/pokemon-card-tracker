@@ -7,7 +7,7 @@ import { X, MapPin, Clock } from "lucide-react";
 import type { Store, Product } from "@/db/schema";
 import { MapSightingForm } from "./map-sighting-form";
 import { cn, getDistanceMeters, MAX_TIP_DISTANCE_M } from "@/lib/utils";
-import { getStoreTrends } from "@/app/dashboard/actions";
+import { getStoreTrends } from "@/app/dashboard/map/actions";
 import type { RestockTrend } from "@/lib/trends";
 import { getBarPercent } from "@/lib/trends";
 
