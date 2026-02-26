@@ -137,7 +137,7 @@ export async function openBox(
   return { creatureName: creature.name, isShiny, wasUpgrade, wildCreatureName };
 }
 
-function rollUpgradeTier(eligibleTiers: RarityTier[]): RarityTier {
+export function rollUpgradeTier(eligibleTiers: RarityTier[]): RarityTier {
   const weights = eligibleTiers.map((tier) => ({
     tier,
     weight: UPGRADE_TIER_WEIGHTS[tier],
@@ -153,7 +153,7 @@ function rollUpgradeTier(eligibleTiers: RarityTier[]): RarityTier {
   return eligibleTiers[eligibleTiers.length - 1];
 }
 
-function rollRandomCreature(
+export function rollRandomCreature(
   reportStatus: string,
   corroborated: boolean
 ): { id: number; name: string; rarityTier: RarityTier } {
@@ -225,7 +225,7 @@ export async function transferCreature(
   return { points };
 }
 
-function rollRarity(weights: Record<RarityTier, number>): RarityTier {
+export function rollRarity(weights: Record<RarityTier, number>): RarityTier {
   const total = Object.values(weights).reduce((a, b) => a + b, 0);
   let roll = Math.random() * total;
 

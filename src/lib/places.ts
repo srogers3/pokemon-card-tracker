@@ -43,11 +43,11 @@ const EXCLUDED_PLACE_TYPES = new Set([
   "restaurant", "cafe", "meal_delivery", "meal_takeaway",
 ]);
 
-function isLikelyRetailStore(types: string[]): boolean {
+export function isLikelyRetailStore(types: string[]): boolean {
   return !types.some((t) => EXCLUDED_PLACE_TYPES.has(t));
 }
 
-function mapStoreType(types: string[]): "big_box" | "lgs" | "grocery" | "pharmacy" | "other" {
+export function mapStoreType(types: string[]): "big_box" | "lgs" | "grocery" | "pharmacy" | "other" {
   const typeSet = new Set(types);
   if (typeSet.has("department_store") || typeSet.has("shopping_mall")) return "big_box";
   if (typeSet.has("grocery_or_supermarket") || typeSet.has("supermarket")) return "grocery";
@@ -56,7 +56,7 @@ function mapStoreType(types: string[]): "big_box" | "lgs" | "grocery" | "pharmac
   return "other";
 }
 
-function toGridCell(lat: number, lng: number): { gridLat: number; gridLng: number } {
+export function toGridCell(lat: number, lng: number): { gridLat: number; gridLng: number } {
   return {
     gridLat: Math.round(lat / 0.05) * 0.05,
     gridLng: Math.round(lng / 0.05) * 0.05,
