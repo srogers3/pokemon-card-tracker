@@ -2,7 +2,6 @@
 
 import { AdvancedMarker } from "@vis.gl/react-google-maps";
 import type { StarTier } from "@/lib/wild-creature";
-import { STAR_UPGRADE_CHANCE } from "@/lib/wild-creature";
 
 const RARITY_BORDER_COLORS: Record<string, string> = {
   common: "#9CA3AF",
@@ -83,17 +82,6 @@ export function CreatureLabel({
           >
             {displayName}
           </span>
-          {starTier && (
-            <span
-              style={{
-                fontSize: 10,
-                color: STAR_COLORS[starTier],
-                fontWeight: 600,
-              }}
-            >
-              {Math.round(STAR_UPGRADE_CHANCE[starTier] * 100)}%↑
-            </span>
-          )}
         </div>
         {/* Downward caret */}
         <div
