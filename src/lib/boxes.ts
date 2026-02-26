@@ -2,12 +2,13 @@ import { db } from "@/db";
 import {
   creatureBoxes,
   reporterBadges,
+  restockSightings,
   badgeTypeEnum,
 } from "@/db/schema";
 import { eq, and, sql, isNotNull, isNull } from "drizzle-orm";
 import { CREATURE_DATA, TOTAL_CREATURES, getSpriteUrl } from "@/db/creature-data";
 import { adjustTrustScore } from "@/lib/trust";
-import { STAR_UPGRADE_CHANCE, type StarTier } from "./wild-creature";
+import { getStarTier, STAR_UPGRADE_CHANCE, type StarTier } from "./wild-creature";
 
 type RarityTier = "common" | "uncommon" | "rare" | "ultra_rare";
 type BadgeType = (typeof badgeTypeEnum.enumValues)[number];
@@ -297,6 +298,44 @@ export async function getUnviewedOpenings(userId: string) {
       wildCreatureName: wildCreature?.name ?? null,
     };
   });
+}
+
+const PENDING_BOX_DELAY_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+export async function openPendingBox(
+  boxId: string,
+  userId: string
+): Promise<{ creatureName: string; isShiny: boolean; wasUpgrade: boolean; wildCreatureName: string | null } | null> {
+  const [box] = await db
+    .select()
+    .from(creatureBoxes)
+    .where(
+      and(
+        eq(creatureBoxes.id, boxId),
+        eq(creatureBoxes.userId, userId),
+        eq(creatureBoxes.opened, false)
+      )
+    )
+    .limit(1);
+
+  if (!box) return null;
+
+  // Check if 24 hours have passed
+  const elapsed = Date.now() - new Date(box.createdAt).getTime();
+  if (elapsed < PENDING_BOX_DELAY_MS) {
+    return null;
+  }
+
+  // Use the sighting's store to get star tier
+  const [sighting] = await db
+    .select({ storeId: restockSightings.storeId })
+    .from(restockSightings)
+    .where(eq(restockSightings.id, box.sightingId))
+    .limit(1);
+
+  const starTier = sighting ? getStarTier(sighting.storeId) : null;
+
+  return openBox(box.sightingId, starTier);
 }
 
 export async function markBoxViewed(userId: string, boxId: string) {
