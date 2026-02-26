@@ -1,9 +1,10 @@
 import { requireUser } from "@/lib/auth";
 import { getUserCollection, getCardboardexCompletion } from "@/lib/boxes";
 import { CREATURE_DATA, TOTAL_CREATURES, getSpriteUrl } from "@/db/creature-data";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { CollectionPendingSection } from "@/components/collection-pending-section";
 
 export default async function CollectionPage() {
   const user = await requireUser();
@@ -83,32 +84,14 @@ export default async function CollectionPage() {
       )}
 
       {/* Pending boxes */}
-      {pendingBoxes.length > 0 && (
-        <Card className="mb-6 gold-glow">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base">
-              Pending Boxes ({pendingBoxes.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex gap-2 flex-wrap">
-              {pendingBoxes.map((box, idx) => (
-                <div
-                  key={box.id}
-                  className="w-12 h-12 bg-gold/10 rounded-lg flex items-center justify-center text-lg egg-float"
-                  title={`Box from ${box.reportStatus} report — waiting for verification`}
-                  style={{ animationDelay: `${(idx * 0.3) % 2}s` }}
-                >
-                  📦
-                </div>
-              ))}
-            </div>
-            <p className="text-xs text-muted-foreground mt-2">
-              Boxes open when your report is verified!
-            </p>
-          </CardContent>
-        </Card>
-      )}
+      <CollectionPendingSection
+        pendingBoxes={pendingBoxes.map((box) => ({
+          id: box.id,
+          createdAt: box.createdAt.toISOString(),
+          reportStatus: box.reportStatus,
+        }))}
+        isPremium={user.subscriptionTier === "premium"}
+      />
 
       {/* Cardboardex grid */}
       <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-2">
