@@ -29,7 +29,7 @@ npm run db:seed        # Seed stores, products, Pokemon catalog
 npm run db:studio      # Drizzle Studio GUI
 ```
 
-No test framework is configured yet.
+**Testing:** Vitest (`npm test` / `vitest run`). Test files colocated in `src/lib/*.test.ts`.
 
 ## Project Structure
 
