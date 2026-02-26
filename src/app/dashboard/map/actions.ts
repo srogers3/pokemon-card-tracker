@@ -5,13 +5,15 @@ import { stores, restockSightings, products } from "@/db/schema";
 import { eq, desc, gte, and, isNotNull } from "drizzle-orm";
 import { auth } from "@clerk/nextjs/server";
 import { getSubmittedStoreIdsToday } from "@/lib/trust";
+import { getDevOverrides } from "@/lib/dev";
 import { analyzeTrends } from "@/lib/trends";
 
 export async function getStoresWithSightings() {
   const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000);
 
   const { userId } = await auth();
-  const submittedStoreIds = userId
+  const devOverrides = await getDevOverrides();
+  const submittedStoreIds = userId && !devOverrides.skipSightingLimits
     ? await getSubmittedStoreIdsToday(userId)
     : new Set<string>();
 

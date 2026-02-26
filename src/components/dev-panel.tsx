@@ -7,6 +7,7 @@ const TOGGLES = [
   { key: "dev_skip_delay", label: "Skip 24h Delay" },
   { key: "dev_force_corroborate", label: "Force Corroboration" },
   { key: "dev_skip_proximity", label: "Skip Proximity Check" },
+  { key: "dev_skip_sighting_limits", label: "Skip Sighting Limits" },
 ] as const;
 
 function getCookie(name: string): boolean {
