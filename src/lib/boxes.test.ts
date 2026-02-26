@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { getCardboardexCompletion, rollRarity, rollUpgradeTier, rollRandomCreature } from "./boxes";
+import { getCardboardexCompletion, rollUpgradeTier } from "./boxes";
 
 describe("getCardboardexCompletion", () => {
   it("returns 0 for empty array", () => {
@@ -26,36 +26,6 @@ describe("getCardboardexCompletion", () => {
   });
 });
 
-describe("rollRarity", () => {
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
-  it("returns common when roll is in common range", () => {
-    vi.spyOn(Math, "random").mockReturnValue(0.0);
-    const weights = { common: 75, uncommon: 25, rare: 0, ultra_rare: 0 };
-    expect(rollRarity(weights)).toBe("common");
-  });
-
-  it("returns uncommon when roll falls in uncommon range", () => {
-    vi.spyOn(Math, "random").mockReturnValue(0.8);
-    const weights = { common: 75, uncommon: 25, rare: 0, ultra_rare: 0 };
-    expect(rollRarity(weights)).toBe("uncommon");
-  });
-
-  it("returns ultra_rare for found_corroborated at high roll", () => {
-    vi.spyOn(Math, "random").mockReturnValue(0.99);
-    const weights = { common: 25, uncommon: 30, rare: 30, ultra_rare: 15 };
-    expect(rollRarity(weights)).toBe("ultra_rare");
-  });
-
-  it("defaults to common if roll overshoots", () => {
-    vi.spyOn(Math, "random").mockReturnValue(0.999999);
-    const weights = { common: 0, uncommon: 0, rare: 0, ultra_rare: 0 };
-    expect(rollRarity(weights)).toBe("common");
-  });
-});
-
 describe("rollUpgradeTier", () => {
   afterEach(() => {
     vi.restoreAllMocks();
@@ -75,36 +45,5 @@ describe("rollUpgradeTier", () => {
 
     vi.spyOn(Math, "random").mockReturnValue(0.95);
     expect(rollUpgradeTier(["uncommon", "rare", "ultra_rare"])).toBe("ultra_rare");
-  });
-});
-
-describe("rollRandomCreature", () => {
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
-  it("returns a creature with id, name, and rarityTier", () => {
-    const creature = rollRandomCreature("found", false);
-    expect(creature).toHaveProperty("id");
-    expect(creature).toHaveProperty("name");
-    expect(creature).toHaveProperty("rarityTier");
-  });
-
-  it("uses found_corroborated weights when corroborated", () => {
-    // With 0.99, rollRarity picks ultra_rare from found_corroborated weights.
-    // CREATURE_DATA has ultra_rare creatures (141-151), so the function should
-    // return an ultra_rare creature directly.
-    const spy = vi.spyOn(Math, "random").mockReturnValue(0.99);
-    const creature = rollRandomCreature("found", true);
-    expect(creature).toHaveProperty("id");
-    expect(creature).toHaveProperty("name");
-    expect(creature.rarityTier).toBe("ultra_rare");
-    expect(spy).toHaveBeenCalledTimes(2);
-  });
-
-  it("uses not_found weights as fallback for unknown status", () => {
-    vi.spyOn(Math, "random").mockReturnValue(0.0);
-    const creature = rollRandomCreature("unknown_status", false);
-    expect(creature.rarityTier).toBe("common");
   });
 });

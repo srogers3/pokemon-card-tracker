@@ -39,7 +39,7 @@ export async function verifySighting(id: string) {
     // Award trust points to the reporter and open their box
     await adjustTrustScore(sighting.reportedBy, 5);
     const starTier = getStarTier(sighting.storeId);
-    await openBox(id, false, starTier);
+    await openBox(id, starTier);
 
     const alertConditions = [
       or(

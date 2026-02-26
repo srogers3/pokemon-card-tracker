@@ -15,13 +15,18 @@ import {
   adjustTrustScore,
   updateReporterStats,
 } from "@/lib/trust";
-import { createBox, openBox } from "@/lib/boxes";
+import { createBox, openBox, getUnviewedOpenings } from "@/lib/boxes";
 import { getWildCreature, getStarTier } from "@/lib/wild-creature";
+import { getDevOverrides } from "@/lib/dev";
 
-export async function submitTip(formData: FormData) {
+export async function submitTip(formData: FormData): Promise<{
+  opened: boolean;
+  openings?: Awaited<ReturnType<typeof getUnviewedOpenings>>;
+}> {
   const user = await requireUser();
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
+  const devOverrides = await getDevOverrides();
 
   // Rate limit check
   const canSubmit = await canSubmitReport(userId);
@@ -31,8 +36,8 @@ export async function submitTip(formData: FormData) {
   const alreadyReported = await hasSubmittedToStoreToday(userId, storeId);
   if (alreadyReported) throw new Error("Already reported this location today");
 
-  // Proximity check (skip if BYPASS_PROXIMITY_CHECK is explicitly "true")
-  if (process.env.BYPASS_PROXIMITY_CHECK !== "true") {
+  // Proximity check (skip if BYPASS_PROXIMITY_CHECK is explicitly "true" or dev override)
+  if (process.env.BYPASS_PROXIMITY_CHECK !== "true" && !devOverrides.skipProximity) {
     const userLat = parseFloat(formData.get("userLatitude") as string);
     const userLng = parseFloat(formData.get("userLongitude") as string);
     if (isNaN(userLat) || isNaN(userLng)) {
@@ -58,6 +63,7 @@ export async function submitTip(formData: FormData) {
   const productId = (formData.get("productId") as string) || null;
   const sightedAt = new Date(formData.get("sightedAt") as string);
   const autoVerify = shouldAutoVerify(user.trustScore);
+  const isPremium = user.subscriptionTier === "premium" || devOverrides.simulatePremium;
 
   // Insert the sighting
   const [sighting] = await db
@@ -84,19 +90,31 @@ export async function submitTip(formData: FormData) {
   // Update reporter stats (totalReports, streak)
   await updateReporterStats(userId);
 
-  // Check for corroboration if not already auto-verified (only for product-specific reports)
+  // Check for corroboration (only for non-auto-verified, product-specific reports)
   if (!autoVerify && productId) {
-    const corroboratedUserId = await checkCorroboration(sighting.id, storeId, productId, sightedAt);
+    const corroboratedUserId = await checkCorroboration(sighting.id, storeId, productId, sightedAt, devOverrides.forceCorroborate);
     if (corroboratedUserId) {
       await adjustTrustScore(userId, 10);
     }
-  } else if (autoVerify) {
-    // Auto-verified — open box immediately
+  }
+
+  // Open box immediately for auto-verify or premium users
+  if (autoVerify || isPremium) {
     const starTier = getStarTier(storeId);
-    await openBox(sighting.id, false, starTier);
+    await openBox(sighting.id, starTier);
+  }
+
+  if (autoVerify) {
     await adjustTrustScore(userId, 5);
   }
 
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/collection");
+
+  if (autoVerify || isPremium) {
+    const openings = await getUnviewedOpenings(userId);
+    return { opened: true, openings };
+  }
+
+  return { opened: false };
 }

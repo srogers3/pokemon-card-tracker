@@ -56,7 +56,8 @@ export function StoreDetailPanel({
   const [trend, setTrend] = useState<RestockTrend | null>(null);
 
   const locationUnknown = !userLocation;
-  const isTooFar = !locationUnknown && store.latitude != null && store.longitude != null
+  const devSkipProximity = typeof document !== "undefined" && document.cookie.includes("dev_skip_proximity=true");
+  const isTooFar = !devSkipProximity && !locationUnknown && store.latitude != null && store.longitude != null
     ? getDistanceMeters(userLocation.lat, userLocation.lng, store.latitude, store.longitude) > MAX_TIP_DISTANCE_M
     : false;
 
@@ -157,7 +158,10 @@ export function StoreDetailPanel({
               {sightings.slice(0, 5).map((s) => (
                 <div
                   key={s.id}
-                  className="flex items-center justify-between text-sm bg-muted/30 rounded-lg px-3 py-2"
+                  className={cn(
+                    "flex items-center justify-between text-sm bg-muted/30 rounded-lg px-3 py-2",
+                    !s.verified && "opacity-60"
+                  )}
                 >
                   <span className="font-medium truncate mr-2">{s.productName}</span>
                   <div className="flex items-center gap-2 shrink-0">
@@ -168,6 +172,9 @@ export function StoreDetailPanel({
                       <Clock className="w-3 h-3" />
                       {new Date(s.sightedAt).toLocaleDateString()}
                     </span>
+                    {!s.verified && (
+                      <span className="text-[10px] text-muted-foreground/60">(unverified)</span>
+                    )}
                   </div>
                 </div>
               ))}

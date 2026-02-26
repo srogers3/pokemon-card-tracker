@@ -2,22 +2,16 @@ import { db } from "@/db";
 import {
   creatureBoxes,
   reporterBadges,
+  restockSightings,
   badgeTypeEnum,
 } from "@/db/schema";
 import { eq, and, sql, isNotNull, isNull } from "drizzle-orm";
 import { CREATURE_DATA, TOTAL_CREATURES, getSpriteUrl } from "@/db/creature-data";
 import { adjustTrustScore } from "@/lib/trust";
-import { STAR_UPGRADE_CHANCE, type StarTier } from "./wild-creature";
+import { getStarTier, STAR_UPGRADE_CHANCE, type StarTier } from "./wild-creature";
 
 type RarityTier = "common" | "uncommon" | "rare" | "ultra_rare";
 type BadgeType = (typeof badgeTypeEnum.enumValues)[number];
-
-// Rarity pools by report status
-const RARITY_WEIGHTS: Record<string, Record<RarityTier, number>> = {
-  not_found: { common: 75, uncommon: 25, rare: 0, ultra_rare: 0 },
-  found: { common: 35, uncommon: 35, rare: 25, ultra_rare: 5 },
-  found_corroborated: { common: 25, uncommon: 30, rare: 30, ultra_rare: 15 },
-};
 
 const TRANSFER_POINTS: Record<RarityTier, number> = {
   common: 1,
@@ -59,7 +53,6 @@ export async function createBox(
 
 export async function openBox(
   sightingId: string,
-  corroborated: boolean = false,
   starTier: StarTier | null = null
 ): Promise<{ creatureName: string; isShiny: boolean; wasUpgrade: boolean; wildCreatureName: string | null } | null> {
   const [box] = await db
@@ -83,7 +76,7 @@ export async function openBox(
     // New behavior: base + upgrade
     const wildCreature = CREATURE_DATA.find((p) => p.id === box.wildCreatureId);
     if (!wildCreature) {
-      creature = rollRandomCreature(box.reportStatus as string, corroborated);
+      creature = CREATURE_DATA[Math.floor(Math.random() * CREATURE_DATA.length)];
     } else {
       wildCreatureName = wildCreature.name;
 
@@ -108,7 +101,7 @@ export async function openBox(
     }
   } else {
     // Legacy behavior for boxes without wildCreatureId
-    creature = rollRandomCreature(box.reportStatus as string, corroborated);
+    creature = CREATURE_DATA[Math.floor(Math.random() * CREATURE_DATA.length)];
   }
 
   const isShiny = Math.random() < SHINY_CHANCE;
@@ -142,22 +135,6 @@ export function rollUpgradeTier(eligibleTiers: RarityTier[]): RarityTier {
   }
 
   return eligibleTiers[eligibleTiers.length - 1];
-}
-
-export function rollRandomCreature(
-  reportStatus: string,
-  corroborated: boolean
-): { id: number; name: string; rarityTier: RarityTier } {
-  let poolKey = reportStatus;
-  if (poolKey === "found" && corroborated) {
-    poolKey = "found_corroborated";
-  }
-  const weights = RARITY_WEIGHTS[poolKey] ?? RARITY_WEIGHTS["not_found"];
-  const tier = rollRarity(weights);
-  const creaturesInTier = CREATURE_DATA.filter((p) => p.rarityTier === tier);
-  // Fall back to all creatures if tier has none (limited creature set)
-  const pool = creaturesInTier.length > 0 ? creaturesInTier : CREATURE_DATA;
-  return pool[Math.floor(Math.random() * pool.length)];
 }
 
 export async function transferCreature(
@@ -214,18 +191,6 @@ export async function transferCreature(
   await adjustTrustScore(userId, points);
 
   return { points };
-}
-
-export function rollRarity(weights: Record<RarityTier, number>): RarityTier {
-  const total = Object.values(weights).reduce((a, b) => a + b, 0);
-  let roll = Math.random() * total;
-
-  for (const [tier, weight] of Object.entries(weights)) {
-    roll -= weight;
-    if (roll <= 0) return tier as RarityTier;
-  }
-
-  return "common";
 }
 
 async function checkCardboardexBadges(userId: string): Promise<void> {
@@ -333,6 +298,48 @@ export async function getUnviewedOpenings(userId: string) {
       wildCreatureName: wildCreature?.name ?? null,
     };
   });
+}
+
+const PENDING_BOX_DELAY_MS = 24 * 60 * 60 * 1000; // 24 hours
+const DEV_PENDING_BOX_DELAY_MS = 10 * 1000; // 10 seconds for dev testing
+
+export async function openPendingBox(
+  boxId: string,
+  userId: string
+): Promise<{ creatureName: string; isShiny: boolean; wasUpgrade: boolean; wildCreatureName: string | null } | null> {
+  const [box] = await db
+    .select()
+    .from(creatureBoxes)
+    .where(
+      and(
+        eq(creatureBoxes.id, boxId),
+        eq(creatureBoxes.userId, userId),
+        eq(creatureBoxes.opened, false)
+      )
+    )
+    .limit(1);
+
+  if (!box) return null;
+
+  // Check if enough time has passed (dev override shortens to 10 seconds)
+  const { getDevOverrides } = await import("@/lib/dev");
+  const devOverrides = await getDevOverrides();
+  const delayMs = devOverrides.skipDelay ? DEV_PENDING_BOX_DELAY_MS : PENDING_BOX_DELAY_MS;
+  const elapsed = Date.now() - new Date(box.createdAt).getTime();
+  if (elapsed < delayMs) {
+    return null;
+  }
+
+  // Use the sighting's store to get star tier
+  const [sighting] = await db
+    .select({ storeId: restockSightings.storeId })
+    .from(restockSightings)
+    .where(eq(restockSightings.id, box.sightingId))
+    .limit(1);
+
+  const starTier = sighting ? getStarTier(sighting.storeId) : null;
+
+  return openBox(box.sightingId, starTier);
 }
 
 export async function markBoxViewed(userId: string, boxId: string) {

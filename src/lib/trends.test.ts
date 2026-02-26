@@ -22,132 +22,160 @@ describe("analyzeTrends", () => {
   });
 
   it("returns cold with low confidence for single date", () => {
-    const result = analyzeTrends([new Date("2026-01-15")]);
+    const result = analyzeTrends([{ date: new Date("2026-01-15"), verified: true }]);
     expect(result.grade).toBe("cold");
     expect(result.confidence).toBe("low");
     expect(result.avgDaysBetween).toBeNull();
   });
 
   it("calculates hot grade for frequent sightings", () => {
-    const dates = [
-      new Date("2026-01-15"),
-      new Date("2026-01-16"),
-      new Date("2026-01-17"),
-      new Date("2026-01-18"),
+    const sightings = [
+      { date: new Date("2026-01-15"), verified: true },
+      { date: new Date("2026-01-16"), verified: true },
+      { date: new Date("2026-01-17"), verified: true },
+      { date: new Date("2026-01-18"), verified: true },
     ];
-    const result = analyzeTrends(dates);
+    const result = analyzeTrends(sightings);
     expect(result.grade).toBe("hot");
     expect(result.avgDaysBetween).toBe(1);
     expect(result.totalSightings).toBe(4);
-    expect(result.confidence).toBe("medium");
+    expect(result.confidence).toBe("high");
   });
 
   it("calculates warm grade for weekly sightings", () => {
-    const dates = [
-      new Date("2026-01-01"),
-      new Date("2026-01-08"),
-      new Date("2026-01-15"),
-      new Date("2026-01-22"),
-      new Date("2026-01-29"),
+    const sightings = [
+      { date: new Date("2026-01-01"), verified: true },
+      { date: new Date("2026-01-08"), verified: true },
+      { date: new Date("2026-01-15"), verified: true },
+      { date: new Date("2026-01-22"), verified: true },
+      { date: new Date("2026-01-29"), verified: true },
     ];
-    const result = analyzeTrends(dates);
+    const result = analyzeTrends(sightings);
     expect(result.grade).toBe("warm");
     expect(result.avgDaysBetween).toBe(7);
     expect(result.confidence).toBe("high");
   });
 
   it("calculates cool grade for bi-weekly sightings", () => {
-    const dates = [
-      new Date("2026-01-01"),
-      new Date("2026-01-15"),
-      new Date("2026-01-29"),
+    const sightings = [
+      { date: new Date("2026-01-01"), verified: true },
+      { date: new Date("2026-01-15"), verified: true },
+      { date: new Date("2026-01-29"), verified: true },
     ];
-    const result = analyzeTrends(dates);
+    const result = analyzeTrends(sightings);
     expect(result.grade).toBe("cool");
     expect(result.avgDaysBetween).toBe(14);
   });
 
   it("calculates cold grade for infrequent sightings", () => {
-    const dates = [
-      new Date("2026-01-01"),
-      new Date("2026-02-01"),
-      new Date("2026-03-01"),
+    const sightings = [
+      { date: new Date("2026-01-01"), verified: true },
+      { date: new Date("2026-02-01"), verified: true },
+      { date: new Date("2026-03-01"), verified: true },
     ];
-    const result = analyzeTrends(dates);
+    const result = analyzeTrends(sightings);
     expect(result.grade).toBe("cold");
   });
 
   it("finds bestDay when pattern exists", () => {
-    const dates = [
-      new Date("2026-01-07T10:00:00"),
-      new Date("2026-01-14T10:00:00"),
-      new Date("2026-01-21T10:00:00"),
+    const sightings = [
+      { date: new Date("2026-01-07T10:00:00"), verified: true },
+      { date: new Date("2026-01-14T10:00:00"), verified: true },
+      { date: new Date("2026-01-21T10:00:00"), verified: true },
     ];
-    const result = analyzeTrends(dates);
+    const result = analyzeTrends(sightings);
     expect(result.bestDay).toBe("Wednesdays");
   });
 
   it("returns null bestDay when no day has 2+ sightings", () => {
-    const dates = [
-      new Date("2026-01-05T10:00:00"),
-      new Date("2026-01-07T10:00:00"),
+    const sightings = [
+      { date: new Date("2026-01-05T10:00:00"), verified: true },
+      { date: new Date("2026-01-07T10:00:00"), verified: true },
     ];
-    const result = analyzeTrends(dates);
+    const result = analyzeTrends(sightings);
     expect(result.bestDay).toBeNull();
   });
 
   it("finds bestTimeWindow when 5+ sightings with pattern", () => {
-    const dates = [
-      new Date("2026-01-01T08:00:00"),
-      new Date("2026-01-02T09:00:00"),
-      new Date("2026-01-03T10:00:00"),
-      new Date("2026-01-04T11:00:00"),
-      new Date("2026-01-05T07:00:00"),
+    const sightings = [
+      { date: new Date("2026-01-01T08:00:00"), verified: true },
+      { date: new Date("2026-01-02T09:00:00"), verified: true },
+      { date: new Date("2026-01-03T10:00:00"), verified: true },
+      { date: new Date("2026-01-04T11:00:00"), verified: true },
+      { date: new Date("2026-01-05T07:00:00"), verified: true },
     ];
-    const result = analyzeTrends(dates);
+    const result = analyzeTrends(sightings);
     expect(result.bestTimeWindow).toBe("morning");
   });
 
   it("returns null bestTimeWindow with fewer than 5 sightings", () => {
-    const dates = [
-      new Date("2026-01-01T08:00:00"),
-      new Date("2026-01-02T09:00:00"),
-      new Date("2026-01-03T10:00:00"),
+    const sightings = [
+      { date: new Date("2026-01-01T08:00:00"), verified: true },
+      { date: new Date("2026-01-02T09:00:00"), verified: true },
+      { date: new Date("2026-01-03T10:00:00"), verified: true },
     ];
-    const result = analyzeTrends(dates);
+    const result = analyzeTrends(sightings);
     expect(result.bestTimeWindow).toBeNull();
   });
 
   it("handles unsorted input dates", () => {
-    const dates = [
-      new Date("2026-01-18"),
-      new Date("2026-01-15"),
-      new Date("2026-01-17"),
-      new Date("2026-01-16"),
+    const sightings = [
+      { date: new Date("2026-01-18"), verified: true },
+      { date: new Date("2026-01-15"), verified: true },
+      { date: new Date("2026-01-17"), verified: true },
+      { date: new Date("2026-01-16"), verified: true },
     ];
-    const result = analyzeTrends(dates);
+    const result = analyzeTrends(sightings);
     expect(result.avgDaysBetween).toBe(1);
     expect(result.grade).toBe("hot");
   });
 
-  it("sets confidence based on count", () => {
-    const two = analyzeTrends([new Date("2026-01-01"), new Date("2026-01-02")]);
+  it("sets confidence based on verified ratio", () => {
+    // fewer than 3 is always low
+    const two = analyzeTrends([
+      { date: new Date("2026-01-01"), verified: true },
+      { date: new Date("2026-01-02"), verified: true },
+    ]);
     expect(two.confidence).toBe("low");
 
-    const three = analyzeTrends([
-      new Date("2026-01-01"),
-      new Date("2026-01-02"),
-      new Date("2026-01-03"),
+    // 3 all verified => high (ratio 1.0 >= 0.6)
+    const threeVerified = analyzeTrends([
+      { date: new Date("2026-01-01"), verified: true },
+      { date: new Date("2026-01-02"), verified: true },
+      { date: new Date("2026-01-03"), verified: true },
     ]);
-    expect(three.confidence).toBe("medium");
+    expect(threeVerified.confidence).toBe("high");
 
-    const five = analyzeTrends([
-      new Date("2026-01-01"),
-      new Date("2026-01-02"),
-      new Date("2026-01-03"),
-      new Date("2026-01-04"),
-      new Date("2026-01-05"),
+    // 5 all verified => high
+    const fiveVerified = analyzeTrends([
+      { date: new Date("2026-01-01"), verified: true },
+      { date: new Date("2026-01-02"), verified: true },
+      { date: new Date("2026-01-03"), verified: true },
+      { date: new Date("2026-01-04"), verified: true },
+      { date: new Date("2026-01-05"), verified: true },
     ]);
-    expect(five.confidence).toBe("high");
+    expect(fiveVerified.confidence).toBe("high");
+  });
+
+  it("returns low confidence when most sightings are unverified", () => {
+    const sightings = [
+      { date: new Date("2026-01-01"), verified: false },
+      { date: new Date("2026-01-05"), verified: false },
+      { date: new Date("2026-01-10"), verified: false },
+      { date: new Date("2026-01-15"), verified: true },
+    ];
+    const result = analyzeTrends(sightings);
+    expect(result.confidence).toBe("low");
+  });
+
+  it("returns high confidence when most sightings are verified", () => {
+    const sightings = [
+      { date: new Date("2026-01-01"), verified: true },
+      { date: new Date("2026-01-05"), verified: true },
+      { date: new Date("2026-01-10"), verified: true },
+      { date: new Date("2026-01-15"), verified: false },
+    ];
+    const result = analyzeTrends(sightings);
+    expect(result.confidence).toBe("high");
   });
 });

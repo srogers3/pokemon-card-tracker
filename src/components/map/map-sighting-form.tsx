@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { submitTip } from "@/app/dashboard/submit/actions";
+import { UnboxRevealModal, type UnboxData } from "@/components/unbox-reveal-modal";
 import type { Product } from "@/db/schema";
 
 export function MapSightingForm({
@@ -32,6 +33,7 @@ export function MapSightingForm({
 }) {
   const formRef = useRef<HTMLFormElement>(null);
   const [status, setStatus] = useState<string>("");
+  const [revealOpenings, setRevealOpenings] = useState<UnboxData[] | null>(null);
 
   async function handleSubmit(formData: FormData) {
     formData.set("storeId", storeId);
@@ -39,13 +41,19 @@ export function MapSightingForm({
       formData.set("userLatitude", userLatitude.toString());
       formData.set("userLongitude", userLongitude.toString());
     }
-    await submitTip(formData);
+    const result = await submitTip(formData);
     onSubmitSuccess();
     formRef.current?.reset();
-    onCancel();
+
+    if (result?.opened && result.openings?.length) {
+      setRevealOpenings(result.openings);
+    } else {
+      onCancel();
+    }
   }
 
   return (
+    <>
     <form ref={formRef} action={handleSubmit} className="space-y-3">
       <h4 className="text-sm font-semibold">Report Sighting</h4>
 
@@ -106,5 +114,16 @@ export function MapSightingForm({
         </Button>
       </div>
     </form>
+
+    {revealOpenings && revealOpenings.length > 0 && (
+      <UnboxRevealModal
+        openings={revealOpenings}
+        onComplete={() => {
+          setRevealOpenings(null);
+          onCancel();
+        }}
+      />
+    )}
+    </>
   );
 }

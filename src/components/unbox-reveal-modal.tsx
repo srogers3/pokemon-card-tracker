@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { markBoxViewedAction } from "@/app/dashboard/actions";
 
-type UnboxData = {
+export type UnboxData = {
   id: string;
   creatureName: string;
   creatureId: number;

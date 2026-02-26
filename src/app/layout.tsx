@@ -1,6 +1,7 @@
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { Nunito } from "next/font/google";
+import { DevPanel } from "@/components/dev-panel";
 import "./globals.css";
 
 const nunito = Nunito({ subsets: ["latin"] });
@@ -18,7 +19,10 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en">
-        <body className={nunito.className}>{children}</body>
+        <body className={nunito.className}>
+          {children}
+          {process.env.NODE_ENV === "development" && <DevPanel />}
+        </body>
       </html>
     </ClerkProvider>
   );

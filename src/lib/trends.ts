@@ -51,8 +51,13 @@ function getBestTimeWindow(dates: Date[]): string | null {
   return entries[0][0];
 }
 
-export function analyzeTrends(sightedDates: Date[]): RestockTrend {
-  const total = sightedDates.length;
+export type SightingInput = { date: Date; verified: boolean };
+
+export function analyzeTrends(sightings: SightingInput[]): RestockTrend {
+  const total = sightings.length;
+  const sightedDates = sightings.map(s => s.date);
+  const verifiedCount = sightings.filter(s => s.verified).length;
+  const verifiedRatio = total > 0 ? verifiedCount / total : 0;
 
   if (total < 2) {
     return {
@@ -77,7 +82,10 @@ export function analyzeTrends(sightedDates: Date[]): RestockTrend {
   const grade = getGrade(avgDays, total);
 
   const confidence: "low" | "medium" | "high" =
-    total < 3 ? "low" : total < 5 ? "medium" : "high";
+    total < 3 ? "low"
+    : verifiedRatio >= 0.6 ? "high"
+    : verifiedRatio >= 0.3 ? "medium"
+    : "low";
 
   const bestDay = total >= 3 ? getBestDay(sorted) : null;
   const bestTimeWindow = total >= 5 ? getBestTimeWindow(sorted) : null;
