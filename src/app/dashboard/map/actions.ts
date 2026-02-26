@@ -62,16 +62,22 @@ export async function getStoresWithSightings() {
 
 export async function getStoreTrends(storeId: string) {
   const sightings = await db
-    .select({ sightedAt: restockSightings.sightedAt })
+    .select({
+      sightedAt: restockSightings.sightedAt,
+      verified: restockSightings.verified,
+    })
     .from(restockSightings)
     .where(
       and(
         eq(restockSightings.storeId, storeId),
-        eq(restockSightings.status, "found"),
-        eq(restockSightings.verified, true)
+        eq(restockSightings.status, "found")
       )
     );
 
-  const dates = sightings.map((s) => new Date(s.sightedAt));
-  return analyzeTrends(dates);
+  return analyzeTrends(
+    sightings.map((s) => ({
+      date: new Date(s.sightedAt),
+      verified: s.verified,
+    }))
+  );
 }
