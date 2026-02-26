@@ -14,9 +14,11 @@ type PendingBox = {
 export function CollectionPendingSection({
   pendingBoxes,
   isPremium,
+  delayMs,
 }: {
   pendingBoxes: PendingBox[];
   isPremium: boolean;
+  delayMs?: number;
 }) {
   const [openings, setOpenings] = useState<UnboxData[]>([]);
 
@@ -38,6 +40,7 @@ export function CollectionPendingSection({
                 boxId={box.id}
                 createdAt={box.createdAt}
                 canOpenImmediately={isPremium}
+                delayMs={delayMs}
                 onOpened={(newOpenings) => setOpenings(newOpenings)}
               />
             ))}

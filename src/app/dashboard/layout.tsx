@@ -3,6 +3,7 @@ import { SiteHeader } from "@/components/site-header";
 import { DashboardNav } from "@/components/dashboard-nav";
 import { getUnviewedOpenings } from "@/lib/boxes";
 import { UnboxRevealModal } from "@/components/unbox-reveal-modal";
+import { getDevOverrides } from "@/lib/dev";
 
 export default async function DashboardLayout({
   children,
@@ -11,12 +12,14 @@ export default async function DashboardLayout({
 }) {
   const user = await requireUser();
   const unviewedOpenings = await getUnviewedOpenings(user.id);
+  const devOverrides = await getDevOverrides();
+  const isPremium = user.subscriptionTier === "premium" || devOverrides.simulatePremium;
 
   return (
     <div className="min-h-screen flex flex-col">
-      <SiteHeader isPremium={user.subscriptionTier === "premium"} />
+      <SiteHeader isPremium={isPremium} />
       <div className="hidden md:block px-4 pt-4">
-        <DashboardNav isPremium={user.subscriptionTier === "premium"} />
+        <DashboardNav isPremium={isPremium} />
       </div>
       <div className="flex-1">
         {children}

@@ -81,7 +81,8 @@ export async function checkCorroboration(
   sightingId: string,
   storeId: string,
   productId: string,
-  sightedAt: Date
+  sightedAt: Date,
+  forceCorroborate: boolean = false
 ): Promise<string | null> {
   const windowStart = new Date(
     sightedAt.getTime() - CORROBORATION_WINDOW_HOURS * 60 * 60 * 1000
@@ -90,22 +91,26 @@ export async function checkCorroboration(
     sightedAt.getTime() + CORROBORATION_WINDOW_HOURS * 60 * 60 * 1000
   );
 
+  const conditions = [
+    eq(restockSightings.storeId, storeId),
+    eq(restockSightings.productId, productId),
+    eq(restockSightings.verified, false),
+    gte(restockSightings.sightedAt, windowStart),
+    lte(restockSightings.sightedAt, windowEnd),
+  ];
+
+  // In dev mode with force corroborate, allow self-corroboration
+  if (!forceCorroborate) {
+    conditions.push(ne(restockSightings.id, sightingId));
+  }
+
   const [match] = await db
     .select({
       id: restockSightings.id,
       reportedBy: restockSightings.reportedBy,
     })
     .from(restockSightings)
-    .where(
-      and(
-        eq(restockSightings.storeId, storeId),
-        eq(restockSightings.productId, productId),
-        eq(restockSightings.verified, false),
-        ne(restockSightings.id, sightingId),
-        gte(restockSightings.sightedAt, windowStart),
-        lte(restockSightings.sightedAt, windowEnd)
-      )
-    )
+    .where(and(...conditions))
     .limit(1);
 
   if (!match) return null;

@@ -8,12 +8,13 @@ type PendingBoxProps = {
   boxId: string;
   createdAt: string;
   canOpenImmediately: boolean;
+  delayMs?: number;
   onOpened: (openings: UnboxData[]) => void;
 };
 
-const DELAY_MS = 24 * 60 * 60 * 1000;
+const DEFAULT_DELAY_MS = 24 * 60 * 60 * 1000;
 
-export function PendingBoxCard({ boxId, createdAt, canOpenImmediately, onOpened }: PendingBoxProps) {
+export function PendingBoxCard({ boxId, createdAt, canOpenImmediately, delayMs = DEFAULT_DELAY_MS, onOpened }: PendingBoxProps) {
   const [timeLeft, setTimeLeft] = useState<number>(0);
   const [isPending, startTransition] = useTransition();
 
@@ -22,7 +23,7 @@ export function PendingBoxCard({ boxId, createdAt, canOpenImmediately, onOpened 
 
     const update = () => {
       const elapsed = Date.now() - new Date(createdAt).getTime();
-      setTimeLeft(Math.max(0, DELAY_MS - elapsed));
+      setTimeLeft(Math.max(0, delayMs - elapsed));
     };
     update();
     const interval = setInterval(update, 1000);

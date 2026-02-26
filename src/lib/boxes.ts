@@ -301,6 +301,7 @@ export async function getUnviewedOpenings(userId: string) {
 }
 
 const PENDING_BOX_DELAY_MS = 24 * 60 * 60 * 1000; // 24 hours
+const DEV_PENDING_BOX_DELAY_MS = 10 * 1000; // 10 seconds for dev testing
 
 export async function openPendingBox(
   boxId: string,
@@ -320,9 +321,12 @@ export async function openPendingBox(
 
   if (!box) return null;
 
-  // Check if 24 hours have passed
+  // Check if enough time has passed (dev override shortens to 10 seconds)
+  const { getDevOverrides } = await import("@/lib/dev");
+  const devOverrides = await getDevOverrides();
+  const delayMs = devOverrides.skipDelay ? DEV_PENDING_BOX_DELAY_MS : PENDING_BOX_DELAY_MS;
   const elapsed = Date.now() - new Date(box.createdAt).getTime();
-  if (elapsed < PENDING_BOX_DELAY_MS) {
+  if (elapsed < delayMs) {
     return null;
   }
 

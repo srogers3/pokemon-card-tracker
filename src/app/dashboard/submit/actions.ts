@@ -17,6 +17,7 @@ import {
 } from "@/lib/trust";
 import { createBox, openBox, getUnviewedOpenings } from "@/lib/boxes";
 import { getWildCreature, getStarTier } from "@/lib/wild-creature";
+import { getDevOverrides } from "@/lib/dev";
 
 export async function submitTip(formData: FormData): Promise<{
   opened: boolean;
@@ -25,6 +26,7 @@ export async function submitTip(formData: FormData): Promise<{
   const user = await requireUser();
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
+  const devOverrides = await getDevOverrides();
 
   // Rate limit check
   const canSubmit = await canSubmitReport(userId);
@@ -34,8 +36,8 @@ export async function submitTip(formData: FormData): Promise<{
   const alreadyReported = await hasSubmittedToStoreToday(userId, storeId);
   if (alreadyReported) throw new Error("Already reported this location today");
 
-  // Proximity check (skip if BYPASS_PROXIMITY_CHECK is explicitly "true")
-  if (process.env.BYPASS_PROXIMITY_CHECK !== "true") {
+  // Proximity check (skip if BYPASS_PROXIMITY_CHECK is explicitly "true" or dev override)
+  if (process.env.BYPASS_PROXIMITY_CHECK !== "true" && !devOverrides.skipProximity) {
     const userLat = parseFloat(formData.get("userLatitude") as string);
     const userLng = parseFloat(formData.get("userLongitude") as string);
     if (isNaN(userLat) || isNaN(userLng)) {
@@ -61,7 +63,7 @@ export async function submitTip(formData: FormData): Promise<{
   const productId = (formData.get("productId") as string) || null;
   const sightedAt = new Date(formData.get("sightedAt") as string);
   const autoVerify = shouldAutoVerify(user.trustScore);
-  const isPremium = user.subscriptionTier === "premium";
+  const isPremium = user.subscriptionTier === "premium" || devOverrides.simulatePremium;
 
   // Insert the sighting
   const [sighting] = await db
@@ -90,7 +92,7 @@ export async function submitTip(formData: FormData): Promise<{
 
   // Check for corroboration (only for non-auto-verified, product-specific reports)
   if (!autoVerify && productId) {
-    const corroboratedUserId = await checkCorroboration(sighting.id, storeId, productId, sightedAt);
+    const corroboratedUserId = await checkCorroboration(sighting.id, storeId, productId, sightedAt, devOverrides.forceCorroborate);
     if (corroboratedUserId) {
       await adjustTrustScore(userId, 10);
     }

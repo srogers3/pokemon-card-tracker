@@ -5,9 +5,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { CollectionPendingSection } from "@/components/collection-pending-section";
+import { getDevOverrides } from "@/lib/dev";
 
 export default async function CollectionPage() {
   const user = await requireUser();
+  const devOverrides = await getDevOverrides();
   const allEggs = await getUserCollection(user.id);
 
   const openedBoxes = allEggs.filter((e) => e.opened && e.creatureId);
@@ -90,7 +92,8 @@ export default async function CollectionPage() {
           createdAt: box.createdAt.toISOString(),
           reportStatus: box.reportStatus,
         }))}
-        isPremium={user.subscriptionTier === "premium"}
+        isPremium={user.subscriptionTier === "premium" || devOverrides.simulatePremium}
+        delayMs={devOverrides.skipDelay ? 10 * 1000 : undefined}
       />
 
       {/* Cardboardex grid */}
