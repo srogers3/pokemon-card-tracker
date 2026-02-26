@@ -53,6 +53,20 @@ function getBestTimeWindow(dates: Date[]): string | null {
 
 export type SightingInput = { date: Date; verified: boolean };
 
+/** Deduplicate sightings to one per calendar date (UTC), normalized to midnight */
+function deduplicateByDay(dates: Date[]): Date[] {
+  const seen = new Set<string>();
+  const unique: Date[] = [];
+  for (const d of dates) {
+    const key = d.toISOString().slice(0, 10);
+    if (!seen.has(key)) {
+      seen.add(key);
+      unique.push(new Date(key + "T00:00:00Z"));
+    }
+  }
+  return unique;
+}
+
 export function analyzeTrends(sightings: SightingInput[]): RestockTrend {
   const total = sightings.length;
   const sightedDates = sightings.map(s => s.date);
@@ -73,11 +87,18 @@ export function analyzeTrends(sightings: SightingInput[]): RestockTrend {
   // Sort chronologically
   const sorted = [...sightedDates].sort((a, b) => a.getTime() - b.getTime());
 
-  // Average days between sightings
-  const firstMs = sorted[0].getTime();
-  const lastMs = sorted[sorted.length - 1].getTime();
-  const spanDays = (lastMs - firstMs) / (1000 * 60 * 60 * 24);
-  const avgDays = spanDays / (total - 1);
+  // Deduplicate to unique restock days for interval calculation
+  const uniqueDays = deduplicateByDay(sorted);
+  const uniqueCount = uniqueDays.length;
+
+  // Need at least 2 unique days to compute an interval
+  let avgDays: number | null = null;
+  if (uniqueCount >= 2) {
+    const firstMs = uniqueDays[0].getTime();
+    const lastMs = uniqueDays[uniqueCount - 1].getTime();
+    const spanDays = (lastMs - firstMs) / (1000 * 60 * 60 * 24);
+    avgDays = spanDays / (uniqueCount - 1);
+  }
 
   const grade = getGrade(avgDays, total);
 
@@ -92,7 +113,7 @@ export function analyzeTrends(sightings: SightingInput[]): RestockTrend {
 
   return {
     grade,
-    avgDaysBetween: Math.round(avgDays * 10) / 10,
+    avgDaysBetween: avgDays !== null ? Math.round(avgDays * 10) / 10 : null,
     totalSightings: total,
     bestDay,
     bestTimeWindow,

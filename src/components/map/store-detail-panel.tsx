@@ -135,11 +135,11 @@ export function StoreDetailPanel({
             </div>
             {trend.confidence === "low" ? (
               <p className="text-xs text-muted-foreground">Need 3+ verified reports to show patterns</p>
+            ) : trend.avgDaysBetween === null ? (
+              <p className="text-xs text-muted-foreground">Need sightings on different days to detect patterns</p>
             ) : (
               <div className="text-xs text-muted-foreground space-y-0.5">
-                {trend.avgDaysBetween !== null && (
-                  <p>Restocks every ~{Math.round(trend.avgDaysBetween)} days</p>
-                )}
+                <p>Restocks every ~{Math.round(trend.avgDaysBetween)} days</p>
                 {(trend.bestDay || trend.bestTimeWindow) && (
                   <p>
                     {[trend.bestDay, trend.bestTimeWindow].filter(Boolean).join(", ")}

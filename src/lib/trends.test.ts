@@ -178,4 +178,31 @@ describe("analyzeTrends", () => {
     const result = analyzeTrends(sightings);
     expect(result.confidence).toBe("high");
   });
+
+  it("deduplicates same-day sightings as one restock event", () => {
+    // 3 sightings all on the same Thursday = 1 unique restock day
+    const sightings = [
+      { date: new Date("2026-02-26T10:00:00"), verified: false },
+      { date: new Date("2026-02-26T12:00:00"), verified: false },
+      { date: new Date("2026-02-26T14:00:00"), verified: false },
+    ];
+    const result = analyzeTrends(sightings);
+    // Only 1 unique day → not enough data for interval calculation
+    expect(result.avgDaysBetween).toBeNull();
+    expect(result.grade).toBe("cold");
+  });
+
+  it("computes intervals from unique days, not raw sighting count", () => {
+    // 5 sightings across 3 unique days (7 days apart each)
+    const sightings = [
+      { date: new Date("2026-01-01T08:00:00"), verified: true },
+      { date: new Date("2026-01-01T12:00:00"), verified: true },
+      { date: new Date("2026-01-08T09:00:00"), verified: true },
+      { date: new Date("2026-01-08T15:00:00"), verified: true },
+      { date: new Date("2026-01-15T10:00:00"), verified: true },
+    ];
+    const result = analyzeTrends(sightings);
+    expect(result.avgDaysBetween).toBe(7);
+    expect(result.grade).toBe("warm");
+  });
 });
