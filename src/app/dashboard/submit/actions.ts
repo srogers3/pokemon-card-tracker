@@ -93,7 +93,7 @@ export async function submitTip(formData: FormData) {
   } else if (autoVerify) {
     // Auto-verified — open box immediately
     const starTier = getStarTier(storeId);
-    await openBox(sighting.id, false, starTier);
+    await openBox(sighting.id, starTier);
     await adjustTrustScore(userId, 5);
   }
 

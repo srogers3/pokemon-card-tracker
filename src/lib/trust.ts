@@ -124,8 +124,8 @@ export async function checkCorroboration(
   const { openBox } = await import("@/lib/boxes");
   const { getStarTier } = await import("@/lib/wild-creature");
   const starTier = getStarTier(storeId);
-  await openBox(match.id, true, starTier);
-  await openBox(sightingId, true, starTier);
+  await openBox(match.id, starTier);
+  await openBox(sightingId, starTier);
 
   // Award points to the other reporter
   await adjustTrustScore(match.reportedBy, POINTS_CORROBORATED);
