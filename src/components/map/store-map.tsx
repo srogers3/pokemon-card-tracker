@@ -96,6 +96,14 @@ function MapContent({
       setSelectedStore(sd);
       if (map && sd.store.latitude && sd.store.longitude) {
         map.panTo({ lat: sd.store.latitude, lng: sd.store.longitude });
+        // On mobile, the bottom sheet covers ~40vh and the search bar ~60px from top.
+        // Offset the pan so the marker is centered in the visible area between them.
+        if (window.innerWidth < 768) {
+          const bottomSheetHeight = window.innerHeight * 0.4;
+          const searchBarHeight = 60;
+          const offsetY = (bottomSheetHeight - searchBarHeight) / 2;
+          map.panBy(0, offsetY);
+        }
       }
     },
     [map]
