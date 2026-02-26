@@ -41,7 +41,6 @@ export const creatureRarityEnum = pgEnum("creature_rarity", [
 ]);
 
 export const creatureTypeEnum = pgEnum("creature_type", [
-  "starter",
   "shelf",
   "logistics",
   "checkout",
