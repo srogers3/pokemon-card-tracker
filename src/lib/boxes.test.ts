@@ -92,17 +92,13 @@ describe("rollRandomCreature", () => {
 
   it("uses found_corroborated weights when corroborated", () => {
     // With 0.99, rollRarity picks ultra_rare from found_corroborated weights.
-    // But CREATURE_DATA has no ultra_rare creatures, so the pool falls back
-    // to all creatures. We verify rollRarity resolves ultra_rare by spying,
-    // and the function still returns a valid creature from the fallback pool.
+    // CREATURE_DATA has ultra_rare creatures (141-151), so the function should
+    // return an ultra_rare creature directly.
     const spy = vi.spyOn(Math, "random").mockReturnValue(0.99);
     const creature = rollRandomCreature("found", true);
-    // rollRarity was called (first Math.random call) and resolved ultra_rare
-    // internally; the returned creature comes from the fallback pool
     expect(creature).toHaveProperty("id");
     expect(creature).toHaveProperty("name");
-    expect(creature).toHaveProperty("rarityTier");
-    // Verify Math.random was called at least twice (once for rarity, once for creature selection)
+    expect(creature.rarityTier).toBe("ultra_rare");
     expect(spy).toHaveBeenCalledTimes(2);
   });
 
