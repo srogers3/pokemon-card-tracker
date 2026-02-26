@@ -3,13 +3,19 @@
 import { memo, useCallback, useState, useEffect } from "react";
 import { AdvancedMarker } from "@vis.gl/react-google-maps";
 import type { Store } from "@/db/schema";
-import { getWildCreature, simpleHash } from "@/lib/wild-creature";
+import { getWildCreature, simpleHash, type StarTier } from "@/lib/wild-creature";
 
 const RARITY_BORDER_COLORS: Record<string, string> = {
   common: "#9CA3AF",
   uncommon: "#2DD4BF",
   rare: "#F59E0B",
   ultra_rare: "rainbow",
+};
+
+const STAR_COLORS: Record<string, string> = {
+  green: "#22C55E",
+  yellow: "#EAB308",
+  purple: "#A855F7",
 };
 
 const BOX_EMOJI_URL = "data:image/svg+xml," + encodeURIComponent(
@@ -23,6 +29,7 @@ export const ClusterMarker = memo(function ClusterMarker({
   hasSubmittedToday,
   justSubmitted,
   setMarkerRef,
+  starTier,
 }: {
   store: Store;
   onClick: (storeId: string) => void;
@@ -30,6 +37,7 @@ export const ClusterMarker = memo(function ClusterMarker({
   hasSubmittedToday: boolean;
   justSubmitted?: boolean;
   setMarkerRef?: (marker: google.maps.marker.AdvancedMarkerElement | null, id: string) => void;
+  starTier: StarTier | null;
 }) {
   const ref = useCallback(
     (marker: google.maps.marker.AdvancedMarkerElement | null) => {
@@ -88,6 +96,7 @@ export const ClusterMarker = memo(function ClusterMarker({
         {/* Scale wrapper: GPU-accelerated scale via inline transform — no competing animations */}
         <div
           style={{
+            position: "relative",
             width: 48,
             height: 48,
             borderRadius: "50%",
@@ -133,6 +142,23 @@ export const ClusterMarker = memo(function ClusterMarker({
               }}
             />
           </div>
+          {starTier && !isSelected && (
+            <span
+              style={{
+                position: "absolute",
+                top: -4,
+                right: -4,
+                fontSize: 14,
+                color: STAR_COLORS[starTier],
+                WebkitTextStroke: "1px white",
+                filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.3))",
+                zIndex: 10,
+                lineHeight: 1,
+              }}
+            >
+              ★
+            </span>
+          )}
         </div>
       </div>
     </AdvancedMarker>

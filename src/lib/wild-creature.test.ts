@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { simpleHash, getWildCreature } from "./wild-creature";
+import { simpleHash, getWildCreature, getStarTier } from "./wild-creature";
 import { CREATURE_DATA, MAX_SPRITE_ID } from "@/db/creature-data";
 
 describe("simpleHash", () => {
@@ -90,5 +90,50 @@ describe("getWildCreature", () => {
       expect(catalogEntry).toBeDefined();
       expect(creature.rarity).toBe(catalogEntry!.rarityTier);
     }
+  });
+});
+
+describe("getStarTier", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("returns null, 'green', 'yellow', or 'purple'", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-01-15"));
+    const result = getStarTier("store-123");
+    expect([null, "green", "yellow", "purple"]).toContain(result);
+  });
+
+  it("is deterministic for same store and date", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-01-15"));
+    const a = getStarTier("store-123");
+    const b = getStarTier("store-123");
+    expect(a).toBe(b);
+  });
+
+  it("uses a different seed than getWildCreature (independent)", () => {
+    vi.useFakeTimers();
+    for (let i = 0; i < 100; i++) {
+      vi.setSystemTime(new Date("2026-01-15"));
+      const result = getStarTier(`store-${i}`);
+      expect([null, "green", "yellow", "purple"]).toContain(result);
+    }
+  });
+
+  it("distribution roughly matches expected rates over many stores", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-01-15"));
+    const counts = { none: 0, green: 0, yellow: 0, purple: 0 };
+    for (let i = 0; i < 10000; i++) {
+      const result = getStarTier(`distribution-test-store-${i}`);
+      if (result === null) counts.none++;
+      else counts[result]++;
+    }
+    expect(counts.none).toBeGreaterThan(7000);
+    expect(counts.green).toBeGreaterThan(500);
+    expect(counts.yellow).toBeGreaterThan(200);
+    expect(counts.purple).toBeGreaterThan(50);
   });
 });

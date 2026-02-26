@@ -16,7 +16,7 @@ import {
   updateReporterStats,
 } from "@/lib/trust";
 import { createBox, openBox } from "@/lib/boxes";
-import { getWildCreature } from "@/lib/wild-creature";
+import { getWildCreature, getStarTier } from "@/lib/wild-creature";
 
 export async function submitTip(formData: FormData) {
   const user = await requireUser();
@@ -92,7 +92,8 @@ export async function submitTip(formData: FormData) {
     }
   } else if (autoVerify) {
     // Auto-verified — open box immediately
-    await openBox(sighting.id, false);
+    const starTier = getStarTier(storeId);
+    await openBox(sighting.id, false, starTier);
     await adjustTrustScore(userId, 5);
   }
 

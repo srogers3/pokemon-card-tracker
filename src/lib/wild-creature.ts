@@ -60,3 +60,30 @@ export function getWildCreature(storeId: string): { id: number; name: string; sp
   // Return the creature's intrinsic rarity, not the rolled tier
   return { id: creature.id, name: creature.name, spriteUrl: getSpriteUrl(creature.id), rarity: creature.rarityTier };
 }
+
+export type StarTier = "green" | "yellow" | "purple";
+
+// Star thresholds: ~83% none, ~10% green, ~5% yellow, ~2% purple
+const STAR_THRESHOLDS: { tier: StarTier; cumulative: number }[] = [
+  { tier: "purple", cumulative: 0.02 },
+  { tier: "yellow", cumulative: 0.07 },
+  { tier: "green", cumulative: 0.17 },
+];
+
+export const STAR_UPGRADE_CHANCE: Record<StarTier, number> = {
+  green: 0.20,
+  yellow: 0.40,
+  purple: 0.60,
+};
+
+export function getStarTier(storeId: string): StarTier | null {
+  const today = new Date().toISOString().split("T")[0];
+  const seed = storeId + today + "star";
+  const hash = simpleHash(seed);
+  const roll = (hash % 1000) / 1000;
+
+  for (const { tier, cumulative } of STAR_THRESHOLDS) {
+    if (roll < cumulative) return tier;
+  }
+  return null;
+}

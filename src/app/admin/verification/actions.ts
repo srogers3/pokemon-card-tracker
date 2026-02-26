@@ -8,6 +8,7 @@ import { revalidatePath } from "next/cache";
 import { sendRestockAlert } from "@/lib/email";
 import { adjustTrustScore } from "@/lib/trust";
 import { openBox } from "@/lib/boxes";
+import { getStarTier } from "@/lib/wild-creature";
 import { creatureBoxes } from "@/db/schema";
 
 export async function verifySighting(id: string) {
@@ -21,6 +22,7 @@ export async function verifySighting(id: string) {
   const [sighting] = await db
     .select({
       reportedBy: restockSightings.reportedBy,
+      storeId: restockSightings.storeId,
       productId: restockSightings.productId,
       productName: products.name,
       storeName: stores.name,
@@ -36,7 +38,8 @@ export async function verifySighting(id: string) {
   if (sighting) {
     // Award trust points to the reporter and open their box
     await adjustTrustScore(sighting.reportedBy, 5);
-    await openBox(id, false);
+    const starTier = getStarTier(sighting.storeId);
+    await openBox(id, false, starTier);
 
     const alertConditions = [
       or(
