@@ -2,12 +2,13 @@
 
 import { useState, useEffect, useTransition } from "react";
 import { openPendingBoxAction } from "@/app/dashboard/collection/actions";
+import type { UnboxData } from "@/components/unbox-reveal-modal";
 
 type PendingBoxProps = {
   boxId: string;
   createdAt: string;
   canOpenImmediately: boolean;
-  onOpened: (openings: any[]) => void;
+  onOpened: (openings: UnboxData[]) => void;
 };
 
 const DELAY_MS = 24 * 60 * 60 * 1000;

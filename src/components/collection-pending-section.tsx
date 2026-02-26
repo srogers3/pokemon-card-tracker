@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { PendingBoxCard } from "@/components/pending-box-card";
-import { UnboxRevealModal } from "@/components/unbox-reveal-modal";
+import { UnboxRevealModal, type UnboxData } from "@/components/unbox-reveal-modal";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 type PendingBox = {
@@ -18,7 +18,7 @@ export function CollectionPendingSection({
   pendingBoxes: PendingBox[];
   isPremium: boolean;
 }) {
-  const [openings, setOpenings] = useState<any[]>([]);
+  const [openings, setOpenings] = useState<UnboxData[]>([]);
 
   if (pendingBoxes.length === 0) return null;
 

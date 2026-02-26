@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { submitTip } from "@/app/dashboard/submit/actions";
-import { UnboxRevealModal } from "@/components/unbox-reveal-modal";
+import { UnboxRevealModal, type UnboxData } from "@/components/unbox-reveal-modal";
 import type { Product } from "@/db/schema";
 
 export function MapSightingForm({
@@ -33,7 +33,7 @@ export function MapSightingForm({
 }) {
   const formRef = useRef<HTMLFormElement>(null);
   const [status, setStatus] = useState<string>("");
-  const [revealOpenings, setRevealOpenings] = useState<any[] | null>(null);
+  const [revealOpenings, setRevealOpenings] = useState<UnboxData[] | null>(null);
 
   async function handleSubmit(formData: FormData) {
     formData.set("storeId", storeId);
