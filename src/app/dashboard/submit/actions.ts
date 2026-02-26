@@ -28,13 +28,17 @@ export async function submitTip(formData: FormData): Promise<{
   if (!userId) throw new Error("Unauthorized");
   const devOverrides = await getDevOverrides();
 
-  // Rate limit check
-  const canSubmit = await canSubmitReport(userId);
-  if (!canSubmit) throw new Error("Daily report limit reached (max 10)");
+  // Rate limit check (skip both limits when dev override is active)
+  if (!devOverrides.skipSightingLimits) {
+    const canSubmit = await canSubmitReport(userId);
+    if (!canSubmit) throw new Error("Daily report limit reached (max 10)");
+  }
 
   const storeId = formData.get("storeId") as string;
-  const alreadyReported = await hasSubmittedToStoreToday(userId, storeId);
-  if (alreadyReported) throw new Error("Already reported this location today");
+  if (!devOverrides.skipSightingLimits) {
+    const alreadyReported = await hasSubmittedToStoreToday(userId, storeId);
+    if (alreadyReported) throw new Error("Already reported this location today");
+  }
 
   // Proximity check (skip if BYPASS_PROXIMITY_CHECK is explicitly "true" or dev override)
   if (process.env.BYPASS_PROXIMITY_CHECK !== "true" && !devOverrides.skipProximity) {

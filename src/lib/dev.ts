@@ -5,6 +5,7 @@ export type DevOverrides = {
   skipDelay: boolean;
   forceCorroborate: boolean;
   skipProximity: boolean;
+  skipSightingLimits: boolean;
 };
 
 const DEFAULTS: DevOverrides = {
@@ -12,6 +13,7 @@ const DEFAULTS: DevOverrides = {
   skipDelay: false,
   forceCorroborate: false,
   skipProximity: false,
+  skipSightingLimits: false,
 };
 
 export async function getDevOverrides(): Promise<DevOverrides> {
@@ -25,5 +27,6 @@ export async function getDevOverrides(): Promise<DevOverrides> {
     skipDelay: c.get("dev_skip_delay")?.value === "true",
     forceCorroborate: c.get("dev_force_corroborate")?.value === "true",
     skipProximity: c.get("dev_skip_proximity")?.value === "true",
+    skipSightingLimits: c.get("dev_skip_sighting_limits")?.value === "true",
   };
 }
