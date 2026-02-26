@@ -142,29 +142,22 @@ export const ClusterMarker = memo(function ClusterMarker({
               }}
             />
           </div>
-          {starTier && (
-            <div
+          {starTier && !isSelected && (
+            <span
               style={{
                 position: "absolute",
-                top: -2,
-                right: -2,
-                width: 12,
-                height: 12,
-                borderRadius: "50%",
-                backgroundColor: STAR_COLORS[starTier],
-                border: "2px solid white",
-                boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 7,
-                lineHeight: 1,
-                color: "white",
+                top: -4,
+                right: -4,
+                fontSize: 14,
+                color: STAR_COLORS[starTier],
+                WebkitTextStroke: "1px white",
+                filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.3))",
                 zIndex: 10,
+                lineHeight: 1,
               }}
             >
               ★
-            </div>
+            </span>
           )}
         </div>
       </div>
