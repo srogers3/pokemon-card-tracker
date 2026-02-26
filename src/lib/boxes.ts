@@ -7,6 +7,7 @@ import {
 import { eq, and, sql, isNotNull, isNull } from "drizzle-orm";
 import { CREATURE_DATA, TOTAL_CREATURES, getSpriteUrl } from "@/db/creature-data";
 import { adjustTrustScore } from "@/lib/trust";
+import { STAR_UPGRADE_CHANCE, type StarTier } from "./wild-creature";
 
 type RarityTier = "common" | "uncommon" | "rare" | "ultra_rare";
 type BadgeType = (typeof badgeTypeEnum.enumValues)[number];
@@ -26,13 +27,6 @@ const TRANSFER_POINTS: Record<RarityTier, number> = {
 };
 
 const SHINY_CHANCE = 1 / 50; // 2%
-
-// Upgrade chance by report status
-const UPGRADE_CHANCE: Record<string, number> = {
-  not_found: 0.05,
-  found: 0.20,
-  found_corroborated: 0.35,
-};
 
 // When upgrade triggers, relative weight for each tier above wild creature's tier
 const UPGRADE_TIER_WEIGHTS: Record<RarityTier, number> = {
@@ -65,7 +59,8 @@ export async function createBox(
 
 export async function openBox(
   sightingId: string,
-  corroborated: boolean = false
+  corroborated: boolean = false,
+  starTier: StarTier | null = null
 ): Promise<{ creatureName: string; isShiny: boolean; wasUpgrade: boolean; wildCreatureName: string | null } | null> {
   const [box] = await db
     .select()
@@ -92,11 +87,7 @@ export async function openBox(
     } else {
       wildCreatureName = wildCreature.name;
 
-      let poolKey = box.reportStatus as string;
-      if (poolKey === "found" && corroborated) {
-        poolKey = "found_corroborated";
-      }
-      const upgradeChance = UPGRADE_CHANCE[poolKey] ?? UPGRADE_CHANCE["not_found"];
+      const upgradeChance = starTier ? (STAR_UPGRADE_CHANCE[starTier] ?? 0) : 0;
 
       if (Math.random() < upgradeChance) {
         const wildTierIndex = TIER_ORDER.indexOf(wildCreature.rarityTier);
