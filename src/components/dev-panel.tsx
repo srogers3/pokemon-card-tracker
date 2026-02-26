@@ -50,16 +50,16 @@ export function DevPanel() {
           <div className="text-xs font-semibold text-zinc-400 mb-2">Dev Overrides</div>
           <div className="space-y-2">
             {TOGGLES.map((t) => (
-              <label key={t.key} className="flex items-center gap-2 cursor-pointer text-sm">
+              <label key={t.key} className="flex items-center gap-3 cursor-pointer text-sm">
                 <button
                   onClick={() => toggle(t.key)}
-                  className={`w-8 h-4 rounded-full transition-colors relative ${
+                  className={`shrink-0 w-9 h-5 rounded-full transition-colors relative ${
                     values[t.key] ? "bg-emerald-500" : "bg-zinc-600"
                   }`}
                 >
                   <span
-                    className={`absolute top-0.5 w-3 h-3 rounded-full bg-white transition-transform ${
-                      values[t.key] ? "translate-x-4" : "translate-x-0.5"
+                    className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform ${
+                      values[t.key] ? "translate-x-4" : "translate-x-0"
                     }`}
                   />
                 </button>

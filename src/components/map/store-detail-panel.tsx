@@ -56,7 +56,8 @@ export function StoreDetailPanel({
   const [trend, setTrend] = useState<RestockTrend | null>(null);
 
   const locationUnknown = !userLocation;
-  const isTooFar = !locationUnknown && store.latitude != null && store.longitude != null
+  const devSkipProximity = typeof document !== "undefined" && document.cookie.includes("dev_skip_proximity=true");
+  const isTooFar = !devSkipProximity && !locationUnknown && store.latitude != null && store.longitude != null
     ? getDistanceMeters(userLocation.lat, userLocation.lng, store.latitude, store.longitude) > MAX_TIP_DISTANCE_M
     : false;
 
