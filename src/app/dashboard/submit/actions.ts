@@ -15,10 +15,13 @@ import {
   adjustTrustScore,
   updateReporterStats,
 } from "@/lib/trust";
-import { createBox, openBox } from "@/lib/boxes";
+import { createBox, openBox, getUnviewedOpenings } from "@/lib/boxes";
 import { getWildCreature, getStarTier } from "@/lib/wild-creature";
 
-export async function submitTip(formData: FormData) {
+export async function submitTip(formData: FormData): Promise<{
+  opened: boolean;
+  openings?: Awaited<ReturnType<typeof getUnviewedOpenings>>;
+}> {
   const user = await requireUser();
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
@@ -58,6 +61,7 @@ export async function submitTip(formData: FormData) {
   const productId = (formData.get("productId") as string) || null;
   const sightedAt = new Date(formData.get("sightedAt") as string);
   const autoVerify = shouldAutoVerify(user.trustScore);
+  const isPremium = user.subscriptionTier === "premium";
 
   // Insert the sighting
   const [sighting] = await db
@@ -84,19 +88,31 @@ export async function submitTip(formData: FormData) {
   // Update reporter stats (totalReports, streak)
   await updateReporterStats(userId);
 
-  // Check for corroboration if not already auto-verified (only for product-specific reports)
+  // Check for corroboration (only for non-auto-verified, product-specific reports)
   if (!autoVerify && productId) {
     const corroboratedUserId = await checkCorroboration(sighting.id, storeId, productId, sightedAt);
     if (corroboratedUserId) {
       await adjustTrustScore(userId, 10);
     }
-  } else if (autoVerify) {
-    // Auto-verified — open box immediately
+  }
+
+  // Open box immediately for auto-verify or premium users
+  if (autoVerify || isPremium) {
     const starTier = getStarTier(storeId);
     await openBox(sighting.id, starTier);
+  }
+
+  if (autoVerify) {
     await adjustTrustScore(userId, 5);
   }
 
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/collection");
+
+  if (autoVerify || isPremium) {
+    const openings = await getUnviewedOpenings(userId);
+    return { opened: true, openings };
+  }
+
+  return { opened: false };
 }
