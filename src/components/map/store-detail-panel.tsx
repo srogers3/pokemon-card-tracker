@@ -10,6 +10,10 @@ import { cn, getDistanceMeters, MAX_TIP_DISTANCE_M } from "@/lib/utils";
 import { getStoreTrends } from "@/app/dashboard/map/actions";
 import type { RestockTrend } from "@/lib/trends";
 import { getBarPercent } from "@/lib/trends";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { CardboardexTab } from "./cardboardex-tab";
+import type { CreatureEntry } from "@/db/creature-data";
+import type { StarTier } from "@/lib/wild-creature";
 
 interface Sighting {
   id: string;
@@ -27,6 +31,12 @@ export function StoreDetailPanel({
   userLocation,
   onClose,
   onSightingSubmitted,
+  wildCreature,
+  starTier,
+  isCreatureCaught,
+  creatureCatchCount,
+  creatureShinyCount,
+  hasPendingBox,
 }: {
   store: Store;
   sightings: Sighting[];
@@ -35,6 +45,12 @@ export function StoreDetailPanel({
   userLocation: { lat: number; lng: number } | null;
   onClose: () => void;
   onSightingSubmitted: () => void;
+  wildCreature: CreatureEntry;
+  starTier: StarTier | null;
+  isCreatureCaught: boolean;
+  creatureCatchCount: number;
+  creatureShinyCount: number;
+  hasPendingBox: boolean;
 }) {
   const [showForm, setShowForm] = useState(false);
   const [trend, setTrend] = useState<RestockTrend | null>(null);
@@ -68,6 +84,15 @@ export function StoreDetailPanel({
         </Button>
       </div>
 
+      <Tabs defaultValue="store-info" className="flex-1">
+        <div className="px-4 pt-2">
+          <TabsList className="w-full">
+            <TabsTrigger value="store-info" className="flex-1">Store Info</TabsTrigger>
+            <TabsTrigger value="cardboardex" className="flex-1">Cardboardex</TabsTrigger>
+          </TabsList>
+        </div>
+
+        <TabsContent value="store-info">
       <div className="p-4 space-y-4">
         {/* Quick stats */}
         <div className="flex gap-3 text-sm">
@@ -188,6 +213,19 @@ export function StoreDetailPanel({
           </Button>
         )}
       </div>
+        </TabsContent>
+
+        <TabsContent value="cardboardex">
+          <CardboardexTab
+            creature={wildCreature}
+            isCaught={isCreatureCaught}
+            catchCount={creatureCatchCount}
+            shinyCount={creatureShinyCount}
+            starTier={starTier}
+            hasPendingBox={hasPendingBox}
+          />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
