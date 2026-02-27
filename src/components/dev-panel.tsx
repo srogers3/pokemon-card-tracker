@@ -45,9 +45,20 @@ export function DevPanel() {
   const activeCount = Object.values(values).filter(Boolean).length;
 
   return (
-    <div className="fixed bottom-4 right-4 z-[200]">
+    <div className="fixed top-1/2 -translate-y-1/2 right-4 z-[200]">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className={`w-10 h-10 rounded-full shadow-lg flex items-center justify-center text-lg transition-colors ${
+          activeCount > 0
+            ? "bg-emerald-600 text-white"
+            : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"
+        }`}
+        title="Dev Panel"
+      >
+        {activeCount > 0 ? activeCount : "\u2699"}
+      </button>
       {open && (
-        <div className="mb-2 bg-zinc-900 text-white rounded-lg shadow-xl border border-zinc-700 p-3 w-56">
+        <div className="mt-2 bg-zinc-900 text-white rounded-lg shadow-xl border border-zinc-700 p-3 w-56">
           <div className="text-xs font-semibold text-zinc-400 mb-2">Dev Overrides</div>
           <div className="space-y-2">
             {TOGGLES.map((t) => (
@@ -73,17 +84,6 @@ export function DevPanel() {
           <p className="text-[10px] text-zinc-500 mt-2">Changes apply on next server action / page load</p>
         </div>
       )}
-      <button
-        onClick={() => setOpen((v) => !v)}
-        className={`w-10 h-10 rounded-full shadow-lg flex items-center justify-center text-lg transition-colors ${
-          activeCount > 0
-            ? "bg-emerald-600 text-white"
-            : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"
-        }`}
-        title="Dev Panel"
-      >
-        {activeCount > 0 ? activeCount : "\u2699"}
-      </button>
     </div>
   );
 }
