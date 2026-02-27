@@ -9,18 +9,21 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground shadow-md hover:bg-primary/90 hover:shadow-lg",
+        default:
+          "bg-gradient-to-b from-primary/70 to-primary/90 text-primary-foreground backdrop-blur-sm border border-white/20 border-b-white/5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3),inset_0_-1px_1px_rgba(0,0,0,0.15),0_2px_12px_hsl(var(--primary)/0.35),0_1px_2px_rgba(0,0,0,0.2)] hover:-translate-y-0.5 hover:from-primary/80 hover:to-primary hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.35),inset_0_-1px_1px_rgba(0,0,0,0.15),0_4px_20px_hsl(var(--primary)/0.45),0_1px_3px_rgba(0,0,0,0.25)] active:translate-y-0 active:from-primary/95 active:to-primary/85 active:shadow-[inset_0_2px_3px_rgba(0,0,0,0.2),0_1px_4px_hsl(var(--primary)/0.3)]",
         destructive:
-          "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20",
+          "bg-gradient-to-b from-destructive/70 to-destructive/90 text-white backdrop-blur-sm border border-white/20 border-b-white/5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3),inset_0_-1px_1px_rgba(0,0,0,0.15),0_2px_12px_hsl(var(--destructive)/0.35),0_1px_2px_rgba(0,0,0,0.2)] hover:-translate-y-0.5 hover:from-destructive/80 hover:to-destructive hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.35),inset_0_-1px_1px_rgba(0,0,0,0.15),0_4px_20px_hsl(var(--destructive)/0.45),0_1px_3px_rgba(0,0,0,0.25)] active:translate-y-0 active:from-destructive/95 active:to-destructive/85 active:shadow-[inset_0_2px_3px_rgba(0,0,0,0.2),0_1px_4px_hsl(var(--destructive)/0.3)] focus-visible:ring-destructive/20",
         outline:
-          "border bg-background shadow-xs hover:bg-accent/10 hover:text-accent-foreground hover:border-accent",
+          "border border-white/20 border-b-white/10 bg-gradient-to-b from-card/40 to-card/20 backdrop-blur-sm shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_2px_8px_rgba(124,92,191,0.1),0_1px_2px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 hover:from-accent/20 hover:to-accent/10 hover:text-accent-foreground hover:border-accent/30 hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.3),0_4px_20px_rgba(124,92,191,0.2),0_2px_4px_rgba(0,0,0,0.1)] active:translate-y-0 active:shadow-[inset_0_1px_2px_rgba(0,0,0,0.1),0_1px_4px_rgba(124,92,191,0.15)]",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+          "bg-gradient-to-b from-secondary/50 to-secondary/70 text-secondary-foreground backdrop-blur-sm border border-white/15 border-b-white/5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),inset_0_-1px_1px_rgba(0,0,0,0.08),0_1px_4px_rgba(0,0,0,0.06)] hover:-translate-y-0.5 hover:from-secondary/60 hover:to-secondary/85 hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),inset_0_-1px_1px_rgba(0,0,0,0.1),0_4px_16px_rgba(124,92,191,0.12),0_2px_4px_rgba(0,0,0,0.08)] active:translate-y-0 active:shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)]",
         ghost:
-          "hover:bg-muted hover:text-foreground",
+          "hover:-translate-y-0.5 hover:bg-gradient-to-b hover:from-card/35 hover:to-card/20 hover:backdrop-blur-sm hover:text-foreground hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),0_4px_16px_rgba(124,92,191,0.12),0_1px_3px_rgba(0,0,0,0.08)] active:translate-y-0 active:shadow-[inset_0_1px_2px_rgba(0,0,0,0.08)]",
         link: "text-primary underline-offset-4 hover:underline",
-        accent: "bg-accent text-accent-foreground rounded-full shadow-md hover:bg-accent/90 hover:shadow-lg",
-        gold: "bg-gold text-white rounded-full shadow-md hover:bg-gold/90 hover:shadow-lg",
+        accent:
+          "bg-gradient-to-b from-accent/70 to-accent/90 text-accent-foreground rounded-full backdrop-blur-sm border border-white/20 border-b-white/5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3),inset_0_-1px_1px_rgba(0,0,0,0.15),0_2px_12px_hsl(var(--accent)/0.35),0_1px_2px_rgba(0,0,0,0.2)] hover:-translate-y-0.5 hover:from-accent/80 hover:to-accent hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.35),inset_0_-1px_1px_rgba(0,0,0,0.15),0_4px_20px_hsl(var(--accent)/0.45),0_1px_3px_rgba(0,0,0,0.25)] active:translate-y-0 active:from-accent/95 active:to-accent/85 active:shadow-[inset_0_2px_3px_rgba(0,0,0,0.2),0_1px_4px_hsl(var(--accent)/0.3)]",
+        gold:
+          "bg-gradient-to-b from-gold/70 to-gold/90 text-white rounded-full backdrop-blur-sm border border-white/25 border-b-white/5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.35),inset_0_-1px_1px_rgba(0,0,0,0.15),0_2px_12px_hsl(var(--gold)/0.4),0_1px_2px_rgba(0,0,0,0.2)] hover:-translate-y-0.5 hover:from-gold/80 hover:to-gold hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.4),inset_0_-1px_1px_rgba(0,0,0,0.15),0_4px_20px_hsl(var(--gold)/0.5),0_1px_3px_rgba(0,0,0,0.25)] active:translate-y-0 active:from-gold/95 active:to-gold/85 active:shadow-[inset_0_2px_3px_rgba(0,0,0,0.2),0_1px_4px_hsl(var(--gold)/0.35)]",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",
