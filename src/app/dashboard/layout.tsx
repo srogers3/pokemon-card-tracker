@@ -1,6 +1,5 @@
 import { requireUser } from "@/lib/auth";
 import { SiteHeader } from "@/components/site-header";
-import { DashboardNav } from "@/components/dashboard-nav";
 import { getUnviewedOpenings } from "@/lib/boxes";
 import { UnboxRevealModal } from "@/components/unbox-reveal-modal";
 import { getDevOverrides } from "@/lib/dev";
@@ -18,9 +17,6 @@ export default async function DashboardLayout({
   return (
     <div className="min-h-screen flex flex-col">
       <SiteHeader isPremium={isPremium} />
-      <div className="hidden md:block px-4 pt-4">
-        <DashboardNav isPremium={isPremium} />
-      </div>
       <div className="flex-1">
         {children}
       </div>

@@ -37,9 +37,33 @@ export function SiteHeader({ isPremium }: { isPremium?: boolean }) {
         aria-hidden="true"
       />
       <div className="container relative mx-auto flex h-16 items-center justify-between px-4">
-        <Link href="/" className="text-xl font-bold text-primary">
-          Cardboard Tracker
-        </Link>
+        <div className="flex items-center gap-6">
+          <Link href="/" className="text-xl font-bold text-primary">
+            Cardboard Tracker
+          </Link>
+          {isDashboard && (
+            <nav className="hidden md:flex items-center gap-1">
+              {dashboardLinks.map((link) => {
+                if (link.premium && !isPremium) return null;
+                const isActive = pathname === link.href;
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={cn(
+                      "text-sm font-medium px-3 py-1.5 rounded-full transition-all",
+                      isActive
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    )}
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
+            </nav>
+          )}
+        </div>
         <nav className="flex items-center gap-4">
           <SignedIn>
             {isDashboard && (
@@ -52,11 +76,13 @@ export function SiteHeader({ isPremium }: { isPremium?: boolean }) {
                 <Menu className="w-5 h-5" />
               </Button>
             )}
-            <Link href="/dashboard" className="hidden md:block">
-              <Button variant="ghost" size="sm">
-                Dashboard
-              </Button>
-            </Link>
+            {!isDashboard && (
+              <Link href="/dashboard" className="hidden md:block">
+                <Button variant="ghost" size="sm">
+                  Dashboard
+                </Button>
+              </Link>
+            )}
             <UserButton />
           </SignedIn>
           <SignedOut>
