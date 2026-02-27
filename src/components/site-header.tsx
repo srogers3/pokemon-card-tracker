@@ -25,8 +25,18 @@ export function SiteHeader({ isPremium }: { isPremium?: boolean }) {
   const isDashboard = pathname?.startsWith("/dashboard");
 
   return (
-    <header className="border-b border-border/50 bg-card/80 backdrop-blur-sm">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
+    <header className="sticky top-0 z-50">
+      {/* Frosted glass backdrop — extends below header and masks overflow for soft blur edge */}
+      <div
+        className="pointer-events-none absolute inset-0 h-[200%] backdrop-blur-xl"
+        style={{
+          maskImage: "linear-gradient(to bottom, black 0% 50%, transparent 50% 100%)",
+          WebkitMaskImage: "linear-gradient(to bottom, black 0% 50%, transparent 50% 100%)",
+          background: "linear-gradient(to bottom, hsl(var(--card) / 0.85), transparent 50%)",
+        }}
+        aria-hidden="true"
+      />
+      <div className="container relative mx-auto flex h-16 items-center justify-between px-4">
         <Link href="/" className="text-xl font-bold text-primary">
           Cardboard Tracker
         </Link>
