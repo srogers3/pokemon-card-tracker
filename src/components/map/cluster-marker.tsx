@@ -19,7 +19,7 @@ const STAR_COLORS: Record<string, string> = {
 };
 
 const BOX_EMOJI_URL = "data:image/svg+xml," + encodeURIComponent(
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><text y="50" font-size="48">📦</text></svg>'
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><text x="50%" y="50%" font-size="48" text-anchor="middle" dominant-baseline="central">📦</text></svg>'
 );
 
 export const ClusterMarker = memo(function ClusterMarker({
