@@ -8,7 +8,7 @@ export function SightingCard({ sighting }: { sighting: SightingItem }) {
   const isFound = sighting.status === "found";
 
   return (
-    <Card className={`p-3 border-l-4 ${isFound ? "border-l-green-500" : "border-l-red-500"}`}>
+    <Card className={`p-3 border-l-4 overflow-hidden ${isFound ? "border-l-green-500" : "border-l-red-500"}`}>
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
