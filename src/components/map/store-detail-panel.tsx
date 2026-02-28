@@ -67,12 +67,15 @@ export function StoreDetailPanel({
 
   return (
     <div className={cn(
-      "absolute bottom-0 left-0 right-0 z-10 flex flex-col bg-card rounded-t-2xl shadow-lg border-t border-border/50 transition-[max-height] duration-300 ease-in-out",
+      "absolute bottom-0 left-0 right-0 z-10 flex flex-col rounded-t-2xl shadow-lg border-t border-border/50 transition-[max-height] duration-300 ease-in-out",
       showForm ? "max-h-[70vh]" : "max-h-[40vh]",
       "md:absolute md:right-4 md:bottom-4 md:left-auto md:w-96 md:rounded-2xl md:border md:max-h-[70vh]"
     )}>
-      {/* Header */}
-      <div className="shrink-0 bg-card z-10 border-b border-border/50 rounded-t-2xl">
+      {/* Header — frosted glass against the map */}
+      <div
+        className="shrink-0 z-10 border-b border-border/50 rounded-t-2xl backdrop-blur-xl"
+        style={{ background: "hsl(var(--card) / 0.85)", marginBottom: -1 }}
+      >
         <div className="p-4 flex items-start justify-between">
           <div>
             <h3 className="font-semibold text-lg">{store.name}</h3>
@@ -119,7 +122,7 @@ export function StoreDetailPanel({
 
       {/* Form replaces the entire content area below the header */}
       {showForm ? (
-        <div className="flex-1 overflow-y-auto scrollbar-thin p-4">
+        <div className="flex-1 overflow-y-auto scrollbar-thin bg-card p-4">
           <MapSightingForm
             storeId={store.id}
             products={products}
@@ -130,7 +133,7 @@ export function StoreDetailPanel({
           />
         </div>
       ) : (
-      <Tabs defaultValue="store-info" className="flex-1 overflow-y-auto scrollbar-thin">
+      <Tabs defaultValue="store-info" className="flex-1 overflow-y-auto scrollbar-thin bg-card">
         <div className="px-4 pt-2">
           <TabsList className="w-full">
             <TabsTrigger value="store-info" className="flex-1">Store Info</TabsTrigger>
