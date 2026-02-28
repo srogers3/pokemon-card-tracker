@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -52,15 +51,6 @@ export function SightingForm({
             ))}
           </SelectContent>
         </Select>
-      </div>
-      <div>
-        <Label htmlFor="sightedAt">Sighted At</Label>
-        <Input
-          id="sightedAt"
-          name="sightedAt"
-          type="datetime-local"
-          required
-        />
       </div>
       <div>
         <Label htmlFor="status">Stock Status</Label>

@@ -2,7 +2,6 @@
 
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -87,18 +86,6 @@ export function MapSightingForm({
           </Select>
         </div>
       )}
-
-      <div>
-        <Label htmlFor="map-sightedAt" className="text-xs">When</Label>
-        <Input
-          type="datetime-local"
-          name="sightedAt"
-          id="map-sightedAt"
-          className="h-9"
-          required
-          defaultValue={new Date().toISOString().slice(0, 16)}
-        />
-      </div>
 
       <div>
         <Label htmlFor="map-notes" className="text-xs">Notes (optional)</Label>
