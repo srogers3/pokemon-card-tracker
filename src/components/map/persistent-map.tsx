@@ -46,7 +46,7 @@ export function PersistentMap() {
   if (loading || !mapData) {
     if (!isMapRoute) return null;
     return (
-      <div className="flex items-center justify-center h-[calc(100vh-64px)]">
+      <div className="flex items-center justify-center h-[calc(100dvh-64px)]">
         <div className="animate-pulse text-muted-foreground">Loading map...</div>
       </div>
     );

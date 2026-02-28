@@ -456,7 +456,7 @@ export function StoreMap({ initialStores, products, apiKey, mapId, userBoxes }: 
   const containerRef = useRef<HTMLDivElement>(null);
   return (
     <APIProvider apiKey={apiKey}>
-      <div ref={containerRef} className="relative w-full h-[calc(100vh-64px)]">
+      <div ref={containerRef} className="relative w-full h-[calc(100dvh-64px)]">
         <MapContent initialStores={initialStores} products={products} mapId={mapId} userBoxes={userBoxes} containerRef={containerRef} />
       </div>
     </APIProvider>
