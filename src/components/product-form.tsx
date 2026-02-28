@@ -33,6 +33,7 @@ export function ProductForm() {
         | "blister"
         | "collection_box"
         | "other",
+      releaseDate: new Date(formData.get("releaseDate") as string),
       imageUrl: (formData.get("imageUrl") as string) || null,
     });
   }
@@ -71,6 +72,15 @@ export function ProductForm() {
             ))}
           </SelectContent>
         </Select>
+      </div>
+      <div>
+        <Label htmlFor="releaseDate">Release Date</Label>
+        <Input
+          id="releaseDate"
+          name="releaseDate"
+          type="date"
+          required
+        />
       </div>
       <div>
         <Label htmlFor="imageUrl">Image URL (optional)</Label>

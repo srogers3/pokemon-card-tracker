@@ -24,16 +24,16 @@ const ncStores = [
 ];
 
 const cardProducts = [
-  { name: "Prismatic Evolutions ETB", setName: "Prismatic Evolutions", productType: "etb" as const },
-  { name: "Prismatic Evolutions Booster Bundle", setName: "Prismatic Evolutions", productType: "blister" as const },
-  { name: "Surging Sparks Booster Box", setName: "Surging Sparks", productType: "booster_box" as const },
-  { name: "Surging Sparks ETB", setName: "Surging Sparks", productType: "etb" as const },
-  { name: "Prismatic Evolutions Tin", setName: "Prismatic Evolutions", productType: "tin" as const },
-  { name: "Journey Together ETB", setName: "Journey Together", productType: "etb" as const },
-  { name: "Journey Together Booster Box", setName: "Journey Together", productType: "booster_box" as const },
-  { name: "Scarlet & Violet Ultra Premium Collection", setName: "Scarlet & Violet", productType: "collection_box" as const },
-  { name: "Twilight Masquerade ETB", setName: "Twilight Masquerade", productType: "etb" as const },
-  { name: "Paldean Fates ETB", setName: "Paldean Fates", productType: "etb" as const },
+  { name: "Prismatic Evolutions ETB", setName: "Prismatic Evolutions", productType: "etb" as const, releaseDate: new Date("2025-02-07") },
+  { name: "Prismatic Evolutions Booster Bundle", setName: "Prismatic Evolutions", productType: "blister" as const, releaseDate: new Date("2025-02-07") },
+  { name: "Surging Sparks Booster Box", setName: "Surging Sparks", productType: "booster_box" as const, releaseDate: new Date("2024-11-08") },
+  { name: "Surging Sparks ETB", setName: "Surging Sparks", productType: "etb" as const, releaseDate: new Date("2024-11-08") },
+  { name: "Prismatic Evolutions Tin", setName: "Prismatic Evolutions", productType: "tin" as const, releaseDate: new Date("2025-02-07") },
+  { name: "Journey Together ETB", setName: "Journey Together", productType: "etb" as const, releaseDate: new Date("2025-03-28") },
+  { name: "Journey Together Booster Box", setName: "Journey Together", productType: "booster_box" as const, releaseDate: new Date("2025-03-28") },
+  { name: "Scarlet & Violet Ultra Premium Collection", setName: "Scarlet & Violet", productType: "collection_box" as const, releaseDate: new Date("2023-03-31") },
+  { name: "Twilight Masquerade ETB", setName: "Twilight Masquerade", productType: "etb" as const, releaseDate: new Date("2024-05-24") },
+  { name: "Paldean Fates ETB", setName: "Paldean Fates", productType: "etb" as const, releaseDate: new Date("2024-01-26") },
 ];
 
 function randomItem<T>(arr: T[]): T {
