@@ -72,19 +72,64 @@ export function StoreDetailPanel({
       "md:absolute md:right-4 md:bottom-4 md:left-auto md:w-96 md:rounded-2xl md:border md:max-h-[70vh]"
     )}>
       {/* Header */}
-      <div className="shrink-0 bg-card z-10 p-4 border-b border-border/50 flex items-start justify-between rounded-t-2xl">
-        <div>
-          <h3 className="font-semibold text-lg">{store.name}</h3>
-          <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-            <MapPin className="w-3 h-3" />
-            {store.locationLabel}
-          </p>
+      <div className="shrink-0 bg-card z-10 border-b border-border/50 rounded-t-2xl">
+        <div className="p-4 flex items-start justify-between">
+          <div>
+            <h3 className="font-semibold text-lg">{store.name}</h3>
+            <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
+              <MapPin className="w-3 h-3" />
+              {store.locationLabel}
+            </p>
+          </div>
+          <Button variant="ghost" size="sm" onClick={onClose} className="shrink-0">
+            <X className="w-4 h-4" />
+          </Button>
         </div>
-        <Button variant="ghost" size="sm" onClick={onClose} className="shrink-0">
-          <X className="w-4 h-4" />
-        </Button>
+
+        {/* Report Sighting button — pinned in header */}
+        {!showForm && (
+          <div className="px-4 pb-3">
+            {hasSubmittedToday ? (
+              <div className="bg-muted/50 rounded-lg px-3 py-2 text-center">
+                <p className="font-semibold text-sm">📦 Already scouted today!</p>
+                <p className="text-xs text-muted-foreground">Come back tomorrow — a new creature might be lurking.</p>
+              </div>
+            ) : locationUnknown ? (
+              <div className="bg-muted/50 rounded-lg px-3 py-2 text-center">
+                <p className="font-semibold text-sm">📍 Location required</p>
+                <p className="text-xs text-muted-foreground">Enable location services to submit a report.</p>
+              </div>
+            ) : isTooFar ? (
+              <div className="bg-muted/50 rounded-lg px-3 py-2 text-center">
+                <p className="font-semibold text-sm">📍 Too far from this store</p>
+                <p className="text-xs text-muted-foreground">Get within 0.5 miles to submit a report.</p>
+              </div>
+            ) : (
+              <Button
+                variant="accent"
+                className="w-full"
+                onClick={() => setShowForm(true)}
+              >
+                Report Sighting
+              </Button>
+            )}
+          </div>
+        )}
       </div>
 
+      {/* Form replaces the entire content area below the header */}
+      {showForm ? (
+        <div className="flex-1 overflow-y-auto scrollbar-thin p-4">
+          <MapSightingForm
+            storeId={store.id}
+            products={products}
+            userLatitude={userLocation?.lat ?? null}
+            userLongitude={userLocation?.lng ?? null}
+            onCancel={() => setShowForm(false)}
+            onSubmitSuccess={onSightingSubmitted}
+          />
+        </div>
+      ) : (
       <Tabs defaultValue="store-info" className="flex-1 overflow-y-auto scrollbar-thin">
         <div className="px-4 pt-2">
           <TabsList className="w-full">
@@ -181,44 +226,6 @@ export function StoreDetailPanel({
             </div>
           </div>
         )}
-
-        {/* Report Sighting button or inline form */}
-        {hasSubmittedToday ? (
-          <div className="bg-muted/50 rounded-lg p-4 text-center space-y-1">
-            <p className="text-2xl">📦</p>
-            <p className="font-semibold text-sm">You already scouted this location today!</p>
-            <p className="text-xs text-muted-foreground">Come back tomorrow — a new creature might be lurking.</p>
-          </div>
-        ) : locationUnknown ? (
-          <div className="bg-muted/50 rounded-lg p-4 text-center space-y-1">
-            <p className="text-2xl">📍</p>
-            <p className="font-semibold text-sm">Location required</p>
-            <p className="text-xs text-muted-foreground">Enable location services to submit a report.</p>
-          </div>
-        ) : isTooFar ? (
-          <div className="bg-muted/50 rounded-lg p-4 text-center space-y-1">
-            <p className="text-2xl">📍</p>
-            <p className="font-semibold text-sm">You&apos;re too far from this store</p>
-            <p className="text-xs text-muted-foreground">Get within 0.5 miles to submit a report.</p>
-          </div>
-        ) : showForm ? (
-          <MapSightingForm
-            storeId={store.id}
-            products={products}
-            userLatitude={userLocation?.lat ?? null}
-            userLongitude={userLocation?.lng ?? null}
-            onCancel={() => setShowForm(false)}
-            onSubmitSuccess={onSightingSubmitted}
-          />
-        ) : (
-          <Button
-            variant="accent"
-            className="w-full"
-            onClick={() => setShowForm(true)}
-          >
-            Report Sighting
-          </Button>
-        )}
       </div>
         </TabsContent>
 
@@ -233,6 +240,7 @@ export function StoreDetailPanel({
           />
         </TabsContent>
       </Tabs>
+      )}
     </div>
   );
 }
