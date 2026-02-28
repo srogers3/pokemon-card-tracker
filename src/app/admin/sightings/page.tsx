@@ -17,7 +17,7 @@ import { deleteSighting } from "./actions";
 export default async function AdminSightingsPage() {
   const [allStores, allProducts, allSightings] = await Promise.all([
     db.select().from(stores).orderBy(stores.name),
-    db.select().from(products).orderBy(products.name),
+    db.select().from(products).orderBy(desc(products.releaseDate), products.name),
     db
       .select({
         id: restockSightings.id,
