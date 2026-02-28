@@ -6,11 +6,14 @@ import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { groupProductsBySet } from "@/lib/products";
 import { submitTip } from "@/app/dashboard/submit/actions";
 import { UnboxRevealModal, type UnboxData } from "@/components/unbox-reveal-modal";
 import type { Product } from "@/db/schema";
@@ -77,10 +80,15 @@ export function MapSightingForm({
               <SelectValue placeholder="Select a product" />
             </SelectTrigger>
             <SelectContent>
-              {products.map((p) => (
-                <SelectItem key={p.id} value={p.id}>
-                  {p.name}
-                </SelectItem>
+              {groupProductsBySet(products).map((group) => (
+                <SelectGroup key={group.setName}>
+                  <SelectLabel>{group.setName}</SelectLabel>
+                  {group.products.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.name}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
               ))}
             </SelectContent>
           </Select>

@@ -66,7 +66,7 @@ export async function getStoresWithSightings() {
 export async function getMapPageData() {
   const { userId } = await auth();
   const [allProducts, storesWithSightings, userBoxes] = await Promise.all([
-    db.select().from(products),
+    db.select().from(products).orderBy(desc(products.releaseDate), products.name),
     getStoresWithSightings(),
     userId ? getUserCollection(userId) : Promise.resolve([]),
   ]);

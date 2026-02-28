@@ -92,6 +92,7 @@ export const products = pgTable("products", {
   name: text("name").notNull(),
   setName: text("set_name").notNull(),
   productType: productTypeEnum("product_type").notNull(),
+  releaseDate: timestamp("release_date").notNull(),
   imageUrl: text("image_url"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
