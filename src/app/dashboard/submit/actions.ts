@@ -15,7 +15,7 @@ import {
   adjustTrustScore,
   updateReporterStats,
 } from "@/lib/trust";
-import { createBox, openBox, getUnviewedOpenings } from "@/lib/boxes";
+import { createBox, openBox, getUnviewedOpenings, markBoxViewed } from "@/lib/boxes";
 import { getWildCreature, getStarTier } from "@/lib/wild-creature";
 import { getDevOverrides } from "@/lib/dev";
 
@@ -115,11 +115,11 @@ export async function submitTip(formData: FormData): Promise<{
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/collection");
 
-  // Only show the on-map box opening animation for premium users.
-  // AutoVerify users get their boxes opened in the DB (above) but see them
-  // via the layout modal or collection page instead.
-  if (isPremium) {
+  // Show the on-map box opening animation when the box was opened immediately.
+  // Mark as viewed so the layout modal doesn't also show them (double-up).
+  if (autoVerify || isPremium) {
     const openings = await getUnviewedOpenings(userId);
+    await Promise.all(openings.map((o) => markBoxViewed(userId, o.id)));
     return { opened: true, openings };
   }
 

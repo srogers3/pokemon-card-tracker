@@ -42,12 +42,12 @@ export function MapSightingForm({
       formData.set("userLongitude", userLongitude.toString());
     }
     const result = await submitTip(formData);
-    onSubmitSuccess();
     formRef.current?.reset();
 
     if (result?.opened && result.openings?.length) {
       setRevealOpenings(result.openings);
     } else {
+      onSubmitSuccess();
       onCancel();
     }
   }
@@ -120,6 +120,7 @@ export function MapSightingForm({
         openings={revealOpenings}
         onComplete={() => {
           setRevealOpenings(null);
+          onSubmitSuccess();
           onCancel();
         }}
       />
