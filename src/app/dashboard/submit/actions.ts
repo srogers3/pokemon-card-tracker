@@ -65,7 +65,7 @@ export async function submitTip(formData: FormData): Promise<{
   }
 
   const productId = (formData.get("productId") as string) || null;
-  const sightedAt = new Date(formData.get("sightedAt") as string);
+  const sightedAt = new Date();
   const autoVerify = shouldAutoVerify(user.trustScore);
   const isPremium = user.subscriptionTier === "premium" || devOverrides.simulatePremium;
 

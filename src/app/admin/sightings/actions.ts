@@ -15,7 +15,7 @@ export async function createAdminSighting(formData: FormData) {
     storeId: formData.get("storeId") as string,
     productId: formData.get("productId") as string,
     reportedBy: userId!,
-    sightedAt: new Date(formData.get("sightedAt") as string),
+    sightedAt: new Date(),
     status: formData.get("status") as "found" | "not_found",
     verified: true, // Admin sightings are auto-verified
     source: "admin",
