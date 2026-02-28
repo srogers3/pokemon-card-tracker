@@ -78,7 +78,7 @@ export default async function CollectionPage() {
       />
 
       {/* Cardboardex grid */}
-      <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-2">
+      <div className="grid grid-cols-4 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-2">
         {CREATURE_DATA.sort((a, b) => a.id - b.id).map((creature) => {
           const caught = caughtMap.get(creature.id);
           const isCaught = !!caught;
@@ -87,10 +87,10 @@ export default async function CollectionPage() {
             <div
               key={creature.id}
               className={cn(
-                "relative aspect-square rounded-xl border p-1 flex flex-col items-center justify-center",
+                "relative aspect-square p-1 flex flex-col items-center justify-center",
                 isCaught
-                  ? "bg-card border-primary/20 creature-caught shadow-sm"
-                  : "bg-muted/30 border-dashed border-border creature-uncaught"
+                  ? "creature-caught"
+                  : "creature-uncaught"
               )}
               title={
                 isCaught
@@ -99,13 +99,13 @@ export default async function CollectionPage() {
               }
             >
               {isCaught && caught.shinyCount > 0 && (
-                <div className="absolute inset-0 shimmer rounded-xl" />
+                <div className="absolute inset-0 shimmer" />
               )}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={getSpriteUrl(creature.id)}
                 alt={isCaught ? creature.name : "???"}
-                className={cn("w-10 h-10 relative z-10", !isCaught && "brightness-0 opacity-30")}
+                className={cn("w-16 h-16 relative z-10", !isCaught && "brightness-0 opacity-30")}
                 loading="lazy"
               />
               {isCaught && caught.shinyCount > 0 && (
