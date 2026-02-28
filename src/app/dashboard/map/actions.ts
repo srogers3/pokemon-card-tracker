@@ -7,6 +7,7 @@ import { auth } from "@clerk/nextjs/server";
 import { getSubmittedStoreIdsToday } from "@/lib/trust";
 import { getDevOverrides } from "@/lib/dev";
 import { analyzeTrends } from "@/lib/trends";
+import { getUserCollection } from "@/lib/boxes";
 
 export async function getStoresWithSightings() {
   const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000);
@@ -60,6 +61,25 @@ export async function getStoresWithSightings() {
       })),
     };
   });
+}
+
+export async function getMapPageData() {
+  const { userId } = await auth();
+  const [allProducts, storesWithSightings, userBoxes] = await Promise.all([
+    db.select().from(products),
+    getStoresWithSightings(),
+    userId ? getUserCollection(userId) : Promise.resolve([]),
+  ]);
+  return {
+    stores: storesWithSightings,
+    products: allProducts,
+    userBoxes: userBoxes.map((b) => ({
+      creatureId: b.creatureId,
+      wildCreatureId: b.wildCreatureId,
+      isShiny: b.isShiny,
+      opened: b.opened,
+    })),
+  };
 }
 
 export async function getStoreTrends(storeId: string) {

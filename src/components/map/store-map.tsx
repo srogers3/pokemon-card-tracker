@@ -50,11 +50,13 @@ function MapContent({
   products,
   mapId,
   userBoxes,
+  containerRef,
 }: {
   initialStores: StoreWithSightings[];
   products: Product[];
   mapId: string;
   userBoxes: StoreMapProps["userBoxes"];
+  containerRef: React.RefObject<HTMLDivElement | null>;
 }) {
   const map = useMap();
   const apiIsLoaded = useApiIsLoaded();
@@ -236,6 +238,24 @@ function MapContent({
     },
     []
   );
+
+  // When the map becomes visible again (after PersistentMap toggles display),
+  // trigger a resize so Google Maps recalculates its viewport.
+  useEffect(() => {
+    if (!map || !containerRef.current) return;
+    const container = containerRef.current;
+    const observer = new MutationObserver(() => {
+      if (container.offsetParent !== null) {
+        google.maps.event.trigger(map, "resize");
+      }
+    });
+    // Watch the PersistentMap wrapper's style changes (display: none/block)
+    const wrapper = container.closest("[data-persistent-map]");
+    if (wrapper) {
+      observer.observe(wrapper, { attributes: true, attributeFilter: ["style"] });
+    }
+    return () => observer.disconnect();
+  }, [map]);
 
   useEffect(() => {
     const cached = localStorage.getItem("userLocation");
@@ -432,10 +452,11 @@ function MapContent({
 }
 
 export function StoreMap({ initialStores, products, apiKey, mapId, userBoxes }: StoreMapProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
   return (
     <APIProvider apiKey={apiKey}>
-      <div className="relative w-full h-[calc(100vh-64px)]">
-        <MapContent initialStores={initialStores} products={products} mapId={mapId} userBoxes={userBoxes} />
+      <div ref={containerRef} className="relative w-full h-[calc(100vh-64px)]">
+        <MapContent initialStores={initialStores} products={products} mapId={mapId} userBoxes={userBoxes} containerRef={containerRef} />
       </div>
     </APIProvider>
   );
