@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 
 const TOGGLES = [
   { key: "dev_premium", label: "Simulate Premium" },
@@ -24,14 +24,15 @@ function setCookie(name: string, value: boolean) {
 
 export function DevPanel() {
   const [open, setOpen] = useState(false);
-  const [values, setValues] = useState<Record<string, boolean>>(() => {
-    if (typeof document === "undefined") return {};
+  const [values, setValues] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
     const v: Record<string, boolean> = {};
     for (const t of TOGGLES) {
       v[t.key] = getCookie(t.key);
     }
-    return v;
-  });
+    setValues(v);
+  }, []);
 
   const toggle = useCallback((key: string) => {
     setValues((prev) => {
