@@ -225,6 +225,26 @@
   100% { transform: scale(1) rotate(0deg); opacity: 1; }
 }
 
+/* Thin rounded scrollbar for panels */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: oklch(0.75 0.02 290) transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 4px 0;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: oklch(0.75 0.02 290);
+  border-radius: 9999px;
+}
+
 @layer utilities {
   .shimmer {
     position: relative;
