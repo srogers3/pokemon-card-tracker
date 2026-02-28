@@ -3,7 +3,7 @@
 import { db } from "@/db";
 import { alertPreferences, users as usersTable, restockSightings, stores, products } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth";
-import { eq, and, or, isNull, sql } from "drizzle-orm";
+import { eq, and, or, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { sendRestockAlert } from "@/lib/email";
 import { adjustTrustScore } from "@/lib/trust";

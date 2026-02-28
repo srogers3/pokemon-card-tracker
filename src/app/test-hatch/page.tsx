@@ -14,6 +14,7 @@ const MOCK_OPENINGS = [
 
 export default function TestHatchPage() {
   const [showModal, setShowModal] = useState(false);
+  const [modalKey, setModalKey] = useState(0);
   const [selected, setSelected] = useState(MOCK_OPENINGS);
 
   return (
@@ -47,7 +48,7 @@ export default function TestHatchPage() {
       </div>
 
       <button
-        onClick={() => setShowModal(true)}
+        onClick={() => { setShowModal(true); setModalKey((k) => k + 1); }}
         className="bg-purple-600 hover:bg-purple-500 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
       >
         Play Unbox Animation ({selected.length} boxes)
@@ -55,7 +56,7 @@ export default function TestHatchPage() {
 
       {showModal && selected.length > 0 && (
         <UnboxRevealModal
-          key={Date.now()}
+          key={modalKey}
           openings={selected}
           onComplete={() => setShowModal(false)}
         />

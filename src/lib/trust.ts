@@ -12,8 +12,6 @@ type BadgeType = (typeof badgeTypeEnum.enumValues)[number];
 const CORROBORATION_WINDOW_HOURS = 4;
 const TRUST_THRESHOLD_AUTO_VERIFY = 50;
 const POINTS_CORROBORATED = 10;
-const POINTS_ADMIN_VERIFIED = 5;
-const POINTS_FLAGGED = -15;
 const MAX_REPORTS_PER_DAY = 10;
 
 export function shouldAutoVerify(trustScore: number): boolean {

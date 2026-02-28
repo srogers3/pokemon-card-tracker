@@ -48,7 +48,7 @@ export default async function HeatmapPage() {
   }
 
   return (
-    <div>
+    <div className="page-fade-in">
       <h2 className="text-xl font-semibold mb-6">Restock Heatmaps</h2>
       {storeMap.size === 0 ? (
         <p className="text-muted-foreground">

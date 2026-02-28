@@ -96,7 +96,7 @@ export default async function LeaderboardPage() {
   };
 
   return (
-    <div className="container mx-auto py-4 px-4">
+    <div className="container mx-auto py-4 px-4 page-fade-in">
       <h2 className="text-xl font-semibold mb-6">Leaderboard</h2>
 
       {/* Current user stats */}

@@ -62,7 +62,7 @@ export function UnboxRevealModal({ openings, onComplete }: { openings: UnboxData
     if (!open || !current) return;
 
     // Start animation on mount / index change
-    setStage("wobble1");
+    setStage("wobble1"); // eslint-disable-line react-hooks/set-state-in-effect -- animation sequencing
 
     const timers: NodeJS.Timeout[] = [];
     timers.push(setTimeout(() => setStage("wobble2"), 700));

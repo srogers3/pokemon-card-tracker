@@ -21,7 +21,7 @@ export default async function AdminStoresPage() {
     .orderBy(desc(stores.createdAt));
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 page-fade-in">
       <div>
         <h2 className="text-xl font-semibold mb-4">Add Store</h2>
         <StoreForm />

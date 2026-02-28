@@ -151,6 +151,15 @@
   to { opacity: 1; }
 }
 
+.page-fade-in {
+  animation: page-fade-in 300ms ease-out both;
+}
+
+@keyframes page-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 @keyframes rainbow-spin {
   from { --rainbow-angle: 0deg; }
   to { --rainbow-angle: 360deg; }

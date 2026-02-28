@@ -37,7 +37,7 @@ export default async function DashboardPage() {
       : 0;
 
   return (
-    <div className="container mx-auto py-4 px-4 max-w-2xl">
+    <div className="container mx-auto py-4 px-4 max-w-2xl page-fade-in">
       <h2 className="text-xl font-semibold mb-6">Welcome back</h2>
 
       {/* Stats Bar */}

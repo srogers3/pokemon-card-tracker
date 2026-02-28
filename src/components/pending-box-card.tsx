@@ -28,7 +28,7 @@ export function PendingBoxCard({ boxId, createdAt, canOpenImmediately, delayMs =
     update();
     const interval = setInterval(update, 1000);
     return () => clearInterval(interval);
-  }, [createdAt, canOpenImmediately]);
+  }, [createdAt, canOpenImmediately, delayMs]);
 
   const canOpen = canOpenImmediately || timeLeft <= 0;
 

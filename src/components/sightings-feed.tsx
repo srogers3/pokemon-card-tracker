@@ -29,7 +29,9 @@ function EmptyState({ message }: { message: string }) {
 export function SightingsFeed({ isPremium }: { isPremium: boolean }) {
   const [recentSightings, setRecentSightings] = useState<SightingItem[] | null>(null);
   const [nearbySightings, setNearbySightings] = useState<SightingItem[] | null>(null);
-  const [locationStatus, setLocationStatus] = useState<"loading" | "granted" | "denied" | "error">("loading");
+  const [locationStatus, setLocationStatus] = useState<"loading" | "granted" | "denied" | "error">(
+    () => (typeof navigator !== "undefined" && !navigator.geolocation ? "denied" : "loading")
+  );
 
   // Fetch global sightings on mount
   useEffect(() => {
@@ -38,10 +40,7 @@ export function SightingsFeed({ isPremium }: { isPremium: boolean }) {
 
   // Request GPS and fetch nearby sightings
   useEffect(() => {
-    if (!navigator.geolocation) {
-      setLocationStatus("denied");
-      return;
-    }
+    if (locationStatus === "denied") return;
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -53,6 +52,7 @@ export function SightingsFeed({ isPremium }: { isPremium: boolean }) {
         setLocationStatus("denied");
       }
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only run on mount
   }, [isPremium]);
 
   function retryLocation() {
@@ -99,7 +99,7 @@ export function SightingsFeed({ isPremium }: { isPremium: boolean }) {
             <EmptyState message="No recent sightings nearby. Be the first to report!" />
           )}
           {nearbySightings && nearbySightings.length > 0 && (
-            <div className="grid gap-3 md:grid-cols-2">
+            <div className="grid gap-3 md:grid-cols-2 page-fade-in">
               {nearbySightings.map((s) => (
                 <SightingCard key={s.id} sighting={s} />
               ))}
@@ -113,7 +113,7 @@ export function SightingsFeed({ isPremium }: { isPremium: boolean }) {
             <EmptyState message="No sightings yet." />
           )}
           {recentSightings && recentSightings.length > 0 && (
-            <div className="grid gap-3 md:grid-cols-2">
+            <div className="grid gap-3 md:grid-cols-2 page-fade-in">
               {recentSightings.map((s) => (
                 <SightingCard key={s.id} sighting={s} />
               ))}

@@ -44,7 +44,7 @@ export default async function AlertsPage() {
   ]);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 page-fade-in">
       <div>
         <h2 className="text-xl font-semibold mb-4">Add Alert</h2>
         <form action={createAlert} className="space-y-4 max-w-md">

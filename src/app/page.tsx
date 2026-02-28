@@ -15,6 +15,7 @@ export default async function LandingPage() {
     redirect("/dashboard");
   }
 
+  // eslint-disable-next-line react-hooks/purity -- server component, Date.now() is deterministic per request
   const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000);
 
   const recentSightings = await db

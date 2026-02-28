@@ -38,7 +38,7 @@ export default async function AdminSightingsPage() {
   ]);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 page-fade-in">
       <div>
         <h2 className="text-xl font-semibold mb-4">Report Sighting</h2>
         <SightingForm stores={allStores} products={allProducts} />

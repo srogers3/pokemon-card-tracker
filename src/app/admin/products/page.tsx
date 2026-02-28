@@ -21,7 +21,7 @@ export default async function AdminProductsPage() {
     .orderBy(desc(products.createdAt));
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 page-fade-in">
       <div>
         <h2 className="text-xl font-semibold mb-4">Add Product</h2>
         <ProductForm />

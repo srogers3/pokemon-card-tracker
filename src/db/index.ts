@@ -18,7 +18,7 @@ export const db = new Proxy({} as NeonHttpDatabase<typeof schema>, {
     const instance = getDb();
     const value = (instance as unknown as Record<string | symbol, unknown>)[prop];
     if (typeof value === "function") {
-      return (value as Function).bind(instance);
+      return (value as (...args: unknown[]) => unknown).bind(instance);
     }
     return value;
   },

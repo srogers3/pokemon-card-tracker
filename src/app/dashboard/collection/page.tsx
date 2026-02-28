@@ -32,7 +32,7 @@ export default async function CollectionPage() {
   }
 
   return (
-    <div className="container mx-auto py-4 px-4">
+    <div className="container mx-auto py-4 px-4 page-fade-in">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-semibold">Cardboardex</h2>
         <Badge variant="outline" className="text-sm">

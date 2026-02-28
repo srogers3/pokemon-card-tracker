@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { StoreMap } from "./store-map";
 import { getMapPageData } from "@/app/dashboard/map/actions";
 
@@ -17,22 +17,19 @@ export function PersistentMap() {
   const pathname = usePathname();
   const isMapRoute = pathname === "/dashboard/map";
   const [mapData, setMapData] = useState<MapData | null>(null);
-  const [loading, setLoading] = useState(false);
-  const hasInitialized = useRef(false);
+  const [hasInitialized, setHasInitialized] = useState(false);
+  const loading = hasInitialized && !mapData;
 
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID;
 
   // Load map data on first visit to the map route
   useEffect(() => {
-    if (isMapRoute && !hasInitialized.current) {
-      hasInitialized.current = true;
-      setLoading(true);
-      getMapPageData()
-        .then(setMapData)
-        .finally(() => setLoading(false));
+    if (isMapRoute && !hasInitialized) {
+      setHasInitialized(true); // eslint-disable-line react-hooks/set-state-in-effect -- one-time lazy init
+      getMapPageData().then((data) => setMapData(data));
     }
-  }, [isMapRoute]);
+  }, [isMapRoute, hasInitialized]);
 
   // Don't render anything until we've visited the map at least once
   if (!mapData && !isMapRoute) return null;

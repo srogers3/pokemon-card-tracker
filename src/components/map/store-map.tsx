@@ -75,10 +75,10 @@ function MapContent({
     return initialStores;
   });
   const storeDataRef = useRef(storeData);
-  storeDataRef.current = storeData;
+  useEffect(() => { storeDataRef.current = storeData; }, [storeData]);
   const [selectedStore, setSelectedStore] = useState<StoreWithSightings | null>(null);
   const selectedStoreRef = useRef(selectedStore);
-  selectedStoreRef.current = selectedStore;
+  useEffect(() => { selectedStoreRef.current = selectedStore; }, [selectedStore]);
   const [recentlySubmittedId, setRecentlySubmittedId] = useState<string | null>(null);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [gpsLocation, setGpsLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -255,12 +255,13 @@ function MapContent({
       observer.observe(wrapper, { attributes: true, attributeFilter: ["style"] });
     }
     return () => observer.disconnect();
-  }, [map]);
+  }, [map, containerRef]);
 
   useEffect(() => {
     const cached = localStorage.getItem("userLocation");
     if (cached) {
       const parsed = JSON.parse(cached);
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrating from localStorage on mount
       setUserLocation(parsed);
       setGpsLocation(parsed);
       map?.panTo(parsed);

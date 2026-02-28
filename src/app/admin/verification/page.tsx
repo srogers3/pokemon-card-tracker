@@ -38,7 +38,7 @@ export default async function VerificationPage() {
     .orderBy(desc(restockSightings.createdAt));
 
   return (
-    <div>
+    <div className="page-fade-in">
       <h2 className="text-xl font-semibold mb-4">
         Pending Community Tips ({pendingTips.length})
       </h2>
