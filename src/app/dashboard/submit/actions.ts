@@ -115,7 +115,10 @@ export async function submitTip(formData: FormData): Promise<{
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/collection");
 
-  if (autoVerify || isPremium) {
+  // Only show the on-map box opening animation for premium users.
+  // AutoVerify users get their boxes opened in the DB (above) but see them
+  // via the layout modal or collection page instead.
+  if (isPremium) {
     const openings = await getUnviewedOpenings(userId);
     return { opened: true, openings };
   }

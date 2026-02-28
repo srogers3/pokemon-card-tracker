@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { markBoxViewedAction } from "@/app/dashboard/actions";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { markBoxesViewedAction } from "@/app/dashboard/actions";
 
 export type UnboxData = {
   id: string;
@@ -41,8 +41,21 @@ export function UnboxRevealModal({ openings, onComplete }: { openings: UnboxData
   const [currentIndex, setCurrentIndex] = useState(0);
   const [stage, setStage] = useState<AnimStage>("idle");
   const [open, setOpen] = useState(true);
+  const markedViewedRef = useRef(false);
 
   const current = openings[currentIndex];
+
+  // Mark ALL boxes as viewed immediately on mount to prevent the layout modal
+  // from showing the same boxes (double-up bug)
+  useEffect(() => {
+    if (markedViewedRef.current || openings.length === 0) return;
+    markedViewedRef.current = true;
+
+    const boxIds = openings.map((o) => o.id);
+    markBoxesViewedAction(boxIds).catch(() => {
+      // If this fails, user may see boxes again on next page load — acceptable
+    });
+  }, [openings]);
 
   // Auto-advance through animation stages
   useEffect(() => {
@@ -64,13 +77,6 @@ export function UnboxRevealModal({ openings, onComplete }: { openings: UnboxData
   const handleContinue = useCallback(async () => {
     if (stage !== "done") return;
 
-    // Mark current box as viewed — advance even on failure so modal isn't stuck
-    try {
-      await markBoxViewedAction(current.id);
-    } catch {
-      // User will see the box again next visit if this fails
-    }
-
     if (currentIndex < openings.length - 1) {
       setStage("idle");
       setCurrentIndex((i) => i + 1);
@@ -78,7 +84,7 @@ export function UnboxRevealModal({ openings, onComplete }: { openings: UnboxData
       setOpen(false);
       onComplete?.();
     }
-  }, [stage, current, currentIndex, openings.length, onComplete]);
+  }, [stage, currentIndex, openings.length, onComplete]);
 
   if (!open || !current) return null;
 

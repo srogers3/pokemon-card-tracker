@@ -1,7 +1,6 @@
 import { requireUser } from "@/lib/auth";
 import { getUserCollection, getCardboardexCompletion } from "@/lib/boxes";
 import { CREATURE_DATA, TOTAL_CREATURES, getSpriteUrl } from "@/db/creature-data";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { CollectionPendingSection } from "@/components/collection-pending-section";
@@ -15,18 +14,6 @@ export default async function CollectionPage() {
   const openedBoxes = allEggs.filter((e) => e.opened && e.creatureId);
   const pendingBoxes = allEggs.filter((e) => !e.opened);
   const uniqueCaught = getCardboardexCompletion(openedBoxes);
-
-  // Find recent upgrades (opened in last 24h where creature differs from wild creature)
-  const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-  const recentUpgrades = allEggs.filter(
-    (e) =>
-      e.opened &&
-      e.creatureId &&
-      e.wildCreatureId &&
-      e.creatureId !== e.wildCreatureId &&
-      e.openedAt &&
-      new Date(e.openedAt) > oneDayAgo
-  );
 
   // Build a map of caught creatures: creatureId -> { count, shinyCount }
   const caughtMap = new Map<
@@ -60,30 +47,6 @@ export default async function CollectionPage() {
           style={{ width: `${(uniqueCaught / TOTAL_CREATURES) * 100}%` }}
         />
       </div>
-
-      {/* Upgrade notifications */}
-      {recentUpgrades.length > 0 && (
-        <Card className="mb-6 border-amber-400/50 bg-amber-50/50 dark:bg-amber-950/20">
-          <CardContent className="pt-4">
-            <div className="flex flex-col gap-2">
-              {recentUpgrades.map((box) => {
-                const wildCreature = CREATURE_DATA.find((p) => p.id === box.wildCreatureId);
-                const openedCreature = CREATURE_DATA.find((p) => p.id === box.creatureId);
-                if (!wildCreature || !openedCreature) return null;
-                return (
-                  <div key={box.id} className="flex items-center gap-2 text-sm">
-                    <span className="text-amber-500 font-medium">Lucky!</span>
-                    <span>
-                      You got a {openedCreature.name} instead of {wildCreature.name}!
-                    </span>
-                    {box.isShiny && <span>✨</span>}
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Pending boxes */}
       <CollectionPendingSection

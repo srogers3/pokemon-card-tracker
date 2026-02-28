@@ -11,6 +11,11 @@ export async function markBoxViewedAction(boxId: string) {
   await markBoxViewed(user.id, boxId);
 }
 
+export async function markBoxesViewedAction(boxIds: string[]) {
+  const user = await requireUser();
+  await Promise.all(boxIds.map((id) => markBoxViewed(user.id, id)));
+}
+
 export async function getUserBadges(userId: string) {
   return db
     .select({

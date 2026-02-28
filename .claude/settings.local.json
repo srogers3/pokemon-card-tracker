@@ -29,7 +29,8 @@
       "WebFetch(domain:raw.githubusercontent.com)",
       "Bash(npm ls:*)",
       "Bash(npm run dev:*)",
-      "Bash(npx tailwindcss:*)"
+      "Bash(npx tailwindcss:*)",
+      "Bash(grep -rn \"variant=\" /c/git/pokemon-card-tracker/src/components/*.tsx)"
     ]
   }
 }
