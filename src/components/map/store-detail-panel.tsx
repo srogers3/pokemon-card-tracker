@@ -67,12 +67,12 @@ export function StoreDetailPanel({
 
   return (
     <div className={cn(
-      "absolute bottom-0 left-0 right-0 z-10 overflow-y-auto bg-card rounded-t-2xl shadow-lg border-t border-border/50 transition-[max-height] duration-300 ease-in-out",
+      "absolute bottom-0 left-0 right-0 z-10 flex flex-col bg-card rounded-t-2xl shadow-lg border-t border-border/50 transition-[max-height] duration-300 ease-in-out",
       showForm ? "max-h-[70vh]" : "max-h-[40vh]",
       "md:absolute md:right-4 md:bottom-4 md:left-auto md:w-96 md:rounded-2xl md:border md:max-h-[70vh]"
     )}>
       {/* Header */}
-      <div className="sticky top-0 bg-card z-10 p-4 border-b border-border/50 flex items-start justify-between">
+      <div className="shrink-0 bg-card z-10 p-4 border-b border-border/50 flex items-start justify-between rounded-t-2xl">
         <div>
           <h3 className="font-semibold text-lg">{store.name}</h3>
           <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
@@ -85,7 +85,7 @@ export function StoreDetailPanel({
         </Button>
       </div>
 
-      <Tabs defaultValue="store-info" className="flex-1">
+      <Tabs defaultValue="store-info" className="flex-1 overflow-y-auto scrollbar-thin">
         <div className="px-4 pt-2">
           <TabsList className="w-full">
             <TabsTrigger value="store-info" className="flex-1">Store Info</TabsTrigger>
