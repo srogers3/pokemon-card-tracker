@@ -32,9 +32,20 @@ export function MapSightingForm({
 }) {
   const formRef = useRef<HTMLFormElement>(null);
   const [status, setStatus] = useState<string>("");
+  const [productId, setProductId] = useState<string>("");
+  const [error, setError] = useState<string>("");
   const [revealOpenings, setRevealOpenings] = useState<UnboxData[] | null>(null);
 
   async function handleSubmit(formData: FormData) {
+    setError("");
+    if (!status) {
+      setError("Please select a stock status.");
+      return;
+    }
+    if (status === "found" && !productId) {
+      setError("Please select a product.");
+      return;
+    }
     formData.set("storeId", storeId);
     if (userLatitude !== null && userLongitude !== null) {
       formData.set("userLatitude", userLatitude.toString());
@@ -42,6 +53,8 @@ export function MapSightingForm({
     }
     const result = await submitTip(formData);
     formRef.current?.reset();
+    setStatus("");
+    setProductId("");
 
     if (result?.opened && result.openings?.length) {
       setRevealOpenings(result.openings);
@@ -56,9 +69,13 @@ export function MapSightingForm({
     <form ref={formRef} action={handleSubmit} className="space-y-3">
       <h4 className="text-sm font-semibold">Report Sighting</h4>
 
+      {error && (
+        <p className="text-sm text-destructive">{error}</p>
+      )}
+
       <div>
         <Label htmlFor="map-status" className="text-xs">Stock Status</Label>
-        <Select name="status" required value={status} onValueChange={setStatus}>
+        <Select name="status" required value={status} onValueChange={(v) => { setStatus(v); setError(""); }}>
           <SelectTrigger className="h-9">
             <SelectValue placeholder="Select status" />
           </SelectTrigger>
@@ -72,7 +89,7 @@ export function MapSightingForm({
       {status !== "not_found" && (
         <div>
           <Label htmlFor="map-productId" className="text-xs">Product</Label>
-          <Select name="productId" required={status === "found"}>
+          <Select name="productId" required={status === "found"} value={productId} onValueChange={(v) => { setProductId(v); setError(""); }}>
             <SelectTrigger className="h-9">
               <SelectValue placeholder="Select a product" />
             </SelectTrigger>
