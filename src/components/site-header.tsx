@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
@@ -21,8 +21,21 @@ const dashboardLinks = [
 
 export function SiteHeader({ isPremium }: { isPremium?: boolean }) {
   const [open, setOpen] = useState(false);
+  const [sheetMounted, setSheetMounted] = useState(true);
   const pathname = usePathname();
   const isDashboard = pathname?.startsWith("/dashboard");
+
+  // Re-mount sheet and ensure closed after navigation completes
+  useEffect(() => {
+    setSheetMounted(true);
+    setOpen(false);
+  }, [pathname]);
+
+  // Instantly unmount sheet (skip exit animation) when navigating via link
+  const handleNavClick = useCallback(() => {
+    setSheetMounted(false);
+    setOpen(false);
+  }, []);
 
   return (
     <header className="sticky top-0 z-50">
@@ -98,7 +111,7 @@ export function SiteHeader({ isPremium }: { isPremium?: boolean }) {
         </nav>
       </div>
 
-      {isDashboard && (
+      {isDashboard && sheetMounted && (
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetContent side="left" showCloseButton>
             <SheetHeader>
@@ -112,7 +125,7 @@ export function SiteHeader({ isPremium }: { isPremium?: boolean }) {
                   <Link
                     key={link.href}
                     href={link.href}
-                    onClick={() => setOpen(false)}
+                    onClick={handleNavClick}
                     className={cn(
                       "text-sm font-medium px-3 py-2.5 rounded-lg transition-all",
                       isActive
