@@ -1,9 +1,9 @@
 import { requireUser } from "@/lib/auth";
 import { getUserCollection, getCardboardexCompletion } from "@/lib/boxes";
 import { CREATURE_DATA, TOTAL_CREATURES, getSpriteUrl } from "@/db/creature-data";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { CollectionPendingSection } from "@/components/collection-pending-section";
+import { RegionCard } from "@/components/region-card";
 import { getDevOverrides } from "@/lib/dev";
 
 export default async function CollectionPage() {
@@ -20,6 +20,7 @@ export default async function CollectionPage() {
     number,
     { count: number; shinyCount: number }
   >();
+  let totalShiny = 0;
   for (const box of openedBoxes) {
     if (!box.creatureId) continue;
     const existing = caughtMap.get(box.creatureId) ?? {
@@ -27,24 +28,41 @@ export default async function CollectionPage() {
       shinyCount: 0,
     };
     existing.count++;
-    if (box.isShiny) existing.shinyCount++;
+    if (box.isShiny) {
+      existing.shinyCount++;
+      totalShiny++;
+    }
     caughtMap.set(box.creatureId, existing);
+  }
+
+  // Pick up to 3 caught creature IDs for the card preview (first 3 starters if caught, else first caught)
+  const previewIds = [1, 4, 7]
+    .filter((id) => caughtMap.has(id))
+    .slice(0, 3);
+  if (previewIds.length < 3) {
+    for (const [id] of caughtMap) {
+      if (!previewIds.includes(id)) previewIds.push(id);
+      if (previewIds.length >= 3) break;
+    }
   }
 
   return (
     <div className="container mx-auto py-4 px-4 page-fade-in">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold">Cardboardex</h2>
-        <Badge variant="outline" className="text-sm">
-          {uniqueCaught}/{TOTAL_CREATURES} discovered
-        </Badge>
-      </div>
-
-      {/* Progress bar */}
-      <div className="w-full bg-muted rounded-full h-3 mb-6 overflow-hidden">
-        <div
-          className="bg-gradient-to-r from-primary to-accent rounded-full h-3 transition-all"
-          style={{ width: `${(uniqueCaught / TOTAL_CREATURES) * 100}%` }}
+      {/* Region card */}
+      <div className="mb-4">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-lg font-bold tracking-wide uppercase text-foreground/80">
+            Cardboardex
+          </h2>
+          <span className="text-sm font-medium text-muted-foreground">
+            Caught: {openedBoxes.length}
+          </span>
+        </div>
+        <RegionCard
+          uniqueCaught={uniqueCaught}
+          totalCaught={openedBoxes.length}
+          shinyCount={totalShiny}
+          previewCreatureIds={previewIds}
         />
       </div>
 
