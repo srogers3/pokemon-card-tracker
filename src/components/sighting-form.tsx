@@ -5,11 +5,14 @@ import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { groupProductsBySet } from "@/lib/products";
 import { createAdminSighting } from "@/app/admin/sightings/actions";
 import type { Store, Product } from "@/db/schema";
 
@@ -44,10 +47,15 @@ export function SightingForm({
             <SelectValue placeholder="Select product" />
           </SelectTrigger>
           <SelectContent>
-            {products.map((product) => (
-              <SelectItem key={product.id} value={product.id}>
-                {product.name}
-              </SelectItem>
+            {groupProductsBySet(products).map((group) => (
+              <SelectGroup key={group.setName}>
+                <SelectLabel>{group.setName}</SelectLabel>
+                {group.products.map((product) => (
+                  <SelectItem key={product.id} value={product.id}>
+                    {product.name}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
             ))}
           </SelectContent>
         </Select>
