@@ -1,6 +1,6 @@
 import { requireUser } from "@/lib/auth";
 import { getUserCollection, getCardboardexCompletion } from "@/lib/boxes";
-import { TOTAL_CREATURES } from "@/db/creature-data";
+import { MAX_SPRITE_ID } from "@/db/creature-data";
 import { getUserBadges } from "./actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -123,16 +123,16 @@ export default async function DashboardPage() {
         <CardContent>
           <div className="flex items-center justify-between text-sm mb-2">
             <span className="text-muted-foreground">
-              {uniqueCaught}/{TOTAL_CREATURES} discovered
+              {uniqueCaught}/{MAX_SPRITE_ID} discovered
             </span>
             <span className="font-medium">
-              {Math.round((uniqueCaught / TOTAL_CREATURES) * 100)}%
+              {Math.round((uniqueCaught / MAX_SPRITE_ID) * 100)}%
             </span>
           </div>
           <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
             <div
               className="bg-gradient-to-r from-primary to-accent rounded-full h-3 transition-all"
-              style={{ width: `${(uniqueCaught / TOTAL_CREATURES) * 100}%` }}
+              style={{ width: `${(uniqueCaught / MAX_SPRITE_ID) * 100}%` }}
             />
           </div>
         </CardContent>

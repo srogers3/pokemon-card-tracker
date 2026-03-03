@@ -1,6 +1,6 @@
 import { requireUser } from "@/lib/auth";
 import { getUserCollection, getCardboardexCompletion } from "@/lib/boxes";
-import { CREATURE_DATA, TOTAL_CREATURES, getSpriteUrl } from "@/db/creature-data";
+import { CREATURE_DATA, MAX_SPRITE_ID, getSpriteUrl } from "@/db/creature-data";
 import { cn } from "@/lib/utils";
 import { CollectionPendingSection } from "@/components/collection-pending-section";
 import { RegionCard } from "@/components/region-card";
@@ -79,7 +79,7 @@ export default async function CollectionPage() {
 
       {/* Cardboardex grid */}
       <div className="grid grid-cols-4 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-2">
-        {CREATURE_DATA.sort((a, b) => a.id - b.id).map((creature) => {
+        {CREATURE_DATA.filter((c) => c.id <= MAX_SPRITE_ID).sort((a, b) => a.id - b.id).map((creature) => {
           const caught = caughtMap.get(creature.id);
           const isCaught = !!caught;
 

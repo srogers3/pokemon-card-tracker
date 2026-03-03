@@ -182,7 +182,7 @@ export const CREATURE_DATA: CreatureEntry[] = [
 
 export const TOTAL_CREATURES = CREATURE_DATA.length;
 
-export const MAX_SPRITE_ID = 20;
+export const MAX_SPRITE_ID = 30;
 
 export function getSpriteUrl(creatureId: number): string {
   return `/sprites/${creatureId}.png`;

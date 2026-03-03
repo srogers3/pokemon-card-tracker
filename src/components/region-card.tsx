@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { getSpriteUrl, TOTAL_CREATURES } from "@/db/creature-data";
+import { getSpriteUrl, MAX_SPRITE_ID } from "@/db/creature-data";
 import { ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -20,8 +20,8 @@ export function RegionCard({
   previewCreatureIds,
 }: RegionCardProps) {
   const [expanded, setExpanded] = useState(false);
-  const isComplete = uniqueCaught >= TOTAL_CREATURES;
-  const progressPercent = Math.round((uniqueCaught / TOTAL_CREATURES) * 100);
+  const isComplete = uniqueCaught >= MAX_SPRITE_ID;
+  const progressPercent = Math.round((uniqueCaught / MAX_SPRITE_ID) * 100);
 
   return (
     <button
@@ -58,7 +58,7 @@ export function RegionCard({
               </div>
             )}
             <p className="text-sm font-bold text-foreground/70 mt-1">
-              {uniqueCaught} / {TOTAL_CREATURES}
+              {uniqueCaught} / {MAX_SPRITE_ID}
             </p>
             {/* Shimmer medal */}
             <div className="region-circle-shimmer rounded-full p-[2px] w-8 h-8 mt-1.5">

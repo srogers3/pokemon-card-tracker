@@ -12,7 +12,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCurrentUser } from "@/lib/auth";
-import { TOTAL_CREATURES } from "@/db/creature-data";
+import { MAX_SPRITE_ID } from "@/db/creature-data";
 import { cn } from "@/lib/utils";
 
 const BADGE_LABELS: Record<string, string> = {
@@ -125,7 +125,7 @@ export default async function LeaderboardPage() {
             <div>
               <span className="text-muted-foreground">Cardboardex:</span>{" "}
               <span className="font-medium">
-                {cardboardexMap.get(currentUser.id) ?? 0}/{TOTAL_CREATURES}
+                {cardboardexMap.get(currentUser.id) ?? 0}/{MAX_SPRITE_ID}
               </span>
             </div>
           </CardContent>
@@ -176,7 +176,7 @@ export default async function LeaderboardPage() {
                     </Badge>
                   ))}
                 </TableCell>
-                <TableCell>{cardboardexMap.get(reporter.id) ?? 0}/{TOTAL_CREATURES}</TableCell>
+                <TableCell>{cardboardexMap.get(reporter.id) ?? 0}/{MAX_SPRITE_ID}</TableCell>
               </TableRow>
             );
           })}
