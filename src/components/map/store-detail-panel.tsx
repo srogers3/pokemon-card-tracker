@@ -67,7 +67,7 @@ export function StoreDetailPanel({
 
   return (
     <div className={cn(
-      "absolute bottom-0 left-0 right-0 z-10 flex flex-col rounded-t-2xl shadow-lg border-t border-border/50 transition-[max-height] duration-300 ease-in-out",
+      "absolute bottom-0 left-0 right-0 z-10 flex flex-col rounded-t-2xl shadow-lg border-t border-border/50",
       showForm ? "max-h-[70vh]" : "max-h-[40vh]",
       "md:absolute md:right-4 md:bottom-4 md:left-auto md:w-96 md:rounded-2xl md:border md:max-h-[70vh]"
     )}>

@@ -50,9 +50,7 @@ export const clusterRenderer: Renderer = {
       width: ${size}px;
       height: ${size}px;
       border-radius: 50%;
-      background-color: rgba(255, 255, 255, 0.6);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+      background-color: rgba(255, 255, 255, 0.9);
       border: 3px solid #2DD4BF;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), inset 0 1px 2px rgba(255, 255, 255, 0.5);
       display: flex;
@@ -60,7 +58,7 @@ export const clusterRenderer: Renderer = {
       justify-content: center;
       position: relative;
       cursor: pointer;
-      animation: marker-fade-in 0.4s ease-out both, float 3s ease-in-out infinite;
+      animation: marker-fade-in 0.4s ease-out both;
     `;
 
     // Ball icon
