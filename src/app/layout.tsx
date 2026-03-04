@@ -1,10 +1,14 @@
 import { ClerkProvider } from "@clerk/nextjs";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Nunito } from "next/font/google";
 import { DevPanel } from "@/components/dev-panel";
 import "./globals.css";
 
 const nunito = Nunito({ subsets: ["latin"] });
+
+export const viewport: Viewport = {
+  viewportFit: "cover",
+};
 
 export const metadata: Metadata = {
   title: "Cardboard Tracker",

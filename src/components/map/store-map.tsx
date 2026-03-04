@@ -420,7 +420,7 @@ function MapContent({
           onClick={handleRecenter}
           variant="outline"
           size="sm"
-          className="absolute bottom-4 right-4 z-10 bg-card/90 backdrop-blur-sm shadow-md"
+          className="absolute bottom-[calc(1rem+env(safe-area-inset-bottom))] right-4 z-10 bg-card/90 backdrop-blur-sm shadow-md"
         >
           <LocateFixed className="w-4 h-4" />
         </Button>
@@ -456,7 +456,7 @@ export function StoreMap({ initialStores, products, apiKey, mapId, userBoxes }: 
   const containerRef = useRef<HTMLDivElement>(null);
   return (
     <APIProvider apiKey={apiKey}>
-      <div ref={containerRef} className="relative w-full h-[calc(100dvh-64px)]">
+      <div ref={containerRef} className="relative w-full h-[calc(100dvh-64px-env(safe-area-inset-top))]">
         <MapContent initialStores={initialStores} products={products} mapId={mapId} userBoxes={userBoxes} containerRef={containerRef} />
       </div>
     </APIProvider>

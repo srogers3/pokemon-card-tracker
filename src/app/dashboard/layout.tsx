@@ -16,7 +16,7 @@ export default async function DashboardLayout({
   const isPremium = user.subscriptionTier === "premium" || devOverrides.simulatePremium;
 
   return (
-    <div className="min-h-screen flex flex-col overflow-x-hidden">
+    <div className="min-h-[100dvh] flex flex-col overflow-x-hidden">
       <SiteHeader isPremium={isPremium} />
       <div className="flex-1">
         <PersistentMap />

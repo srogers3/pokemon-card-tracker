@@ -38,7 +38,7 @@ export function SiteHeader({ isPremium }: { isPremium?: boolean }) {
   }, []);
 
   return (
-    <header className="sticky top-0 z-50">
+    <header className="sticky top-0 z-50 pt-[env(safe-area-inset-top)]">
       {/* Frosted glass backdrop — extends below header and masks overflow for soft blur edge */}
       <div
         className="pointer-events-none absolute inset-0 h-[200%] backdrop-blur-xl"
