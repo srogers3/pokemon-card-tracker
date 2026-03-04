@@ -90,78 +90,70 @@ export const ClusterMarker = memo(function ClusterMarker({
           cursor: "pointer",
         }}
       >
-        {/* Scale wrapper: pure transform-only layer for Safari GPU compositing */}
+        {/* Scale wrapper: GPU-accelerated scale via inline transform — no competing animations */}
         <div
           style={{
+            position: "relative",
             width: 48,
             height: 48,
-            transform: `scale3d(${scale}, ${scale}, 1)`,
+            borderRadius: "50%",
+            background: isRainbow
+              ? "conic-gradient(from 0deg, #ef4444, #f59e0b, #22c55e, #3b82f6, #a855f7, #ef4444)"
+              : "transparent",
+            padding: isRainbow ? 3 : 0,
+            transform: `scale(${scale}) translateZ(0)`,
             transition: "transform 200ms ease",
             willChange: "transform",
-            backfaceVisibility: "hidden",
-            WebkitBackfaceVisibility: "hidden",
-          } as React.CSSProperties}
+          }}
         >
-          {/* Visual wrapper: static styles only — no changes during transition */}
           <div
             style={{
-              position: "relative",
-              width: 48,
-              height: 48,
+              width: "100%",
+              height: "100%",
               borderRadius: "50%",
-              background: isRainbow
-                ? "conic-gradient(from 0deg, #ef4444, #f59e0b, #22c55e, #3b82f6, #a855f7, #ef4444)"
-                : "transparent",
-              padding: isRainbow ? 3 : 0,
+              backgroundColor: "rgba(255, 255, 255, 0.9)",
+              border: isRainbow ? "none" : `3px solid ${borderColor}`,
+              boxShadow: isSelected
+                ? "0 0 8px rgba(0,0,0,0.3), 0 2px 8px rgba(0, 0, 0, 0.1), inset 0 1px 2px rgba(255, 255, 255, 0.5)"
+                : "0 2px 8px rgba(0, 0, 0, 0.1), inset 0 1px 2px rgba(255, 255, 255, 0.5)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              overflow: "hidden",
             }}
           >
-            <div
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={spriteUrl}
+              alt={spriteName}
+              width={32}
+              height={32}
               style={{
-                width: "100%",
-                height: "100%",
-                borderRadius: "50%",
-                backgroundColor: "rgba(255, 255, 255, 0.9)",
-                border: isRainbow ? "none" : `3px solid ${borderColor}`,
-                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1), inset 0 1px 2px rgba(255, 255, 255, 0.5)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                overflow: "hidden",
+                imageRendering: "pixelated",
+                transition: animPhase !== "idle"
+                  ? "transform 300ms ease-in-out"
+                  : undefined,
+                transform: animPhase === "shrink" ? "scale(0)" : animPhase === "grow" ? "scale(1)" : undefined,
+              }}
+            />
+          </div>
+          {starTier && !isSelected && (
+            <span
+              style={{
+                position: "absolute",
+                top: -4,
+                right: -4,
+                fontSize: 14,
+                color: STAR_COLORS[starTier],
+                WebkitTextStroke: "1px white",
+                textShadow: "0 1px 2px rgba(0,0,0,0.3)",
+                zIndex: 10,
+                lineHeight: 1,
               }}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={spriteUrl}
-                alt={spriteName}
-                width={32}
-                height={32}
-                style={{
-                  imageRendering: "pixelated",
-                  transition: animPhase !== "idle"
-                    ? "transform 300ms ease-in-out"
-                    : undefined,
-                  transform: animPhase === "shrink" ? "scale(0)" : animPhase === "grow" ? "scale(1)" : undefined,
-                }}
-              />
-            </div>
-            {starTier && !isSelected && (
-              <span
-                style={{
-                  position: "absolute",
-                  top: -4,
-                  right: -4,
-                  fontSize: 14,
-                  color: STAR_COLORS[starTier],
-                  WebkitTextStroke: "1px white",
-                  textShadow: "0 1px 2px rgba(0,0,0,0.3)",
-                  zIndex: 10,
-                  lineHeight: 1,
-                }}
-              >
-                ★
-              </span>
-            )}
-          </div>
+              ★
+            </span>
+          )}
         </div>
       </div>
     </AdvancedMarker>
