@@ -10,13 +10,13 @@ import { revalidatePath } from "next/cache";
 async function geocodeZip(
   zipCode: string
 ): Promise<{ lat: number; lng: number } | null> {
-  // Use the free US Census Bureau geocoder — no API key needed
-  const url = `https://geocoding.geo.census.gov/geocoder/locations/onelineaddress?address=${encodeURIComponent(zipCode)}&benchmark=Public_AR_Current&format=json`;
-  const res = await fetch(url);
+  // Zippopotam.us — free zip code geocoder, no API key needed
+  const res = await fetch(`https://api.zippopotam.us/us/${encodeURIComponent(zipCode)}`);
+  if (!res.ok) return null;
   const data = await res.json();
-  const match = data?.result?.addressMatches?.[0];
-  if (match) {
-    return { lat: match.coordinates.y, lng: match.coordinates.x };
+  const place = data?.places?.[0];
+  if (place) {
+    return { lat: parseFloat(place.latitude), lng: parseFloat(place.longitude) };
   }
   return null;
 }
