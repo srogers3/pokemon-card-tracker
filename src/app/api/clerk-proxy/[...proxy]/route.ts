@@ -1,12 +1,16 @@
 import { NextRequest } from "next/server";
 
-const CLERK_FAPI = process.env.CLERK_FAPI_URL || "https://frontend-api.clerk.services";
+// Clerk's shared Frontend API — routes to correct instance via Host header
+const CLERK_FAPI = "https://frontend-api.clerk.services";
+// The domain Clerk expects in the Host header
+const CLERK_FAPI_HOST = "clerk.cardboard-tracker.com";
 
 function corsHeaders(origin: string | null) {
   return {
     "Access-Control-Allow-Origin": origin || "*",
     "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
-    "Access-Control-Allow-Headers": "content-type, authorization, x-clerk-publishable-key, x-clerk-secret-key, x-clerk-js-version",
+    "Access-Control-Allow-Headers":
+      "content-type, authorization, x-clerk-publishable-key, x-clerk-secret-key, x-clerk-js-version",
     "Access-Control-Allow-Credentials": "true",
   };
 }
@@ -23,7 +27,9 @@ async function handler(req: NextRequest) {
   const target = `${CLERK_FAPI}${path}${search}`;
 
   const headers = new Headers(req.headers);
-  headers.delete("host");
+  // Set Host to the Clerk FAPI domain so Clerk routes to the correct instance
+  headers.set("host", CLERK_FAPI_HOST);
+  headers.set("x-forwarded-host", CLERK_FAPI_HOST);
 
   const res = await fetch(target, {
     method: req.method,
