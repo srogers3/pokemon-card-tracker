@@ -148,7 +148,11 @@ export const alertPreferences = pgTable("alert_preferences", {
     .notNull()
     .references(() => users.id),
   productId: uuid("product_id").references(() => products.id),
-  region: text("region"), // matches store.locationLabel
+  region: text("region"), // legacy
+  zipCode: text("zip_code"),
+  latitude: doublePrecision("latitude"),
+  longitude: doublePrecision("longitude"),
+  radiusMiles: integer("radius_miles").default(25),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

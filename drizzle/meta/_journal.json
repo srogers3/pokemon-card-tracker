@@ -64,6 +64,13 @@
       "when": 1772100000000,
       "tag": "0008_add_release_date",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1772721836551,
+      "tag": "0009_yellow_rick_jones",
+      "breakpoints": true
     }
   ]
 }
