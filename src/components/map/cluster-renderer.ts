@@ -1,37 +1,39 @@
 import { type Cluster, type Renderer } from "@googlemaps/markerclusterer";
 
-// Marker SVGs as data URIs — simple flat ball designs
-const MARKER_BALL_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <circle cx="50" cy="50" r="48" fill="#fff" stroke="#333" stroke-width="4"/>
-  <path d="M2,50 H98" stroke="#333" stroke-width="4"/>
-  <path d="M2,50 A48,48 0 0,0 98,50" fill="#ff1a1a"/>
-  <circle cx="50" cy="50" r="12" fill="#fff" stroke="#333" stroke-width="4"/>
-  <circle cx="50" cy="50" r="6" fill="#fff" stroke="#333" stroke-width="2"/>
+// Marker SVGs as data URIs — cardboard box designs
+const SMALL_BOX_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <rect x="15" y="38" width="70" height="48" rx="3" fill="#C4956A" stroke="#8B6914" stroke-width="3"/>
+  <rect x="15" y="38" width="70" height="12" rx="2" fill="#D4A574" stroke="#8B6914" stroke-width="3"/>
+  <line x1="50" y1="38" x2="50" y2="86" stroke="#8B6914" stroke-width="2" stroke-dasharray="4,3"/>
+  <path d="M15,38 L25,18 H75 L85,38" fill="#D4A574" stroke="#8B6914" stroke-width="3"/>
+  <path d="M50,38 L45,18" stroke="#8B6914" stroke-width="2"/>
+  <path d="M50,38 L55,18" stroke="#8B6914" stroke-width="2"/>
 </svg>`;
 
-const GREAT_BALL_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <circle cx="50" cy="50" r="48" fill="#fff" stroke="#333" stroke-width="4"/>
-  <path d="M2,50 H98" stroke="#333" stroke-width="4"/>
-  <path d="M2,50 A48,48 0 0,0 98,50" fill="#3b82f6"/>
-  <path d="M8,42 H92" stroke="#ff1a1a" stroke-width="6"/>
-  <circle cx="50" cy="50" r="12" fill="#fff" stroke="#333" stroke-width="4"/>
-  <circle cx="50" cy="50" r="6" fill="#fff" stroke="#333" stroke-width="2"/>
+const MEDIUM_BOX_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <rect x="15" y="38" width="70" height="48" rx="3" fill="#C4956A" stroke="#8B6914" stroke-width="3"/>
+  <rect x="15" y="38" width="70" height="12" rx="2" fill="#D4A574" stroke="#8B6914" stroke-width="3"/>
+  <line x1="50" y1="38" x2="50" y2="86" stroke="#8B6914" stroke-width="2" stroke-dasharray="4,3"/>
+  <path d="M15,38 L25,18 H75 L85,38" fill="#D4A574" stroke="#8B6914" stroke-width="3"/>
+  <path d="M50,38 L45,18" stroke="#8B6914" stroke-width="2"/>
+  <path d="M50,38 L55,18" stroke="#8B6914" stroke-width="2"/>
+  <text x="50" y="72" text-anchor="middle" font-size="18" font-weight="bold" fill="#8B6914">✦</text>
 </svg>`;
 
-const ULTRA_BALL_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <circle cx="50" cy="50" r="48" fill="#fff" stroke="#333" stroke-width="4"/>
-  <path d="M2,50 H98" stroke="#333" stroke-width="4"/>
-  <path d="M2,50 A48,48 0 0,0 98,50" fill="#1a1a1a"/>
-  <path d="M6,44 H94" stroke="#f59e0b" stroke-width="5"/>
-  <path d="M10,36 H90" stroke="#f59e0b" stroke-width="3"/>
-  <circle cx="50" cy="50" r="12" fill="#fff" stroke="#333" stroke-width="4"/>
-  <circle cx="50" cy="50" r="6" fill="#f59e0b" stroke="#333" stroke-width="2"/>
+const LARGE_BOX_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <rect x="15" y="38" width="70" height="48" rx="3" fill="#C4956A" stroke="#8B6914" stroke-width="3"/>
+  <rect x="15" y="38" width="70" height="12" rx="2" fill="#D4A574" stroke="#8B6914" stroke-width="3"/>
+  <line x1="50" y1="38" x2="50" y2="86" stroke="#8B6914" stroke-width="2" stroke-dasharray="4,3"/>
+  <path d="M15,38 L25,18 H75 L85,38" fill="#D4A574" stroke="#8B6914" stroke-width="3"/>
+  <path d="M50,38 L45,18" stroke="#8B6914" stroke-width="2"/>
+  <path d="M50,38 L55,18" stroke="#8B6914" stroke-width="2"/>
+  <text x="50" y="72" text-anchor="middle" font-size="18" font-weight="bold" fill="#F59E0B">★</text>
 </svg>`;
 
-function getBallSvg(count: number): string {
-  if (count >= 6) return ULTRA_BALL_SVG;
-  if (count >= 3) return GREAT_BALL_SVG;
-  return MARKER_BALL_SVG;
+function getBoxSvg(count: number): string {
+  if (count >= 6) return LARGE_BOX_SVG;
+  if (count >= 3) return MEDIUM_BOX_SVG;
+  return SMALL_BOX_SVG;
 }
 
 function svgToDataUri(svg: string): string {
@@ -40,7 +42,7 @@ function svgToDataUri(svg: string): string {
 
 export const clusterRenderer: Renderer = {
   render({ count, position }: Cluster, _stats: unknown, map: google.maps.Map) {
-    const ballSvg = getBallSvg(count);
+    const ballSvg = getBoxSvg(count);
     const size = 56;
     const iconSize = 28;
 

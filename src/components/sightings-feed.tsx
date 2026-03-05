@@ -35,8 +35,8 @@ export function SightingsFeed({ isPremium }: { isPremium: boolean }) {
 
   // Fetch global sightings on mount
   useEffect(() => {
-    getRecentSightings(isPremium).then(setRecentSightings);
-  }, [isPremium]);
+    getRecentSightings().then(setRecentSightings);
+  }, []);
 
   // Request GPS and fetch nearby sightings
   useEffect(() => {
@@ -45,7 +45,7 @@ export function SightingsFeed({ isPremium }: { isPremium: boolean }) {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         setLocationStatus("granted");
-        getNearbySightings(position.coords.latitude, position.coords.longitude, isPremium)
+        getNearbySightings(position.coords.latitude, position.coords.longitude)
           .then(setNearbySightings);
       },
       () => {
@@ -53,7 +53,7 @@ export function SightingsFeed({ isPremium }: { isPremium: boolean }) {
       }
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only run on mount
-  }, [isPremium]);
+  }, []);
 
   function retryLocation() {
     setLocationStatus("loading");
@@ -61,7 +61,7 @@ export function SightingsFeed({ isPremium }: { isPremium: boolean }) {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         setLocationStatus("granted");
-        getNearbySightings(position.coords.latitude, position.coords.longitude, isPremium)
+        getNearbySightings(position.coords.latitude, position.coords.longitude)
           .then(setNearbySightings);
       },
       () => {
@@ -122,6 +122,7 @@ export function SightingsFeed({ isPremium }: { isPremium: boolean }) {
         </TabsContent>
       </Tabs>
 
+      {/* TODO: re-enable when premium tier launches
       {!isPremium && (
         <Card className="card-hover border-gold/30 gold-glow">
           <CardHeader>
@@ -135,6 +136,7 @@ export function SightingsFeed({ isPremium }: { isPremium: boolean }) {
           </CardContent>
         </Card>
       )}
+      */}
     </div>
   );
 }
