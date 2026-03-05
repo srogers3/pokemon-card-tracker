@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// Clerk's shared Frontend API — routes to correct instance via Host header
-const CLERK_FAPI = "https://frontend-api.clerk.services";
 const CLERK_FAPI_HOST = "clerk.cardboard-tracker.com";
 
 function corsHeaders(origin: string | null) {
@@ -23,12 +21,13 @@ async function handler(req: NextRequest) {
 
   const path = req.nextUrl.pathname.replace("/api/clerk-proxy", "");
   const search = req.nextUrl.search;
-  const target = `${CLERK_FAPI}${path}${search}`;
+
+  // Use Clerk's FAPI host directly via HTTP on the server side
+  // Vercel serverless can resolve this even if client-side SSL fails
+  const target = `https://${CLERK_FAPI_HOST}${path}${search}`;
 
   // Only forward specific headers Clerk needs
-  const proxyHeaders: Record<string, string> = {
-    host: CLERK_FAPI_HOST,
-  };
+  const proxyHeaders: Record<string, string> = {};
 
   const contentType = req.headers.get("content-type");
   if (contentType) proxyHeaders["content-type"] = contentType;
@@ -44,6 +43,14 @@ async function handler(req: NextRequest) {
 
   const clerkJsVersion = req.headers.get("x-clerk-js-version");
   if (clerkJsVersion) proxyHeaders["x-clerk-js-version"] = clerkJsVersion;
+
+  // Forward user-agent for Clerk analytics
+  const userAgent = req.headers.get("user-agent");
+  if (userAgent) proxyHeaders["user-agent"] = userAgent;
+
+  // Pass the original IP
+  const forwardedFor = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip");
+  if (forwardedFor) proxyHeaders["x-forwarded-for"] = forwardedFor;
 
   try {
     const res = await fetch(target, {
@@ -65,9 +72,10 @@ async function handler(req: NextRequest) {
       headers: responseHeaders,
     });
   } catch (err) {
-    console.error("[clerk-proxy] Fetch error:", err);
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("[clerk-proxy] Fetch error for", target, ":", message);
     return NextResponse.json(
-      { error: "Proxy fetch failed" },
+      { error: "Proxy fetch failed", detail: message },
       { status: 502, headers: corsHeaders(origin) }
     );
   }
