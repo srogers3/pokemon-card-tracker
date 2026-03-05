@@ -21,7 +21,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClerkProvider proxyUrl={process.env.NEXT_PUBLIC_CLERK_PROXY_URL}>
+    <ClerkProvider
+      proxyUrl={process.env.NEXT_PUBLIC_CLERK_PROXY_URL}
+      clerkJSUrl="https://cdn.clerk.com/npm/@clerk/clerk-js@5/dist/clerk.browser.js"
+    >
       <html lang="en">
         <body className={nunito.className}>
           {children}
