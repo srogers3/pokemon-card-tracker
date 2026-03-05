@@ -10,22 +10,14 @@ import { revalidatePath } from "next/cache";
 async function geocodeZip(
   zipCode: string
 ): Promise<{ lat: number; lng: number } | null> {
-  const apiKey =
-    process.env.GOOGLE_MAPS_API_KEY ??
-    process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-  if (!apiKey) {
-    console.error("[geocodeZip] No Google Maps API key found");
-    return null;
-  }
-
-  const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(zipCode)}&key=${apiKey}`;
+  // Use the free US Census Bureau geocoder — no API key needed
+  const url = `https://geocoding.geo.census.gov/geocoder/locations/onelineaddress?address=${encodeURIComponent(zipCode)}&benchmark=Public_AR_Current&format=json`;
   const res = await fetch(url);
   const data = await res.json();
-  if (data.status === "OK" && data.results[0]) {
-    const { lat, lng } = data.results[0].geometry.location;
-    return { lat, lng };
+  const match = data?.result?.addressMatches?.[0];
+  if (match) {
+    return { lat: match.coordinates.y, lng: match.coordinates.x };
   }
-  console.error("[geocodeZip] Geocoding failed:", data.status, data.error_message);
   return null;
 }
 
