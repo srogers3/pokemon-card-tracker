@@ -2,7 +2,7 @@ import { config } from "dotenv";
 config({ path: ".env.local" });
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
-import { stores, products, restockSightings, reporterBadges, creatureCatalog, creatureBoxes } from "./schema";
+import { products, creatureCatalog } from "./schema";
 import { CREATURE_DATA, getSpriteUrl } from "./creature-data";
 
 const sql = neon(process.env.DATABASE_URL!);
@@ -10,99 +10,50 @@ const db = drizzle(sql);
 
 // --- Seed Data ---
 
-const ncStores = [
-  { name: "Target", locationLabel: "Charlotte, NC", storeType: "big_box" as const, specificLocation: "Northlake Mall area" },
-  { name: "Target", locationLabel: "Raleigh, NC", storeType: "big_box" as const, specificLocation: "Triangle Town Center" },
-  { name: "Walmart", locationLabel: "Charlotte, NC", storeType: "big_box" as const, specificLocation: "Independence Blvd" },
-  { name: "Walmart", locationLabel: "Durham, NC", storeType: "big_box" as const, specificLocation: "South Square" },
-  { name: "Walmart", locationLabel: "Greensboro, NC", storeType: "big_box" as const, specificLocation: "Wendover Ave" },
-  { name: "GameStop", locationLabel: "Raleigh, NC", storeType: "lgs" as const, specificLocation: "Crabtree Valley Mall" },
-  { name: "GameStop", locationLabel: "Charlotte, NC", storeType: "lgs" as const, specificLocation: "SouthPark Mall" },
-  { name: "Barnes & Noble", locationLabel: "Cary, NC", storeType: "other" as const, specificLocation: "Crossroads Plaza" },
-  { name: "Walgreens", locationLabel: "Wilmington, NC", storeType: "pharmacy" as const, specificLocation: "Market St" },
-  { name: "Harris Teeter", locationLabel: "Chapel Hill, NC", storeType: "grocery" as const, specificLocation: "Meadowmont Village" },
-];
-
 const cardProducts = [
-  { name: "Prismatic Evolutions ETB", setName: "Prismatic Evolutions", productType: "etb" as const, releaseDate: new Date("2025-02-07") },
-  { name: "Prismatic Evolutions Booster Bundle", setName: "Prismatic Evolutions", productType: "blister" as const, releaseDate: new Date("2025-02-07") },
-  { name: "Surging Sparks Booster Box", setName: "Surging Sparks", productType: "booster_box" as const, releaseDate: new Date("2024-11-08") },
+  // 2024 sets
+  { name: "Twilight Masquerade ETB", setName: "Twilight Masquerade", productType: "etb" as const, releaseDate: new Date("2024-05-24") },
+  { name: "Twilight Masquerade Booster Box", setName: "Twilight Masquerade", productType: "booster_box" as const, releaseDate: new Date("2024-05-24") },
+  { name: "Shrouded Fable ETB", setName: "Shrouded Fable", productType: "etb" as const, releaseDate: new Date("2024-08-02") },
+  { name: "Shrouded Fable Booster Box", setName: "Shrouded Fable", productType: "booster_box" as const, releaseDate: new Date("2024-08-02") },
+  { name: "Stellar Crown ETB", setName: "Stellar Crown", productType: "etb" as const, releaseDate: new Date("2024-09-13") },
+  { name: "Stellar Crown Booster Box", setName: "Stellar Crown", productType: "booster_box" as const, releaseDate: new Date("2024-09-13") },
   { name: "Surging Sparks ETB", setName: "Surging Sparks", productType: "etb" as const, releaseDate: new Date("2024-11-08") },
-  { name: "Prismatic Evolutions Tin", setName: "Prismatic Evolutions", productType: "tin" as const, releaseDate: new Date("2025-02-07") },
+  { name: "Surging Sparks Booster Box", setName: "Surging Sparks", productType: "booster_box" as const, releaseDate: new Date("2024-11-08") },
+  // 2025 sets
+  { name: "Prismatic Evolutions ETB", setName: "Prismatic Evolutions", productType: "etb" as const, releaseDate: new Date("2025-01-17") },
+  { name: "Prismatic Evolutions Booster Bundle", setName: "Prismatic Evolutions", productType: "blister" as const, releaseDate: new Date("2025-01-17") },
+  { name: "Prismatic Evolutions Tin", setName: "Prismatic Evolutions", productType: "tin" as const, releaseDate: new Date("2025-01-17") },
   { name: "Journey Together ETB", setName: "Journey Together", productType: "etb" as const, releaseDate: new Date("2025-03-28") },
   { name: "Journey Together Booster Box", setName: "Journey Together", productType: "booster_box" as const, releaseDate: new Date("2025-03-28") },
-  { name: "Scarlet & Violet Ultra Premium Collection", setName: "Scarlet & Violet", productType: "collection_box" as const, releaseDate: new Date("2023-03-31") },
-  { name: "Twilight Masquerade ETB", setName: "Twilight Masquerade", productType: "etb" as const, releaseDate: new Date("2024-05-24") },
-  { name: "Paldean Fates ETB", setName: "Paldean Fates", productType: "etb" as const, releaseDate: new Date("2024-01-26") },
-];
-
-function randomItem<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
-
-function randomDate(daysBack: number): Date {
-  const now = Date.now();
-  const offset = Math.random() * daysBack * 24 * 60 * 60 * 1000;
-  return new Date(now - offset);
-}
-
-function randomStatus(): "found" | "not_found" {
-  return Math.random() > 0.4 ? "found" : "not_found";
-}
-
-const notes = [
-  "Saw about 5 on the shelf",
-  "Only 2 left, going fast",
-  "Full restock, endcap display",
-  "Behind the customer service counter",
-  "Just put out by vendor",
-  "Mixed in with other TCG products",
-  "Locked case, ask associate",
-  null,
-  null,
-  null, // weighted toward no notes
+  { name: "Destined Rivals ETB", setName: "Destined Rivals", productType: "etb" as const, releaseDate: new Date("2025-05-30") },
+  { name: "Destined Rivals Booster Box", setName: "Destined Rivals", productType: "booster_box" as const, releaseDate: new Date("2025-05-30") },
+  { name: "Black Bolt ETB", setName: "Black Bolt", productType: "etb" as const, releaseDate: new Date("2025-07-18") },
+  { name: "Black Bolt Booster Box", setName: "Black Bolt", productType: "booster_box" as const, releaseDate: new Date("2025-07-18") },
+  { name: "White Flare ETB", setName: "White Flare", productType: "etb" as const, releaseDate: new Date("2025-07-18") },
+  { name: "White Flare Booster Box", setName: "White Flare", productType: "booster_box" as const, releaseDate: new Date("2025-07-18") },
+  { name: "Mega Evolution ETB", setName: "Mega Evolution", productType: "etb" as const, releaseDate: new Date("2025-09-26") },
+  { name: "Mega Evolution Booster Box", setName: "Mega Evolution", productType: "booster_box" as const, releaseDate: new Date("2025-09-26") },
+  { name: "Phantasmal Flames ETB", setName: "Phantasmal Flames", productType: "etb" as const, releaseDate: new Date("2025-11-14") },
+  { name: "Phantasmal Flames Booster Box", setName: "Phantasmal Flames", productType: "booster_box" as const, releaseDate: new Date("2025-11-14") },
+  // 2026 sets
+  { name: "Ascended Heroes ETB", setName: "Mega Evolution: Ascended Heroes", productType: "etb" as const, releaseDate: new Date("2026-01-30") },
+  { name: "Ascended Heroes Booster Box", setName: "Mega Evolution: Ascended Heroes", productType: "booster_box" as const, releaseDate: new Date("2026-01-30") },
+  { name: "Perfect Order ETB", setName: "Mega Evolution: Perfect Order", productType: "etb" as const, releaseDate: new Date("2026-03-27") },
+  { name: "Perfect Order Booster Box", setName: "Mega Evolution: Perfect Order", productType: "booster_box" as const, releaseDate: new Date("2026-03-27") },
 ];
 
 // --- Run Seed ---
 
 async function seed() {
-  console.log("Clearing existing seed data...");
-  await db.delete(reporterBadges);
-  await db.delete(creatureBoxes);
-  await db.delete(restockSightings);
-  await db.delete(stores);
+  // Only seed products and creature catalog — never wipe stores, sightings, or user data
+  console.log("Replacing products...");
   await db.delete(products);
-  await db.delete(creatureCatalog);
-
-  console.log("Inserting stores...");
-  const insertedStores = await db.insert(stores).values(ncStores).returning();
-  console.log(`  ${insertedStores.length} stores added`);
-
-  console.log("Inserting products...");
   const insertedProducts = await db.insert(products).values(cardProducts).returning();
   console.log(`  ${insertedProducts.length} products added`);
 
-  console.log("Generating sightings...");
-  const sightings = [];
-  for (let i = 0; i < 30; i++) {
-    const store = randomItem(insertedStores);
-    const product = randomItem(insertedProducts);
-    sightings.push({
-      storeId: store.id,
-      productId: product.id,
-      reportedBy: "seed-script",
-      sightedAt: randomDate(14),
-      status: randomStatus(),
-      verified: true,
-      source: Math.random() > 0.3 ? "admin" as const : "community" as const,
-      notes: randomItem(notes),
-    });
-  }
-
-  const insertedSightings = await db.insert(restockSightings).values(sightings).returning();
-  console.log(`  ${insertedSightings.length} sightings added`);
-
-  console.log("Inserting creature catalog...");
+  console.log("Replacing creature catalog...");
+  await db.delete(creatureCatalog);
   const creatureRows = CREATURE_DATA.map((c) => ({
     id: c.id,
     name: c.name,
@@ -114,7 +65,7 @@ async function seed() {
   await db.insert(creatureCatalog).values(creatureRows);
   console.log(`  ${creatureRows.length} creatures added`);
 
-  console.log("Done! Seed data ready.");
+  console.log("Done! Seed data ready (stores, sightings, and user data preserved).");
 }
 
 seed().catch((err) => {
