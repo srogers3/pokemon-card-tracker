@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { CREATURE_DATA, TOTAL_CREATURES } from "@/db/creature-data";
+import { requireAdmin } from "@/lib/auth";
 
 const TYPE_COLORS: Record<string, string> = {
   shelf: "#f59e0b",
@@ -13,7 +14,8 @@ const TYPE_COLORS: Record<string, string> = {
   corporate: "#8b5cf6",
 };
 
-export default function SpritesReviewPage() {
+export default async function SpritesReviewPage() {
+  await requireAdmin();
   // Check which PNGs exist on disk
   const spritesDir = path.join(process.cwd(), "public", "sprites");
   const existingFiles = new Set(
