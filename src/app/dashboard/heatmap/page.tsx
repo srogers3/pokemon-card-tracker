@@ -1,4 +1,4 @@
-import { requirePremium } from "@/lib/auth";
+import { requireUser } from "@/lib/auth";
 import { db } from "@/db";
 import { restockPatterns, stores } from "@/db/schema";
 import { eq } from "drizzle-orm";
@@ -6,7 +6,7 @@ import { HeatmapGrid } from "@/components/heatmap-grid";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default async function HeatmapPage() {
-  await requirePremium();
+  await requireUser();
 
   // Get all patterns grouped by store
   const patterns = await db

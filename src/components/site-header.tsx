@@ -15,8 +15,8 @@ const dashboardLinks = [
   { href: "/dashboard/sightings", label: "Sightings" },
   { href: "/dashboard/collection", label: "Collection" },
   { href: "/dashboard/leaderboard", label: "Leaderboard" },
-  { href: "/dashboard/heatmap", label: "Heatmap", premium: true },
-  { href: "/dashboard/alerts", label: "Alerts", premium: true },
+  { href: "/dashboard/heatmap", label: "Heatmap" },
+  { href: "/dashboard/alerts", label: "Alerts" },
 ];
 
 export function SiteHeader({ isPremium }: { isPremium?: boolean }) {

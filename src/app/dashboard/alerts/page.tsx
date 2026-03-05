@@ -1,4 +1,4 @@
-import { requirePremium } from "@/lib/auth";
+import { requireUser } from "@/lib/auth";
 import { db } from "@/db";
 import { alertPreferences, products, stores } from "@/db/schema";
 import { eq } from "drizzle-orm";
@@ -23,7 +23,7 @@ import {
 import { createAlert, deleteAlert } from "./actions";
 
 export default async function AlertsPage() {
-  await requirePremium();
+  await requireUser();
   const { userId } = await auth();
 
   const [allProducts, alerts, allStores] = await Promise.all([

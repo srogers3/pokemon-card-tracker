@@ -2,13 +2,13 @@
 
 import { db } from "@/db";
 import { alertPreferences } from "@/db/schema";
-import { requirePremium } from "@/lib/auth";
+import { requireUser } from "@/lib/auth";
 import { auth } from "@clerk/nextjs/server";
 import { eq, and } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 export async function createAlert(formData: FormData) {
-  await requirePremium();
+  await requireUser();
   const { userId } = await auth();
 
   await db.insert(alertPreferences).values({
@@ -21,7 +21,7 @@ export async function createAlert(formData: FormData) {
 }
 
 export async function deleteAlert(id: string) {
-  await requirePremium();
+  await requireUser();
   const { userId } = await auth();
 
   await db
