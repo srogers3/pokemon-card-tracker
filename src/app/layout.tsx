@@ -23,7 +23,7 @@ export default function RootLayout({
   return (
     <ClerkProvider
       proxyUrl={process.env.NEXT_PUBLIC_CLERK_PROXY_URL}
-      clerkJSUrl="https://cdn.clerk.com/npm/@clerk/clerk-js@5/dist/clerk.browser.js"
+      clerkJSUrl="https://unpkg.com/@clerk/clerk-js@5/dist/clerk.browser.js"
     >
       <html lang="en">
         <body className={nunito.className}>
