@@ -10,17 +10,22 @@ import { revalidatePath } from "next/cache";
 async function geocodeZip(
   zipCode: string
 ): Promise<{ lat: number; lng: number } | null> {
-  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-  if (!apiKey) return null;
+  const apiKey =
+    process.env.GOOGLE_MAPS_API_KEY ??
+    process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+  if (!apiKey) {
+    console.error("[geocodeZip] No Google Maps API key found");
+    return null;
+  }
 
-  const res = await fetch(
-    `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(zipCode)}&components=country:US&key=${apiKey}`
-  );
+  const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(zipCode)}&key=${apiKey}`;
+  const res = await fetch(url);
   const data = await res.json();
   if (data.status === "OK" && data.results[0]) {
     const { lat, lng } = data.results[0].geometry.location;
     return { lat, lng };
   }
+  console.error("[geocodeZip] Geocoding failed:", data.status, data.error_message);
   return null;
 }
 
