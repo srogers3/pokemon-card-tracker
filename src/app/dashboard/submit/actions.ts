@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { restockSightings, stores } from "@/db/schema";
+import { restockSightings, stores, products } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { getDistanceMeters, MAX_TIP_DISTANCE_M } from "@/lib/utils";
 import { requireUser } from "@/lib/auth";
@@ -18,6 +18,7 @@ import {
 import { createBox, openBox, getUnviewedOpenings, markBoxViewed } from "@/lib/boxes";
 import { getWildCreature, getStarTier } from "@/lib/wild-creature";
 import { getDevOverrides } from "@/lib/dev";
+import { sendMatchingAlerts } from "@/lib/alerts";
 
 export async function submitTip(formData: FormData): Promise<{
   opened: boolean;
@@ -110,6 +111,35 @@ export async function submitTip(formData: FormData): Promise<{
 
   if (autoVerify) {
     await adjustTrustScore(userId, 5);
+
+    // Send alert emails to matching subscribers
+    const [store] = await db
+      .select({ name: stores.name, locationLabel: stores.locationLabel })
+      .from(stores)
+      .where(eq(stores.id, storeId))
+      .limit(1);
+
+    let productName: string | null = null;
+    if (productId) {
+      const [product] = await db
+        .select({ name: products.name })
+        .from(products)
+        .where(eq(products.id, productId))
+        .limit(1);
+      productName = product?.name ?? null;
+    }
+
+    if (store) {
+      // Fire and forget — don't block the response on email delivery
+      sendMatchingAlerts({
+        storeId,
+        productId,
+        productName,
+        storeName: store.name,
+        storeLocation: store.locationLabel,
+        status: formData.get("status") as string,
+      }).catch((err) => console.error("[submitTip] Alert email error:", err));
+    }
   }
 
   revalidatePath("/dashboard");
