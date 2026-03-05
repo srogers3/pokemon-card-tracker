@@ -101,7 +101,51 @@ export default async function LandingPage() {
           </section>
         )}
 
-        {/* Features */}
+        {/* Beta Notice */}
+        <section className="py-16 px-4">
+          <div className="container mx-auto max-w-2xl text-center">
+            <Badge variant="outline" className="mb-4 text-sm px-3 py-1">Beta</Badge>
+            <h2 className="text-2xl font-bold mb-4">
+              We&apos;re Just Getting Started
+            </h2>
+            <p className="text-muted-foreground mb-6">
+              Cardboard Tracker is currently in beta. Help us build the best restock tracker
+              by reporting sightings at your local stores. All features are free while we&apos;re
+              in beta — jump in and let us know what you think!
+            </p>
+            <div className="grid gap-4 md:grid-cols-3 text-left mt-8">
+              <Card className="card-hover border-l-4 border-l-psychic">
+                <CardHeader>
+                  <CardTitle className="text-base">Report Sightings</CardTitle>
+                </CardHeader>
+                <CardContent className="text-sm text-muted-foreground">
+                  Spot trading cards at a store? Report it to help the community
+                  know where to find them.
+                </CardContent>
+              </Card>
+              <Card className="card-hover border-l-4 border-l-water">
+                <CardHeader>
+                  <CardTitle className="text-base">Explore the Map</CardTitle>
+                </CardHeader>
+                <CardContent className="text-sm text-muted-foreground">
+                  See nearby stores, recent reports, and discover creatures hiding
+                  at each location.
+                </CardContent>
+              </Card>
+              <Card className="card-hover border-l-4 border-l-grass">
+                <CardHeader>
+                  <CardTitle className="text-base">Collect Creatures</CardTitle>
+                </CardHeader>
+                <CardContent className="text-sm text-muted-foreground">
+                  Every report earns you a mystery box. Open them to discover and
+                  collect unique cardboard creatures.
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </section>
+
+        {/* TODO: re-enable when premium tier launches
         <section className="py-16 px-4">
           <div className="container mx-auto max-w-4xl">
             <h2 className="text-2xl font-bold mb-8 text-center">
@@ -138,6 +182,7 @@ export default async function LandingPage() {
             </div>
           </div>
         </section>
+        */}
       </main>
     </div>
   );
