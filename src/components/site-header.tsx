@@ -57,7 +57,6 @@ export function SiteHeader({ isPremium }: { isPremium?: boolean }) {
           {isDashboard && (
             <nav className="hidden md:flex items-center gap-1">
               {dashboardLinks.map((link) => {
-                if (link.premium && !isPremium) return null;
                 const isActive = pathname === link.href;
                 return (
                   <Link
@@ -119,7 +118,6 @@ export function SiteHeader({ isPremium }: { isPremium?: boolean }) {
             </SheetHeader>
             <nav className="flex flex-col gap-1 px-4">
               {dashboardLinks.map((link) => {
-                if (link.premium && !isPremium) return null;
                 const isActive = pathname === link.href;
                 return (
                   <Link
