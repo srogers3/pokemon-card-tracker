@@ -1,8 +1,7 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 // Clerk's shared Frontend API — routes to correct instance via Host header
 const CLERK_FAPI = "https://frontend-api.clerk.services";
-// The domain Clerk expects in the Host header
 const CLERK_FAPI_HOST = "clerk.cardboard-tracker.com";
 
 function corsHeaders(origin: string | null) {
@@ -10,7 +9,7 @@ function corsHeaders(origin: string | null) {
     "Access-Control-Allow-Origin": origin || "*",
     "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
     "Access-Control-Allow-Headers":
-      "content-type, authorization, x-clerk-publishable-key, x-clerk-secret-key, x-clerk-js-version",
+      "content-type, authorization, x-clerk-publishable-key, x-clerk-secret-key, x-clerk-js-version, cookie",
     "Access-Control-Allow-Credentials": "true",
   };
 }
@@ -26,29 +25,52 @@ async function handler(req: NextRequest) {
   const search = req.nextUrl.search;
   const target = `${CLERK_FAPI}${path}${search}`;
 
-  const headers = new Headers(req.headers);
-  // Set Host to the Clerk FAPI domain so Clerk routes to the correct instance
-  headers.set("host", CLERK_FAPI_HOST);
-  headers.set("x-forwarded-host", CLERK_FAPI_HOST);
+  // Only forward specific headers Clerk needs
+  const proxyHeaders: Record<string, string> = {
+    host: CLERK_FAPI_HOST,
+  };
 
-  const res = await fetch(target, {
-    method: req.method,
-    headers,
-    body: req.method !== "GET" && req.method !== "HEAD" ? req.body : undefined,
-    // @ts-expect-error duplex is needed for streaming request bodies
-    duplex: "half",
-  });
+  const contentType = req.headers.get("content-type");
+  if (contentType) proxyHeaders["content-type"] = contentType;
 
-  const responseHeaders = new Headers(res.headers);
-  responseHeaders.delete("content-encoding");
-  Object.entries(corsHeaders(origin)).forEach(([key, value]) => {
-    responseHeaders.set(key, value);
-  });
+  const authorization = req.headers.get("authorization");
+  if (authorization) proxyHeaders["authorization"] = authorization;
 
-  return new Response(res.body, {
-    status: res.status,
-    headers: responseHeaders,
-  });
+  const cookie = req.headers.get("cookie");
+  if (cookie) proxyHeaders["cookie"] = cookie;
+
+  const clerkPk = req.headers.get("x-clerk-publishable-key");
+  if (clerkPk) proxyHeaders["x-clerk-publishable-key"] = clerkPk;
+
+  const clerkJsVersion = req.headers.get("x-clerk-js-version");
+  if (clerkJsVersion) proxyHeaders["x-clerk-js-version"] = clerkJsVersion;
+
+  try {
+    const res = await fetch(target, {
+      method: req.method,
+      headers: proxyHeaders,
+      body: req.method !== "GET" && req.method !== "HEAD" ? await req.arrayBuffer() : undefined,
+    });
+
+    const body = await res.arrayBuffer();
+    const responseHeaders = new Headers(res.headers);
+    responseHeaders.delete("content-encoding");
+    responseHeaders.delete("transfer-encoding");
+    Object.entries(corsHeaders(origin)).forEach(([key, value]) => {
+      responseHeaders.set(key, value);
+    });
+
+    return new Response(body, {
+      status: res.status,
+      headers: responseHeaders,
+    });
+  } catch (err) {
+    console.error("[clerk-proxy] Fetch error:", err);
+    return NextResponse.json(
+      { error: "Proxy fetch failed" },
+      { status: 502, headers: corsHeaders(origin) }
+    );
+  }
 }
 
 export const GET = handler;
