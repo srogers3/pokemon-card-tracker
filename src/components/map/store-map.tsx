@@ -61,7 +61,6 @@ function MapContent({
   const map = useMap();
   const apiIsLoaded = useApiIsLoaded();
   const [storeData, setStoreData] = useState<StoreWithSightings[]>(() => {
-    console.log("[StoreMap] Initial stores loaded:", initialStores.length);
     // console.table(
     //   initialStores.map((s) => ({
     //     id: s.store.id,
@@ -222,16 +221,6 @@ function MapContent({
           }
         }
         if (added.length > 0) {
-          console.log(`[StoreMap] Discovered ${added.length} new stores near (${lat.toFixed(4)}, ${lng.toFixed(4)}):`);
-          console.table(
-            added.map((s) => ({
-              id: s.id,
-              name: s.name,
-              lat: s.latitude,
-              lng: s.longitude,
-              location: s.locationLabel,
-            }))
-          );
         }
         return Array.from(existing.values());
       });
