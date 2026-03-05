@@ -9,7 +9,7 @@ function getResend() {
   return _resend;
 }
 
-const f = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
+const f = "Helvetica, Arial, sans-serif";
 
 export async function sendRestockAlert({
   to,
