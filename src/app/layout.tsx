@@ -1,4 +1,5 @@
 import { ClerkProvider } from "@clerk/nextjs";
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
 import { Nunito } from "next/font/google";
 import { DevPanel } from "@/components/dev-panel";
@@ -26,6 +27,7 @@ export default function RootLayout({
         <body className={nunito.className}>
           {children}
           {process.env.NODE_ENV === "development" && <DevPanel />}
+          <Analytics />
         </body>
       </html>
     </ClerkProvider>
